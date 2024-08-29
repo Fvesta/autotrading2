@@ -1,0 +1,20 @@
+
+QComboBox {{
+    color: {QTMATERIAL_SECONDARYTEXTCOLOR}
+}}
+
+QLineEdit {{
+    color: {QTMATERIAL_SECONDARYTEXTCOLOR}
+}}
+
+QComboBox QAbstractItemView {{
+    color: {comboItemColor};
+}}
+
+
+
+.delete_btn {{
+    background-color: {redColor};
+    color: {QTMATERIAL_SECONDARYTEXTCOLOR};
+    border-color: {redColor};
+}}

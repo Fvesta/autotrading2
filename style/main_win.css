@@ -1,0 +1,25 @@
+
+QPushButton {{
+    color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+    background-color: #31363b;
+    border: 2px solid {QTMATERIAL_SECONDARYLIGHTCOLOR};
+    border-radius: 4px;
+    height: 32px;
+}}
+
+QTableView {{
+    background-color: rgb(35, 38, 41); 
+    border: 1px solid #232629;
+    border-radius: 4px;
+}}
+
+QTableView {{
+    alternate-background-color: #31363b;
+}}
+  
+
+
+
+.grid-pushbtn {{
+    padding: 10;
+}}
