@@ -3,17 +3,23 @@ from qt_material import QtStyleTools
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import QObject, QEvent, QTimer
 
+from core.global_state import GlobalState
 from style.colors import colors
 from style.utils import setTableSizeSameHor
 
 class ResizeEventFilter(QObject):
     def eventFilter(self, ui, event):
+        gstate = GlobalState()
+        account_dict = gstate.getState("account_dict")
         name = ui.objectName()
         
         if event.type() == QEvent.Resize:
             if name == "main_win":
-                # setTableSizeSameHor(ui.tableWidget)
-                pass
+                accounts = account_dict.keys()
+                for accno in accounts:
+                    balanceTable = getattr(ui, f"_{accno}_balanceTable")
+                    setTableSizeSameHor(balanceTable)
+                
         
         return super(ResizeEventFilter, self).eventFilter(ui, event)
     

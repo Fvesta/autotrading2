@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import *
-from PySide2.QtCore import QTimer, Signal, Qt, QObject
+from PySide2.QtCore import QTimer, Signal, QObject
 
 from core.account import Account
 from core.api import API
@@ -35,7 +35,12 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         self.update.connect(self.updateStates)
 
     def afterSetting(self):
-        pass
+        accounts = self.account_dict.keys()
+        
+        for accno in accounts:
+            balanceTable = getattr(self.ui, f"_{accno}_balanceTable")
+            setTableSizeSameHor(balanceTable)
+            setTableSizeSameVer(balanceTable)
     
     def show(self):
         
@@ -48,24 +53,14 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         self.login()
         
         self.getAccountInfo()
-        # newAccInfo(self.ui, "123")
         
-        # verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        accounts = self.account_dict.keys()
+        for accno in accounts:
+            newAccInfo(self.ui, accno)
+        
+        verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        # self.ui.verticalLayout_3.addItem(verticalSpacer)
-        
-        # tbData = [
-        #     ["예탁자산", "당월실현손익", "당일실현손익"],
-        #     ["1000", "1000", "1000"],
-        #     ["총매입가", "총평가금", "수익률"],
-        #     ["1000", "1000", "1000"]
-        # ]
-        # for i in range(len(tbData)):
-        #     for j in range(3):
-        #         item = QTableWidgetItem(str(tbData[i][j]))
-        #         item.setTextAlignment(Qt.AlignCenter)
-        #         self.ui.tableWidget.setItem(i, j, item)
-                
+        self.ui.verticalLayout_3.addItem(verticalSpacer)
     
         self.ui.show()
         
@@ -90,14 +85,7 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         
         account_dict = {}
         for acc_no in acc_list:
-            account_dict[acc_no] = Account(self.api, acc_no) 
-        
-        for acc in account_dict.values():
-            acc.comboBoxSet = {
-                "condCombo1": "선택안됨",
-                "condCombo2": "선택안됨",
-                "condCombo3": "선택안됨",
-            }
+            account_dict[acc_no] = Account(acc_no) 
             
         self.setUserName(user_name)
         self.setUserId(user_id)
