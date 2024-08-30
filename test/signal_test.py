@@ -37,12 +37,14 @@ def on_event_connect(errcode):
         print("Connected!")
     
     loop.exit()
+    ocx.disconnect(signal_map["onEventConnect"], on_event_connect)
 
-ocx.disconnect(signal_map["onEventConnect"], on_event_connect)
-ocx.connect(signal_map, on_event_connect)
+ocx.connect(signal_map["onEventConnect"], on_event_connect)
 
 comm_connect()
 
+acc = ocx.dynamicCall("GetLoginInfo(const QString&)", "ACCNO")
+print(acc)
 
 def get_stock_info(code):
     rqname = "get_stock_info"
