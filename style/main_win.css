@@ -1,10 +1,10 @@
 
 QPushButton {{
-    color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+    color: rgba(77, 208, 225, 0.8);
     background-color: #31363b;
-    border: 2px solid {QTMATERIAL_SECONDARYLIGHTCOLOR};
+    border: 1px solid rgba(77, 208, 225, 0.8);
     border-radius: 4px;
-    height: 32px;
+    height: 20px;
 }}
 
 QTableView {{
@@ -16,10 +16,8 @@ QTableView {{
 QTableView {{
     alternate-background-color: #31363b;
 }}
-  
 
-
-
-.grid-pushbtn {{
-    padding: 10;
+.auto_btn {{
+    color: rgba(77, 208, 225, 0.8);
 }}
+  

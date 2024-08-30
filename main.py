@@ -4,7 +4,7 @@ from PySide2.QtAxContainer import QAxWidget
 
 from core.api import API
 from core.kiwoom import Kiwoom
-from windows.main_win import MainWin
+from windows.main_win.main_win import MainWin
 from qt_material import apply_stylesheet
 
 if __name__ == "__main__":
