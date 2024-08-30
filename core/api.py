@@ -23,3 +23,15 @@ class API(UseGlobal):
     
         return login_success
     
+    def getLoginInfo(self):
+        stock_name = self.kiwoom.getMasterCodeName("005930")
+        conn = self.kiwoom.getConnectState()
+        acc_count = self.kiwoom.getLoginInfo("ACCOUNT_CNT")
+        acc_total = self.kiwoom.getLoginInfo("ACCNO")
+        acc_list = acc_total.split(";")[:-1]
+        
+        user_id = self.kiwoom.getLoginInfo("USER_ID")
+        user_name = self.kiwoom.getLoginInfo("USER_NAME")
+        
+        return [acc_list, user_id, user_name]
+    

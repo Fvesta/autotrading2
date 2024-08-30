@@ -5,3 +5,15 @@ class Kiwoom:
     # Login
     def commConnect(self):
         self.ocx.dynamicCall("CommConnect()")
+        
+    def getLoginInfo(self, tag):
+        ret = self.ocx.dynamicCall("GetLoginInfo(const QString&)", tag)
+        return ret
+    
+    def getMasterCodeName(self, stock_code):
+        ret = self.ocx.dynamicCall("GetMasterCodeName(const QString&)", stock_code)
+        return ret 
+    
+    def getConnectState(self):
+        ret = self.ocx.dynamicCall("GetConnectState()")
+        return ret

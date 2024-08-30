@@ -1,6 +1,7 @@
 import sys
 from PySide2.QtWidgets import *
-from PySide2.QtAxContainer import QAxWidget 
+from PySide2.QtAxContainer import QAxWidget
+import win32com.client
 
 from core.api import API
 from core.kiwoom import Kiwoom
@@ -9,7 +10,8 @@ from qt_material import apply_stylesheet
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    ocx = QAxWidget("KHOPENAPI.KHOpenAPICtrl.1")
+    # ocx = QAxWidget("KHOPENAPI.KHOpenAPICtrl.1")
+    ocx = win32com.client.Dispatch("KHOPENAPI.KHOpenAPICtrl.1")
 
     kiwoom = Kiwoom(ocx)
     api = API(kiwoom)
