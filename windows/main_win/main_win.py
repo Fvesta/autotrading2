@@ -3,10 +3,10 @@ from PySide2.QtCore import QTimer, Signal, QObject
 
 from core.account import Account
 from core.api import API
-from core.callback_handler import CallbackHandler
-from core.errors import LoginFailedException
+from core.errors import ErrorCode
 from core.global_state import UseGlobal
 from core.logger import logger
+from core.stock import Stock
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.main_win.acc_info import newAccInfo
 from windows.win_abs import WindowAbs
@@ -20,8 +20,6 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         UseGlobal.__init__(self)
         
         self.api = API()
-        
-        self.callback_handler = CallbackHandler()
         
         self.initSetting()
         
@@ -44,14 +42,20 @@ class MainWin(WindowAbs, UseGlobal, QObject):
     
     def show(self):
         
+        # Register States, add events
         self.stateReg()
         self.updateStates()
         self.eventReg()
         
-        self.callback_handler.watch()
+        # Login
+        if isinstance(self.login(), ErrorCode):
+            self.ui.show()
+            return
         
-        self.login()
-        
+        # Get market stocks list
+        self.getMarketStocks()
+
+        # Account setting
         self.getAccountInfo()
         
         accounts = self.account_dict.keys()
@@ -61,6 +65,15 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.ui.verticalLayout_3.addItem(verticalSpacer)
+        
+        # Get account balance
+        for accno in accounts:
+            acc_bal_info = self.api.sendTr("계좌평가현황요청", [accno, "", None, None])
+            
+            if isinstance(acc_bal_info, ErrorCode):
+                logger.warning("Can't load account balance info")
+                
+            # Set account init states
     
         self.ui.show()
         
@@ -70,15 +83,26 @@ class MainWin(WindowAbs, UseGlobal, QObject):
     def login(self):
         login_success = self.api.login()
         
-        try:
-            if login_success:
-                self.setIsLogin(True)
-                logger.debug("로그인에 성공했습니다")
-            else:
-                raise LoginFailedException
-        except LoginFailedException as e:
+        if isinstance(login_success, ErrorCode):
             self.setIsLogin(False)
-            logger.error(e)
+            logger.error("로그인에 실패했습니다")
+            return ErrorCode.OP_ERROR
+        
+        self.setIsLogin(True)
+        logger.debug("로그인에 성공했습니다")
+        return 0
+    
+    def getMarketStocks(self):
+        kospi_list = self.api.getCodeListByMarket('kospi')
+        kosdaq_list = self.api.getCodeListByMarket('kosdaq')
+        
+        for stockcode in kospi_list:
+            stockname = self.api.getStockName(stockcode)
+            self.gstate.kospi_stocks[stockcode] = Stock(stockcode, stockname)
+            
+        for stockcode in kosdaq_list:
+            stockname = self.api.getStockName(stockcode)
+            self.gstate.kosdaq_stocks[stockcode] = Stock(stockcode, stockname)
             
     def getAccountInfo(self):
         acc_list, user_id, user_name = self.api.getLoginInfo()
@@ -90,3 +114,4 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         self.setUserName(user_name)
         self.setUserId(user_id)
         self.setAccountDict(account_dict)
+        

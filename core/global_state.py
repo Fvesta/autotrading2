@@ -2,6 +2,7 @@ from functools import partial
 from PySide2.QtCore import QEventLoop, QTimer
 
 from core.logger import logger
+from core.wait_timer import WaitTimer
 
 class UseGlobal:
     def __init__(self):
@@ -32,10 +33,19 @@ class GlobalState:
         self._state["is_login"] = False
         self._state["account_dict"] = {}
         
+        # Market stocks
+        self.kospi_stocks = {}
+        self.kosdaq_stocks = {}
         
         # Loop block
-        self._eventloop = {}
+        self._eventloop = {
+            "tr_loop": QEventLoop()
+        }
         self._return = {}
+        
+        # Tr request wait timer
+        self.tr_timer = WaitTimer("tr_timer", 300, lambda: self.__quitEventLoop("tr_loop"))
+        
         
         self.initialized = True
         
@@ -101,3 +111,15 @@ class GlobalState:
     
     def getState(self, key):
         return self._state[key]
+    
+    ############################################
+    # Kiwoom limit dealing
+    ############################################
+    
+    def __quitEventLoop(self, key):
+        try:
+            event_loop = self._eventloop[key]
+        
+            event_loop.quit()
+        except:
+            logger.debug("Eventloop not executing")

@@ -77,6 +77,9 @@ class Logger:
     def debug(self, message):
         self.base_logger.debug(message)
         
+    def warning(self, message):
+        self.base_logger.warning(message)
+        
     # file debug, file error
     def info(self, message):
         self.base_logger.info(message)
