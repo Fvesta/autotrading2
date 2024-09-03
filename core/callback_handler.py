@@ -1,9 +1,11 @@
 from PySide2.QtCore import SIGNAL
+from PySide2.QtAxContainer import QAxWidget
 
+from core.constants import TR_RETURN_MAP
 from core.scr_manager import scr_manager
 from core.api import API
 from core.global_state import UseGlobal
-from core.util_func import isStock
+from core.utils.utils import isStock
 
 signal_map = {
     "OnEventConnect": SIGNAL("OnEventConnect(int)"),
@@ -14,7 +16,7 @@ class CallbackHandler(UseGlobal):
     def __init__(self):
         super().__init__()
         self.api = API()
-        self.ocx = self.api.ocx
+        self.ocx: QAxWidget = self.api.ocx
         
     def watch(self):
         self.eventReg()
@@ -35,10 +37,10 @@ class CallbackHandler(UseGlobal):
         scr_manager.deAct(scrno)
         
         if rqname == "계좌평가현황요청":
-            single_data = self.api.getData(rqname, trcode, record, ["추정예탁자산", "당월투자손익", "당일투자손익", "D+2추정예수금"])
-            multi_data = self.api.getData(rqname, trcode, record, ["종목코드", "종목명", "보유수량", "평균단가", "매입금액", "현재가", "평가금액", "손익율"], True)
+            single_data = self.api.getData(rqname, trcode, record, TR_RETURN_MAP["계좌평가현황요청"]["single"])
+            multi_data = self.api.getData(rqname, trcode, record, TR_RETURN_MAP["계좌평가현황요청"]["multi"], True)
         
-            filtered_multi_data = list(filter(lambda row_data: isStock(row_data[0]), multi_data))
+            filtered_multi_data = list(filter(lambda row_data: isStock(row_data.get("종목코드")), multi_data))
             
             ret_data = {
                 "single": single_data,

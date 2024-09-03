@@ -67,13 +67,9 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         self.ui.verticalLayout_3.addItem(verticalSpacer)
         
         # Get account balance
-        for accno in accounts:
-            acc_bal_info = self.api.sendTr("계좌평가현황요청", [accno, "", None, None])
-            
-            if isinstance(acc_bal_info, ErrorCode):
-                logger.warning("Can't load account balance info")
-                
-            # Set account init states
+        for accno, acc in self.account_dict.items():
+            acc.reqAccInfo()
+            self.updateBalTable(accno)
     
         self.ui.show()
         
@@ -115,3 +111,21 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         self.setUserId(user_id)
         self.setAccountDict(account_dict)
         
+    def updateBalTable(self, accno):
+        acc: Account = self.account_dict[accno]
+        
+        table: QTableWidget = getattr(self.ui, f"_{accno}_balanceTable")
+        item1_0 = table.item(1, 0)
+        item1_1 = table.item(1, 1)
+        item1_2 = table.item(1, 2)
+        item3_0 = table.item(3, 0)
+        item3_1 = table.item(3, 1)
+        item3_2 = table.item(3, 2)
+        
+        item1_0.setText(str(acc.total_amount))
+        item1_1.setText(str(acc.month_income))
+        item1_2.setText(str(acc.today_income))
+        
+        item3_0.setText(str(acc.getTotalBuyAmount()))
+        item3_1.setText(str(acc.getTotalCurAmount()))
+        item3_2.setText(str(acc.getTotalIncomeRate()))

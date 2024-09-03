@@ -2,13 +2,14 @@ import os
 from qt_material import QtStyleTools
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import QObject, QEvent, QTimer
+from PySide2.QtWidgets import QMainWindow
 
 from core.global_state import GlobalState
 from style.colors import colors
 from style.utils import setTableSizeSameHor
 
 class ResizeEventFilter(QObject):
-    def eventFilter(self, ui, event):
+    def eventFilter(self, ui: QMainWindow, event):
         gstate = GlobalState()
         account_dict = gstate.getState("account_dict")
         name = ui.objectName()

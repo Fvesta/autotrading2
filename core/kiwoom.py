@@ -1,10 +1,10 @@
-from core.logger import logger
 from core.errors import KiwoomException
+from PySide2.QtAxContainer import QAxWidget
 
 
 class Kiwoom:
     def __init__(self, ocx):
-        self.ocx = ocx
+        self.ocx: QAxWidget = ocx
     
     # Login
     def commConnect(self):

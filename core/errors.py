@@ -18,4 +18,11 @@ class KiwoomException(Exception):
             super().__init__(f"Kiwoom error [{errcode}]")
         else:
             super().__init__(f"kiwoom error [{errcode}]: {msg}")
+            
+class StockNotFoundException(Exception):
+    def __init__(self, msg=None):
+        if msg == None:
+            super().__init__(f"Stock is not found in market")
+        else:
+            super().__init__(f"Stock is not found in market: {msg}")
         

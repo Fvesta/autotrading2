@@ -1,5 +1,3 @@
-from core.logger import logger
-from core.errors import ErrorCode
 from core.global_state import GlobalState
 
 def getRegStock(stockcode):

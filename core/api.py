@@ -1,9 +1,10 @@
 from core.constants import TRCODE_DICT
+from core.kiwoom import Kiwoom
 from core.logger import logger
 from core.errors import ErrorCode, KiwoomException
 from core.scr_manager import scr_manager
 from core.global_state import UseGlobal
-from core.util_func import getRegStock
+from core.utils.utils import getRegStock
 
 class API(UseGlobal):
     def __new__(cls, *args, **kwargs):
@@ -17,11 +18,12 @@ class API(UseGlobal):
             return
         
         super().__init__()
-        self.kiwoom = kiwoom
+        self.kiwoom: Kiwoom = kiwoom
         self.ocx = self.kiwoom.ocx
         
         self.initialized = True
-        
+    
+    # Login
     def login(self):
         self.kiwoom.commConnect()
         login_success = self.gstate.lock()
@@ -40,6 +42,7 @@ class API(UseGlobal):
         
         return [acc_list, user_id, user_name]
     
+    # Stocks
     def getStockName(self, stockcode):
         stockcode = getRegStock(stockcode)
         
@@ -55,6 +58,17 @@ class API(UseGlobal):
         
         return self.kiwoom.getCodeListByMarket(marketcode)
 
+    def getStockObj(self, stockcode):
+        stockcode = getRegStock(stockcode)
+        
+        if stockcode in self.gstate.kospi_stocks:
+            return self.gstate.kospi_stocks[stockcode]
+        elif stockcode in self.gstate.kosdaq_stocks:
+            return self.gstate.kosdaq_stocks[stockcode]
+        
+        return None
+        
+    # Tr call
     def sendTr(self, rqname, inputs, next=False):
         trcode = TRCODE_DICT[rqname]
         
@@ -104,18 +118,18 @@ class API(UseGlobal):
                 
             data_list = []
             for row in range(rows):
-                data = []
+                data = {}
                 for info in info_list:
-                    data.append(self.kiwoom.getCommData(rqname, trcode, row, info))
+                    data[info] = self.kiwoom.getCommData(rqname, trcode, row, info)
                     
                 data_list.append(data)
             
             return data_list
         
-        data = []
+        data = {}
         for info in info_list:
-            data.append(self.kiwoom.getCommData(rqname, trcode, 0, info))
-        
+            data[info] = self.kiwoom.getCommData(rqname, trcode, 0, info) 
+
         return data
                 
         
