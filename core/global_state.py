@@ -8,6 +8,9 @@ class UseGlobal:
     def __init__(self):
         self.gstate = GlobalState()
     
+    def updateStates(self, key='', extra={}):
+        pass
+    
     def stateReg(self):
         self.gstate.addConsumer(self)
     
@@ -51,6 +54,9 @@ class GlobalState:
         
         # One direction state binding
         self.consumers = set()
+        
+        # Window state
+        self.activated_windows = {}
     
     ############################################
     # Main eventloop block
@@ -123,3 +129,12 @@ class GlobalState:
             event_loop.quit()
         except:
             logger.debug("Eventloop not executing")
+    
+    ############################################
+    # Window handling
+    ############################################
+            
+    def activateWin(self, win):
+        self.activated_windows[win.name] = win
+        win.show()
+    

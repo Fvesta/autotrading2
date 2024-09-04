@@ -9,6 +9,7 @@ from core.logger import logger
 from core.stock import Stock
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.main_win.acc_info import newAccInfo
+from windows.trade_setting.trade_setting import TradeSettingWin
 from windows.win_abs import WindowAbs
 
 class MainWin(WindowAbs, UseGlobal, QObject):
@@ -58,6 +59,10 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         # Account setting
         self.getAccountInfo()
         
+        # Set title to username
+        self.ui.title.setText(self.user_name)
+        
+        # Add account ui group
         accounts = self.account_dict.keys()
         for accno in accounts:
             newAccInfo(self.ui, accno)
@@ -65,6 +70,9 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.ui.verticalLayout_3.addItem(verticalSpacer)
+        
+        # Add additional btn event
+        self.setBtnEvents()
         
         # Get account balance
         for accno, acc in self.account_dict.items():
@@ -129,3 +137,21 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         item3_0.setText(str(acc.getTotalBuyAmount()))
         item3_1.setText(str(acc.getTotalCurAmount()))
         item3_2.setText(str(acc.getTotalIncomeRate()))
+        
+    def setBtnEvents(self):
+        accounts = self.account_dict.keys()
+        for accno in accounts:
+            setting_btn = getattr(self.ui, f"_{accno}_pushButton")
+            setting_btn.clicked.connect(self.newWindow)
+
+    def newWindow(self):
+        eventObj: QPushButton = self.sender()
+        
+        name = eventObj.objectName()
+        accno = name.split("_")[1]
+        
+        text = eventObj.text()
+        
+        if text == "매매설정":
+            newWin = TradeSettingWin(f"_{accno}_tradeWin", "GUI/trade_setting.ui", "style/trade_setting.css")
+            self.gstate.activateWin(newWin)

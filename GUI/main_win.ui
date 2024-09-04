@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>796</width>
-    <height>791</height>
+    <width>800</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -60,7 +60,7 @@
           <widget class="QWidget" name="widget_4" native="true"/>
          </item>
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="title">
            <property name="font">
             <font>
              <family>Agency FB</family>
@@ -70,7 +70,7 @@
             </font>
            </property>
            <property name="text">
-            <string>권동민</string>
+            <string>title</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -121,8 +121,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>792</width>
-           <height>697</height>
+           <width>796</width>
+           <height>706</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">

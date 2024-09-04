@@ -183,19 +183,17 @@ def newAccInfo(ui, accno):
     horizontalLayout_4.setStretch(0, 5)
     horizontalLayout_4.setStretch(1, 6)
     
-    
     ui.verticalLayout_3.addWidget(accGroup)
     
     ################# retranslateUI ####################
-    ui.label.setText(QCoreApplication.translate("MainWindow", u"\uad8c\ub3d9\ubbfc", None))
-    accGroup.setTitle(QCoreApplication.translate("MainWindow", u"\uacc4\uc88c\ubc88\ud638", None))
-    label_2.setText(QCoreApplication.translate("MainWindow", u"\ub9e4\ub9e4 \uc124\uc815", None))
-    pushButton_7.setText(QCoreApplication.translate("MainWindow", u"\uc2dc\uc791", None))
+    accGroup.setTitle(QCoreApplication.translate("MainWindow", str(accno), None))
+    label_2.setText(QCoreApplication.translate("MainWindow", u"매매 설정", None))
+    pushButton.setText(QCoreApplication.translate("MainWindow", u"매매설정", None))
+    pushButton_2.setText(QCoreApplication.translate("MainWindow", u"거래내역", None))
     pushButton_3.setText(QCoreApplication.translate("MainWindow", u"test", None))
     pushButton_5.setText(QCoreApplication.translate("MainWindow", u"test", None))
     pushButton_6.setText(QCoreApplication.translate("MainWindow", u"test", None))
-    pushButton.setText(QCoreApplication.translate("MainWindow", u"\ub9e4\ub9e4\uc124\uc815", None))
-    pushButton_2.setText(QCoreApplication.translate("MainWindow", u"\uac70\ub798\ub0b4\uc5ed", None))
+    pushButton_7.setText(QCoreApplication.translate("MainWindow", u"시작", None))
 
     __sortingEnabled = balanceTable.isSortingEnabled()
     balanceTable.setSortingEnabled(False)
@@ -221,4 +219,8 @@ def newAccInfo(ui, accno):
     
     makedVars = endLocals - startLocals
     for var in makedVars:
+        varobj = locals()[var]
+        if hasattr(varobj, "setObjectName"):
+            varobj.setObjectName(f"_{accno}_{var}")
         setattr(ui, f"_{accno}_{var}", locals()[var])
+        

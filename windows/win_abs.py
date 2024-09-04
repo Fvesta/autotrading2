@@ -8,7 +8,7 @@ from core.global_state import GlobalState
 from style.colors import colors
 from style.utils import setTableSizeSameHor
 
-class ResizeEventFilter(QObject):
+class UIEventFilter(QObject):
     def eventFilter(self, ui: QMainWindow, event):
         gstate = GlobalState()
         account_dict = gstate.getState("account_dict")
@@ -20,12 +20,16 @@ class ResizeEventFilter(QObject):
                 for accno in accounts:
                     balanceTable = getattr(ui, f"_{accno}_balanceTable")
                     setTableSizeSameHor(balanceTable)
-                
         
-        return super(ResizeEventFilter, self).eventFilter(ui, event)
+        if event.type() == QEvent.Close:
+            if name in gstate.activated_windows:
+                del gstate.activated_windows[name]
+        
+        return super(UIEventFilter, self).eventFilter(ui, event)
     
 class WindowAbs(QtStyleTools):
     def __init__(self, name, ui_path, css_path):
+        self.name = name
         self.ui = QUiLoader().load(ui_path, None)
         self.ui.setObjectName(name)
         self.css_path = css_path
@@ -33,7 +37,7 @@ class WindowAbs(QtStyleTools):
         self.apply_stylesheet(self.ui, "dark_cyan.xml")
         
         # Event setting
-        self.event_filter = ResizeEventFilter(self.ui)
+        self.event_filter = UIEventFilter(self.ui)
         self.ui.installEventFilter(self.event_filter)
     
     def updateStyle(self):
