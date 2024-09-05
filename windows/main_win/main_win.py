@@ -10,7 +10,7 @@ from core.stock import Stock
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.main_win.acc_info import newAccInfo
 from windows.trade_setting.trade_setting import TradeSettingWin
-from windows.win_abs import WindowAbs
+from windows.win_abs import WindowAbs, showModal
 
 class MainWin(WindowAbs, UseGlobal, QObject):
     update = Signal(str, dict)
@@ -47,6 +47,7 @@ class MainWin(WindowAbs, UseGlobal, QObject):
             setTableSizeSameHor(balanceTable)
             setTableSizeSameVer(balanceTable)
     
+    @showModal
     def show(self):
         
         # Register States, add events
@@ -85,11 +86,6 @@ class MainWin(WindowAbs, UseGlobal, QObject):
             acc.reqAccInfo()
             self.updateBalTable(accno)
 
-        self.ui.show()
-        
-        # If ui is loaded, calculate table once after loading
-        QTimer.singleShot(0, self.afterSetting)
-        
     def login(self):
         login_success = self.api.login()
         
@@ -159,5 +155,10 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         text = eventObj.text()
         
         if text == "매매설정":
-            newWin = TradeSettingWin(f"_{accno}_tradeWin", "GUI/trade_setting.ui", "style/trade_setting.css")
-            self.gstate.activateWin(newWin)
+            win_name = f"_{accno}_trade_setting"
+            
+            if win_name in self.gstate.activated_windows:
+                return
+            
+            new_winobj = TradeSettingWin(win_name, "GUI/trade_setting.ui", "style/trade_setting.css")
+            new_winobj.show()

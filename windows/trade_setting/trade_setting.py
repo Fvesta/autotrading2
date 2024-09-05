@@ -1,8 +1,10 @@
 from PySide2.QtCore import Signal, QTimer
 
+from core.logger import logger
 from core.api import API
 from core.global_state import UseGlobal
-from windows.win_abs import WindowAbs
+from style.utils import setTableSizeSameHor, setTableSizeSameVer
+from windows.win_abs import WindowAbs, showModal
 
 
 class TradeSettingWin(WindowAbs, UseGlobal):
@@ -11,6 +13,11 @@ class TradeSettingWin(WindowAbs, UseGlobal):
     def __init__(self, name, ui_path, css_path):
         WindowAbs.__init__(self, name, ui_path, css_path)
         UseGlobal.__init__(self)
+        try:
+            self.accno = self.name.split("_")[1]
+        except ValueError:
+            logger.error("Wrong window name")
+            return
         
         self.api = API()
         
@@ -26,8 +33,15 @@ class TradeSettingWin(WindowAbs, UseGlobal):
         pass
     
     def afterSetting(self):
-        pass
+        tableWidget = self.ui.tableWidget
+        tableWidget2 = self.ui.tableWidget_2
         
+        setTableSizeSameHor(tableWidget)
+        setTableSizeSameVer(tableWidget)
+        setTableSizeSameHor(tableWidget2)
+        setTableSizeSameVer(tableWidget2)
+    
+    @showModal
     def show(self):
         
         # Register States, add events
@@ -35,7 +49,3 @@ class TradeSettingWin(WindowAbs, UseGlobal):
         self.updateStates()
         self.eventReg()
         
-        self.ui.show()
-        
-        # If ui is loaded, calculate table once after loading
-        QTimer.singleShot(0, self.afterSetting)

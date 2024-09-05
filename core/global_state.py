@@ -130,11 +130,3 @@ class GlobalState:
         except:
             logger.debug("Eventloop not executing")
     
-    ############################################
-    # Window handling
-    ############################################
-            
-    def activateWin(self, win):
-        self.activated_windows[win.name] = win
-        win.show()
-    
