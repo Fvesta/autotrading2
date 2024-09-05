@@ -47,21 +47,10 @@ def newAccInfo(ui, accno):
     horizontalLayout_2 = QHBoxLayout()
     horizontalLayout_2.setSpacing(15)
     horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-    label_2 = QLabel(widget_2)
-    label_2.setObjectName(u"label_2")
+    tradeset_label = QLabel(widget_2)
+    tradeset_label.setObjectName(u"tradeset_label")
 
-    horizontalLayout_2.addWidget(label_2)
-
-    pushButton_7 = QPushButton(widget_2)
-    pushButton_7.setObjectName(u"pushButton_7")
-    sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-    sizePolicy3.setHorizontalStretch(0)
-    sizePolicy3.setVerticalStretch(0)
-    sizePolicy3.setHeightForWidth(pushButton_7.sizePolicy().hasHeightForWidth())
-    pushButton_7.setSizePolicy(sizePolicy3)
-
-    horizontalLayout_2.addWidget(pushButton_7)
-
+    horizontalLayout_2.addWidget(tradeset_label)
 
     verticalLayout_4.addLayout(horizontalLayout_2)
 
@@ -76,7 +65,6 @@ def newAccInfo(ui, accno):
     comboBox.setMaximumSize(QSize(150, 16777215))
 
     verticalLayout_4.addWidget(comboBox)
-
 
     horizontalLayout_3.addLayout(verticalLayout_4)
 
@@ -186,14 +174,13 @@ def newAccInfo(ui, accno):
     ui.verticalLayout_3.addWidget(accGroup)
     
     ################# retranslateUI ####################
-    accGroup.setTitle(QCoreApplication.translate("MainWindow", str(accno), None))
-    label_2.setText(QCoreApplication.translate("MainWindow", u"매매 설정", None))
+    accGroup.setTitle(QCoreApplication.translate("MainWindow", f"계좌번호: {str(accno)}", None))
+    tradeset_label.setText(QCoreApplication.translate("MainWindow", u"매매 설정", None))
     pushButton.setText(QCoreApplication.translate("MainWindow", u"매매설정", None))
     pushButton_2.setText(QCoreApplication.translate("MainWindow", u"거래내역", None))
     pushButton_3.setText(QCoreApplication.translate("MainWindow", u"test", None))
     pushButton_5.setText(QCoreApplication.translate("MainWindow", u"test", None))
     pushButton_6.setText(QCoreApplication.translate("MainWindow", u"test", None))
-    pushButton_7.setText(QCoreApplication.translate("MainWindow", u"시작", None))
 
     __sortingEnabled = balanceTable.isSortingEnabled()
     balanceTable.setSortingEnabled(False)

@@ -1,23 +1,65 @@
-
 QPushButton {{
-    color: rgba(77, 208, 225, 0.8);
-    background-color: #31363b;
-    border: 1px solid rgba(77, 208, 225, 0.8);
+    color: {lightWhite};
+    background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
+    border: 1px solid {lightWhite};
     border-radius: 4px;
     height: 20px;
 }}
 
+QPushButton:focus {{
+    color: {lightWhite};
+    background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
+}}
+
+QPushButton:pressed:focus {{
+    color: {QTMATERIAL_SECONDARYDARKCOLOR};
+    background-color: {QTMATERIAL_PRIMARYCOLOR};
+    border: 1px solid {QTMATERIAL_PRIMARYCOLOR};
+}}
+
+QPushButton:hover {{
+    color: {QTMATERIAL_PRIMARYCOLOR};
+    background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
+    border: 1px solid {QTMATERIAL_PRIMARYCOLOR};
+}}
+
 QTableView {{
-    background-color: rgb(35, 38, 41); 
-    border: 1px solid #232629;
+    background-color: {tableDark}; 
+    border: 1px solid {QTMATERIAL_SECONDARYCOLOR};
     border-radius: 4px;
 }}
 
 QTableView {{
-    alternate-background-color: #31363b;
+    alternate-background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
 }}
 
-.auto_btn {{
-    color: rgba(77, 208, 225, 0.8);
+QGroupBox {{
+    /* border: 0; */
+    font-size: 15px;
+    font-weight: bold;
+    padding: 48px 0 16px 0;
 }}
-  
+
+QGroupBox::title {{
+    color: {QTMATERIAL_SECONDARYDARKCOLOR};
+    margin: 12px 0 0 12px;
+    subcontrol-origin: padding;
+    subcontrol-position: top left;
+    background-color: {QTMATERIAL_PRIMARYCOLOR};
+    padding: 3px 2px;
+    /* border-bottom: 2px solid {QTMATERIAL_PRIMARYCOLOR}; */
+}}
+
+/* .tx-color {{
+    color: #4f5b62;
+}} */
+
+.tx-subtitle {{
+    font-size: 20px;
+    font-weight: bold;
+}}
+
+.tx-title {{
+    font-size: 32px;
+    font-weight: bold;
+}}

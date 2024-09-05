@@ -34,7 +34,7 @@ class WindowAbs(QtStyleTools):
         self.ui.setObjectName(name)
         self.css_path = css_path
         
-        self.apply_stylesheet(self.ui, "dark_cyan.xml")
+        self.apply_stylesheet(self.ui, theme="style/dark_cyan.xml")
         
         # Event setting
         self.event_filter = UIEventFilter(self.ui)
@@ -65,3 +65,4 @@ class WindowAbs(QtStyleTools):
     
     def close(self):
         pass
+    

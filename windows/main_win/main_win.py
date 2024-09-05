@@ -24,6 +24,12 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         
         self.initSetting()
         
+    def initSetting(self):
+        self.ui.setWindowTitle("AutoTrading v2")
+        self.ui.title.setProperty("class", "tx-title")
+        
+        self.updateStyle()
+        
     def updateStates(self, key='', extra={}):
         self.user_id, self.setUserId = self.gstate.useState("user_id")
         self.user_name, self.setUserName = self.gstate.useState("user_name")
@@ -78,7 +84,7 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         for accno, acc in self.account_dict.items():
             acc.reqAccInfo()
             self.updateBalTable(accno)
-    
+
         self.ui.show()
         
         # If ui is loaded, calculate table once after loading
