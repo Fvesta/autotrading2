@@ -1,0 +1,42 @@
+QDateEdit,
+QDateTimeEdit,
+QSpinBox,
+QDoubleSpinBox,
+QTextEdit,
+QLineEdit,
+QPushButton {{
+    color: {QTMATERIAL_SECONDARYTEXTCOLOR};
+    height: 24px;
+}}
+
+QRadioButton,
+QCheckBox {{
+  color: {QTMATERIAL_SECONDARYTEXTCOLOR};
+  line-height: 14px;
+  height: 24px;
+  background-color: transparent;
+  spacing: 5px;
+}}
+
+QRadioButton::indicator,
+QCheckBox::indicator {{
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}}
+
+QGroupBox {{
+    font-size: 15px;
+    font-weight: bold;
+    padding-top: 42px;
+    padding-bottom: 5px;
+}}
+
+QGroupBox::title{{
+    color: {QTMATERIAL_PRIMARYCOLOR}
+}}
+
+.tx-title {{
+    font-size: 20px;
+    font-weight: bold;
+}}

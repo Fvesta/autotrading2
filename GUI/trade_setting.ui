@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>574</width>
-    <height>822</height>
+    <width>1300</width>
+    <height>950</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,15 +35,27 @@
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
         <horstretch>0</horstretch>
-        <verstretch>90</verstretch>
+        <verstretch>50</verstretch>
        </sizepolicy>
       </property>
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>90</height>
+        <height>50</height>
        </size>
       </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLabel" name="title">
+         <property name="text">
+          <string>매매조건 설정</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item>
@@ -62,7 +74,7 @@
        <attribute name="title">
         <string>Tab 1</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1,1">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -73,7 +85,7 @@
          <number>0</number>
         </property>
         <property name="rightMargin">
-         <number>0</number>
+         <number>10</number>
         </property>
         <property name="bottomMargin">
          <number>0</number>
@@ -100,84 +112,93 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QTableWidget" name="tableWidget">
-             <attribute name="horizontalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="verticalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <row>
-              <property name="text">
-               <string>새 열</string>
-              </property>
-             </row>
-             <row>
-              <property name="text">
-               <string>새 열</string>
-              </property>
-             </row>
-             <row>
-              <property name="text">
-               <string>새 열</string>
-              </property>
-             </row>
-             <row>
-              <property name="text">
-               <string>새 열</string>
-              </property>
-             </row>
-             <row>
-              <property name="text">
-               <string>새 열</string>
-              </property>
-             </row>
-             <column>
-              <property name="text">
-               <string>1</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>2</string>
-              </property>
-             </column>
+            <layout class="QGridLayout" name="gridLayout_2">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <property name="spacing">
+              <number>11</number>
+             </property>
              <item row="0" column="0">
-              <property name="text">
-               <string>일반설정</string>
-              </property>
-             </item>
-             <item row="1" column="0">
-              <property name="text">
-               <string>최대매수금액</string>
-              </property>
-             </item>
-             <item row="2" column="0">
-              <property name="text">
-               <string>최대종목수</string>
-              </property>
-             </item>
-             <item row="3" column="0">
-              <property name="text">
-               <string>매매시간</string>
-              </property>
-             </item>
-             <item row="3" column="1">
-              <property name="text">
-               <string>장운영시간</string>
-              </property>
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>매매시간</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+               </property>
+              </widget>
              </item>
              <item row="4" column="0">
-              <property name="text">
-               <string>9:00</string>
-              </property>
+              <widget class="QCheckBox" name="checkBox_4">
+               <property name="text">
+                <string>전체 목표가(%)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QTimeEdit" name="timeEdit">
+               <property name="currentSection">
+                <enum>QDateTimeEdit::AmPmSection</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="1">
+              <widget class="QCheckBox" name="checkBox">
+               <property name="text">
+                <string>장 운영시간</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QCheckBox" name="checkBox_2">
+               <property name="text">
+                <string>잔고 당일청산</string>
+               </property>
+              </widget>
              </item>
              <item row="4" column="1">
-              <property name="text">
-               <string>15:30</string>
-              </property>
+              <widget class="QSpinBox" name="spinBox_2"/>
              </item>
-            </widget>
+             <item row="2" column="1">
+              <widget class="QTimeEdit" name="timeEdit_3"/>
+             </item>
+             <item row="1" column="1">
+              <widget class="QTimeEdit" name="timeEdit_2"/>
+             </item>
+             <item row="3" column="0">
+              <widget class="QCheckBox" name="checkBox_3">
+               <property name="text">
+                <string>전체 손실제한(%)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QSpinBox" name="spinBox"/>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -185,9 +206,12 @@
         <item>
          <widget class="QGroupBox" name="groupBox_2">
           <property name="title">
-           <string>GroupBox</string>
+           <string>트레일링 스탑 설정</string>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <property name="leftMargin">
             <number>0</number>
            </property>
@@ -201,59 +225,350 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QTableWidget" name="tableWidget_2">
-             <attribute name="horizontalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="verticalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <row>
-              <property name="text">
-               <string>1</string>
-              </property>
-             </row>
-             <row>
-              <property name="text">
-               <string>2</string>
-              </property>
-             </row>
-             <row>
-              <property name="text">
-               <string>3</string>
-              </property>
-             </row>
-             <row>
-              <property name="text">
-               <string>4</string>
-              </property>
-             </row>
-             <row>
-              <property name="text">
-               <string>5</string>
-              </property>
-             </row>
-             <row>
-              <property name="text">
-               <string>6</string>
-              </property>
-             </row>
-             <row>
-              <property name="text">
-               <string>7</string>
-              </property>
-             </row>
-             <column>
-              <property name="text">
-               <string>1</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>2</string>
-              </property>
-             </column>
-            </widget>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QCheckBox" name="checkBox_5">
+                 <property name="text">
+                  <string>적용 범위</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton">
+                 <property name="text">
+                  <string>개별</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton_2">
+                 <property name="text">
+                  <string>전체</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="Line" name="line_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="0,0,0">
+               <property name="spacing">
+                <number>11</number>
+               </property>
+               <property name="topMargin">
+                <number>5</number>
+               </property>
+               <property name="bottomMargin">
+                <number>5</number>
+               </property>
+               <item>
+                <widget class="QRadioButton" name="radioButton_5">
+                 <property name="text">
+                  <string>기본</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_8">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_6">
+                   <property name="text">
+                    <string>시작(%)</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="spinBox_18"/>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_9">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_7">
+                   <property name="text">
+                    <string>범위(%)</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="spinBox_19"/>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="Line" name="line_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <property name="topMargin">
+                <number>5</number>
+               </property>
+               <property name="bottomMargin">
+                <number>5</number>
+               </property>
+               <property name="horizontalSpacing">
+                <number>11</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>5</number>
+               </property>
+               <item row="0" column="0" colspan="2">
+                <widget class="QRadioButton" name="radioButton_3">
+                 <property name="text">
+                  <string>기준선(%)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>틱(분)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <widget class="QSpinBox" name="spinBox_11"/>
+               </item>
+               <item row="1" column="0">
+                <widget class="QSpinBox" name="spinBox_3"/>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="spinBox_4"/>
+               </item>
+               <item row="1" column="2">
+                <widget class="QSpinBox" name="spinBox_5"/>
+               </item>
+               <item row="1" column="3">
+                <widget class="QSpinBox" name="spinBox_6"/>
+               </item>
+               <item row="2" column="0">
+                <widget class="QSpinBox" name="spinBox_7"/>
+               </item>
+               <item row="2" column="1">
+                <widget class="QSpinBox" name="spinBox_8"/>
+               </item>
+               <item row="2" column="2">
+                <widget class="QSpinBox" name="spinBox_9"/>
+               </item>
+               <item row="2" column="3">
+                <widget class="QSpinBox" name="spinBox_10"/>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="Line" name="line_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="gridLayout_6">
+               <property name="topMargin">
+                <number>5</number>
+               </property>
+               <property name="horizontalSpacing">
+                <number>11</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>5</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="radioButton_6">
+                 <property name="text">
+                  <string>분할익절(%)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkBox_9">
+                 <property name="text">
+                  <string>1차</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="spinBox_20"/>
+               </item>
+               <item row="1" column="2">
+                <widget class="QCheckBox" name="checkBox_10">
+                 <property name="text">
+                  <string>2차</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <widget class="QSpinBox" name="spinBox_21"/>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkBox_11">
+                 <property name="text">
+                  <string>3차</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QSpinBox" name="spinBox_22"/>
+               </item>
+               <item row="2" column="2">
+                <widget class="QCheckBox" name="checkBox_12">
+                 <property name="text">
+                  <string>4차</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="3">
+                <widget class="QSpinBox" name="spinBox_23"/>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>손실제한 설정</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <layout class="QGridLayout" name="gridLayout">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item row="0" column="0">
+              <layout class="QGridLayout" name="gridLayout_4">
+               <property name="spacing">
+                <number>11</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="radioButton_4">
+                 <property name="text">
+                  <string>목표가</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLabel" name="label_3">
+                 <property name="text">
+                  <string>매도비중(%)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QLabel" name="label_4">
+                 <property name="text">
+                  <string>목표수익률(%)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkBox_6">
+                 <property name="text">
+                  <string>1차</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="spinBox_12"/>
+               </item>
+               <item row="1" column="2">
+                <widget class="QSpinBox" name="spinBox_15"/>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkBox_7">
+                 <property name="text">
+                  <string>2차</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QSpinBox" name="spinBox_13"/>
+               </item>
+               <item row="2" column="2">
+                <widget class="QSpinBox" name="spinBox_16"/>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="checkBox_8">
+                 <property name="text">
+                  <string>3차</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QSpinBox" name="spinBox_14"/>
+               </item>
+               <item row="3" column="2">
+                <widget class="QSpinBox" name="spinBox_17"/>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -276,11 +591,14 @@
     </item>
     <item>
      <widget class="QWidget" name="widget_2" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,2">
        <item>
         <widget class="QTreeWidget" name="treeWidget">
          <property name="selectionMode">
-          <enum>QAbstractItemView::NoSelection</enum>
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectItems</enum>
          </property>
          <property name="rootIsDecorated">
           <bool>false</bool>
@@ -373,8 +691,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>270</width>
-                <height>395</height>
+                <width>845</width>
+                <height>496</height>
                </rect>
               </property>
              </widget>

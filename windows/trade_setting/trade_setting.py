@@ -24,22 +24,16 @@ class TradeSettingWin(WindowAbs, UseGlobal):
         self.initSetting()
         
     def initSetting(self):
-        self.updateStyle()
+        self.ui.title.setProperty("class", "tx-title")
+    
+    def afterSetting(self):
+         self.updateStyle()
         
     def updateStates(self, key='', extra={}):
         pass
     
     def eventReg(self):
         pass
-    
-    def afterSetting(self):
-        tableWidget = self.ui.tableWidget
-        tableWidget2 = self.ui.tableWidget_2
-        
-        setTableSizeSameHor(tableWidget)
-        setTableSizeSameVer(tableWidget)
-        setTableSizeSameHor(tableWidget2)
-        setTableSizeSameVer(tableWidget2)
     
     @showModal
     def show(self):

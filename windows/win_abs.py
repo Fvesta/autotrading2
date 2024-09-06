@@ -42,13 +42,7 @@ class UIEventFilter(QObject, UseGlobal):
                     setTableSizeSameHor(balanceTable)
             
             if win_name == "trade_setting":
-                tableWidget = ui.tableWidget
-                tableWidget2 = ui.tableWidget_2
-                
-                setTableSizeSameHor(tableWidget)
-                setTableSizeSameVer(tableWidget)
-                setTableSizeSameHor(tableWidget2)
-                setTableSizeSameVer(tableWidget2)
+                pass
         
         if event.type() == QEvent.Close:
             if full_name in self.gstate.activated_windows:
@@ -97,15 +91,13 @@ class WindowAbs(QtStyleTools, UseGlobal):
             self.ui.setStyleSheet(newStylesheet)
     
     def initSetting(self):
-        
-        # Update object classes, set size ...
-        
-        # Apply custom style
-        self.updateStyle()
+        pass
     
     # Call after show function (after layout calculation is done)
     def afterSetting(self):
-        pass
+        
+        # Apply custom style
+        self.updateStyle()
         
     @showModal
     def show(self):

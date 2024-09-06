@@ -28,8 +28,6 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         self.ui.setWindowTitle("AutoTrading v2")
         self.ui.title.setProperty("class", "tx-title")
         
-        self.updateStyle()
-        
     def updateStates(self, key='', extra={}):
         self.user_id, self.setUserId = self.gstate.useState("user_id")
         self.user_name, self.setUserName = self.gstate.useState("user_name")
@@ -40,6 +38,8 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         self.update.connect(self.updateStates)
 
     def afterSetting(self):
+        self.updateStyle()
+        
         accounts = self.account_dict.keys()
         
         for accno in accounts:
