@@ -104,6 +104,11 @@ class Account:
         holdings = {}
         for row_data in multi_data:
             stockcode = row_data.get("종목코드")
+            try:
+                stockcode = getRegStock(stockcode)
+            except:
+                logger.debug("There is not stockcode")
+            
             quantity = row_data.get("보유수량")
             average_buyprice = row_data.get("평균단가")
             cur_price = row_data.get("현재가")

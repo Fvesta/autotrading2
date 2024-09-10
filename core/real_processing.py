@@ -1,18 +1,11 @@
 from PySide2.QtCore import QThread, Signal
+import debugpy
 import queue
 
 from core.constants import REAL_NO_MAP
 from core.scr_manager import scr_manager 
-
-class RealProcessing(QThread):
-    def __init__(self, backgroundFunc):
-        super().__init__()
-        self.backgroundFunc = backgroundFunc
-    
-    def run(self):
-        self.backgroundFunc()
         
-class RealManager:
+class RealManager(QThread):
     def __new__(cls, *args):
         if not hasattr(cls, "instance"):
             cls.instance = super(RealManager, cls).__new__(cls)
@@ -23,6 +16,8 @@ class RealManager:
         
         if hasattr(self, "initialized"):
             return
+
+        super().__init__()
         
         self.eventQueue = queue.Queue()
         self.running = False
@@ -34,15 +29,13 @@ class RealManager:
         self.fid_set = ""
         for data_type in REAL_NO_MAP.keys():
             self.fid_set += f"{REAL_NO_MAP[data_type]};"
-            
-        self.worker = RealProcessing(self.backgroundFunc)
         
         self.initialized = True
     
-    def ready(self, API):
-        self.api = API
-            
-    def backgroundFunc(self):
+    def run(self):
+        # Debug setting
+        debugpy.debug_this_thread()
+        
         self.running = True
         while True:
             event = self.eventQueue.get()
@@ -52,9 +45,8 @@ class RealManager:
             
             self.realBackgroundProcess(event)
             
-    def start(self):
-        if not self.worker.isRunning():
-            self.worker.start()
+    def ready(self, API):
+        self.api = API
     
     def stop(self):
         self.running = False
