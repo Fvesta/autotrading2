@@ -1,7 +1,6 @@
 class ScrManager:
     def __new__(cls, *args):
         if not hasattr(cls, "instance"):
-            print("Screen number ready")
             cls.instance = super(ScrManager, cls).__new__(cls)
             
         return cls.instance

@@ -1,4 +1,4 @@
-from core.constants import TRCODE_DICT
+from core.constants import REAL_NO_MAP, REAL_RET_MAP, TRCODE_DICT
 from core.kiwoom import Kiwoom
 from core.logger import logger
 from core.errors import ErrorCode, KiwoomException
@@ -23,7 +23,10 @@ class API(UseGlobal):
         
         self.initialized = True
     
+    ############################################
     # Login
+    ############################################
+    
     def login(self):
         self.kiwoom.commConnect()
         login_success = self.gstate.lock()
@@ -42,7 +45,10 @@ class API(UseGlobal):
         
         return [acc_list, user_id, user_name]
     
+    ############################################
     # Stocks
+    ############################################
+    
     def getStockName(self, stockcode):
         stockcode = getRegStock(stockcode)
         
@@ -68,7 +74,10 @@ class API(UseGlobal):
         
         return None
         
-    # Tr call
+    ############################################
+    # Tr functions
+    ############################################
+    
     def sendTr(self, rqname, inputs, next=False):
         trcode = TRCODE_DICT[rqname]
         
@@ -109,7 +118,7 @@ class API(UseGlobal):
         ret = self.gstate.lock()
         return ret
     
-    def getData(self, rqname, trcode, record, info_list, multi=False):
+    def getTrData(self, rqname, trcode, record, info_list, multi=False):
         
         if multi:
             rows = self.kiwoom.getRepeatCnt(trcode, record)
@@ -131,5 +140,19 @@ class API(UseGlobal):
             data[info] = self.kiwoom.getCommData(rqname, trcode, 0, info) 
 
         return data
-                
+    
+    ############################################
+    # Real functions
+    ############################################
+    
+    def setRealReg(self, *args):
+        self.kiwoom.setRealReg(*args)
         
+    def getRealData(self, stockcode, real_type):
+        
+        data = {}
+        for data_type in REAL_RET_MAP[real_type]:
+            data[data_type] = self.kiwoom.getCommRealData(stockcode, REAL_NO_MAP[data_type])    
+        
+        return data
+    

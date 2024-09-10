@@ -1,3 +1,4 @@
+from core.utils.type_util import floatOrZero
 from core.utils.utils import intOrZero
 
 
@@ -20,11 +21,11 @@ class Stock:
             
         today_updown_rate = data.get("today_updown_rate")
         if today_updown_rate is not None:
-            self.today_updown_rate = today_updown_rate
+            self.today_updown_rate = floatOrZero(today_updown_rate)
             
         today_trans_amount = data.get("today_trans_amount")
         if today_trans_amount is not None:
-            self.today_trans_amount = today_trans_amount
+            self.today_trans_amount = intOrZero(today_trans_amount)
         
         buy_rate = data.get("buy_rate")
         if buy_rate is not None:

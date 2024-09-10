@@ -6,7 +6,10 @@ class Kiwoom:
     def __init__(self, ocx):
         self.ocx: QAxWidget = ocx
     
+    ############################################
     # Login
+    ############################################
+    
     def commConnect(self):
         self.ocx.dynamicCall("CommConnect()")
         
@@ -14,7 +17,10 @@ class Kiwoom:
         ret = self.ocx.dynamicCall("GetLoginInfo(QString)", [tag])
         return ret
     
-    # Utils
+    ############################################
+    # Utis
+    ############################################
+    
     def getMasterCodeName(self, stockcode):
         ret = self.ocx.dynamicCall("GetMasterCodeName(QString)", [stockcode])
         return ret 
@@ -28,7 +34,10 @@ class Kiwoom:
         stockcodes = ret.split(";")[:-1]
         return stockcodes
     
-    # TR request
+    ############################################
+    # Tr request
+    ############################################
+    
     def setInputValue(self, tid, value):
         self.ocx.dynamicCall("SetInputValue(QString, QString)", [tid, value])
     
@@ -46,3 +55,15 @@ class Kiwoom:
     def getCommData(self, rqname, trcode, idx, item):
         data = self.ocx.dynamicCall("GetCommData(QString, QString, int, QString)", [trcode, rqname, idx, item])
         return data.strip()
+    
+    ############################################
+    # Real request
+    ############################################
+    
+    def setRealReg(self, scrno, stockcode_list, fid_list, tag):
+        self.ocx.dynamicCall("SetRealReg(QString, QString, QString, QString)", [scrno, stockcode_list, fid_list, tag])
+        
+    def getCommRealData(self, stockcode, fid):
+        data = self.ocx.dynamicCall("GetCommRealData(QString, int)", stockcode, fid)
+        return data
+    

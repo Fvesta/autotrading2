@@ -150,5 +150,11 @@ class Account:
             return None
         
         return round(income_rate, 2)
+    
+    def isHoldings(self, stockcode):
+        if stockcode in self.holdings:
+            return True
+        
+        return False
         
         

@@ -7,6 +7,7 @@ from core.errors import ErrorCode
 from core.global_state import UseGlobal
 from core.logger import logger
 from core.stock import Stock
+from core.real_processing import real_manager
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.main_win.acc_info import newAccInfo
 from windows.trade_setting.trade_setting import TradeSettingWin
@@ -85,6 +86,13 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         for accno, acc in self.account_dict.items():
             acc.reqAccInfo()
             self.updateBalTable(accno)
+            
+        # Register real data
+        stockcode_set = set()
+        for acc in self.account_dict.values():
+            stockcode_set.update(list(acc.holdings.keys()))
+        
+        real_manager.regReal("main_win_accholdings", list(stockcode_set), self.realEventCallback)
 
     def login(self):
         login_success = self.api.login()
@@ -162,3 +170,9 @@ class MainWin(WindowAbs, UseGlobal, QObject):
             
             new_winobj = TradeSettingWin(win_name, "GUI/trade_setting.ui", "style/trade_setting.css")
             new_winobj.show()
+
+    def realEventCallback(self, seed, stockcode, real_type, real_data):
+        if seed == "main_win_accholdings":
+            for accno, acc in self.account_dict.items():
+                if acc.isHoldings(stockcode):
+                    self.updateBalTable(accno)
