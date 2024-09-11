@@ -36,6 +36,10 @@ class GlobalState:
         self._state["is_login"] = False
         self._state["account_dict"] = {}
         
+        self._state["condtimer_dict"] = {}
+        self._state["cond2idx"] = {}
+        self._state["idx2cond"] = {}
+        
         # Market stocks
         self.kospi_stocks = {}
         self.kosdaq_stocks = {}

@@ -8,6 +8,7 @@ from core.global_state import UseGlobal
 from core.logger import logger
 from core.stock import Stock
 from core.real_processing import real_manager
+from core.wait_timer import WaitTimer
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.main_win.acc_info import newAccInfo
 from windows.trade_setting.trade_setting import TradeSettingWin
@@ -34,6 +35,10 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         self.user_name, self.setUserName = self.gstate.useState("user_name")
         self.is_login, self.setIsLogin = self.gstate.useState("is_login")
         self.account_dict, self.setAccountDict = self.gstate.useState("account_dict")
+        
+        self.condtimer_dict, self.setCondTimerDict = self.gstate.useState("condtimer_dict")
+        self.cond2idx, self.setCond2idx = self.gstate.useState("cond2idx")
+        self.idx2cond, self.setIdx2cond = self.gstate.useState("idx2cond")
     
     def eventReg(self):
         self.update.connect(self.updateStates)
@@ -66,6 +71,9 @@ class MainWin(WindowAbs, UseGlobal, QObject):
 
         # Account setting
         self.getAccountInfo()
+        
+        # Load condition
+        self.getCondition()
         
         # Set title to username
         self.ui.title.setText(self.user_name)
@@ -128,6 +136,28 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         self.setUserName(user_name)
         self.setUserId(user_id)
         self.setAccountDict(account_dict)
+        
+    def getCondition(self):
+        load_success = self.api.loadCondition()
+        
+        if load_success:
+            cond_list = self.api.getConditionNameList()
+            
+            idx2cond = {}
+            cond2idx = {}
+            condtimer_dict = {}
+            for cond in cond_list:
+                idx_str, cond_name = cond.split("^")
+                idx2cond[idx_str] = cond_name
+                cond2idx[cond_name] = idx_str
+                
+                # Set req timer
+                timer = WaitTimer(cond_name, 63000) # 1 minute 3 sec
+                condtimer_dict[cond_name] = timer
+                
+            self.setCondTimerDict(condtimer_dict)
+            self.setCond2idx(cond2idx)
+            self.setIdx2cond(idx2cond)
         
     def updateBalTable(self, accno):
         acc: Account = self.account_dict[accno]

@@ -73,7 +73,23 @@ class API(UseGlobal):
             return self.gstate.kosdaq_stocks[stockcode]
         
         return None
+    
+    ############################################
+    # Conditions
+    ############################################
+    
+    def loadCondition(self):
+        self.kiwoom.getConditionLoad()
+        load_success = self.gstate.lock()
         
+        return load_success
+    
+    def getConditionNameList(self):
+        ret = self.kiwoom.getConditionNameList()
+        cond_list = ret.split(";")[:-1]
+        
+        return cond_list
+    
     ############################################
     # Tr functions
     ############################################

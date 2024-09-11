@@ -19,7 +19,7 @@ class RealManager(QThread):
 
         super().__init__()
         
-        self.eventQueue = queue.Queue()
+        self.event_queue = queue.Queue()
         self.running = False
         
         self.api = None
@@ -38,7 +38,7 @@ class RealManager(QThread):
         
         self.running = True
         while True:
-            event = self.eventQueue.get()
+            event = self.event_queue.get()
             
             if event == None:
                 break
@@ -50,7 +50,7 @@ class RealManager(QThread):
     
     def stop(self):
         self.running = False
-        self.eventQueue.put(None)
+        self.event_queue.put(None)
         
     def realBackgroundProcess(self, event):
         stockcode, real_type, real_data = event
@@ -65,7 +65,7 @@ class RealManager(QThread):
             callback(seed, stockcode, real_type, real_data)
     
     def addEvent(self, event):
-        self.eventQueue.put(event)
+        self.event_queue.put(event)
 
     # callback args: seed, stockcode, real_type, real_data
     def regReal(self, seed, stockcode_list, callback):

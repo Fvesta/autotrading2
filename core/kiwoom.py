@@ -35,6 +35,17 @@ class Kiwoom:
         return stockcodes
     
     ############################################
+    # Condition
+    ############################################
+    
+    def getConditionLoad(self):
+        self.ocx.dynamicCall("GetConditionLoad()")
+        
+    def getConditionNameList(self):
+        ret = self.ocx.dynamicCall("GetConditionNameList()")
+        return ret
+    
+    ############################################
     # Tr request
     ############################################
     

@@ -13,6 +13,7 @@ signal_map = {
     "OnEventConnect": SIGNAL("OnEventConnect(int)"),
     "OnReceiveTrData": SIGNAL("OnReceiveTrData(QString, QString, QString, QString, QString, int, QString, QString, QString)"),
     "OnReceiveRealData": SIGNAL("OnReceiveRealData(QString, QString, QString)"),
+    "OnReceiveConditionVer": SIGNAL("OnReceiveConditionVer(int, QString)"),
 }
 
 class CallbackHandler(UseGlobal):
@@ -26,12 +27,19 @@ class CallbackHandler(UseGlobal):
         
     def eventReg(self):
         self.ocx.connect(signal_map["OnEventConnect"], self.loginSuccess)
+        self.ocx.connect(signal_map["OnReceiveConditionVer"], self.loadConditionSuccess)
         self.ocx.connect(signal_map["OnReceiveTrData"], self.trCallback)
         self.ocx.connect(signal_map["OnReceiveRealData"], self.realEventCallback)
         
     # OnEventConnect
     def loginSuccess(self, retcode):
         if retcode == 0:
+            self.gstate.unlock(True)
+        else:
+            self.gstate.unlock(False)
+            
+    def loadConditionSuccess(self, success, msg):
+        if success:
             self.gstate.unlock(True)
         else:
             self.gstate.unlock(False)
