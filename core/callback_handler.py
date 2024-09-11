@@ -14,6 +14,7 @@ signal_map = {
     "OnReceiveTrData": SIGNAL("OnReceiveTrData(QString, QString, QString, QString, QString, int, QString, QString, QString)"),
     "OnReceiveRealData": SIGNAL("OnReceiveRealData(QString, QString, QString)"),
     "OnReceiveConditionVer": SIGNAL("OnReceiveConditionVer(int, QString)"),
+    "OnReceiveTrCondition": SIGNAL("OnReceiveTrCondition(QString, QString, QString, int, int)")
 }
 
 class CallbackHandler(UseGlobal):
@@ -28,6 +29,7 @@ class CallbackHandler(UseGlobal):
     def eventReg(self):
         self.ocx.connect(signal_map["OnEventConnect"], self.loginSuccess)
         self.ocx.connect(signal_map["OnReceiveConditionVer"], self.loadConditionSuccess)
+        self.ocx.connect(signal_map["OnReceiveTrCondition"], self.getCondStockSuccess)
         self.ocx.connect(signal_map["OnReceiveTrData"], self.trCallback)
         self.ocx.connect(signal_map["OnReceiveRealData"], self.realEventCallback)
         
@@ -43,6 +45,11 @@ class CallbackHandler(UseGlobal):
             self.gstate.unlock(True)
         else:
             self.gstate.unlock(False)
+            
+    def getCondStockSuccess(self, scrno, cond_stocks, condname, cidx, next):
+        
+        cond_stock_list = cond_stocks.split(";")[:-1]
+        self.gstate.unlock(cond_stock_list)
             
     def trCallback(self, scrno, rqname, trcode, record, next, *args):
         

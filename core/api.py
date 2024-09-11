@@ -1,3 +1,6 @@
+from PySide2.QtCore import Signal
+
+from core.condition import Condition
 from core.constants import REAL_NO_MAP, REAL_RET_MAP, TRCODE_DICT
 from core.kiwoom import Kiwoom
 from core.logger import logger
@@ -7,6 +10,8 @@ from core.global_state import UseGlobal
 from core.utils.utils import getRegStock
 
 class API(UseGlobal):
+    update = Signal(str, dict)
+    
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, "instance"):
             cls.instance = super(API, cls).__new__(cls)
@@ -17,11 +22,21 @@ class API(UseGlobal):
         if hasattr(self, "initialized"):
             return
         
-        super().__init__()
+        UseGlobal.__init__(self)
         self.kiwoom: Kiwoom = kiwoom
         self.ocx = self.kiwoom.ocx
         
+        self.stateReg()
+        self.updateStates()
+        self.eventReg()
+        
         self.initialized = True
+        
+    def eventReg(self):
+        self.update.connect(self.updateStates)
+        
+    def updateStates(self, key="", extra={}):
+        self.cond_dict = self.gstate.getState("cond_dict")
     
     ############################################
     # Login
@@ -90,6 +105,28 @@ class API(UseGlobal):
         
         return cond_list
     
+    def sendCondition(self, condname, real=False):
+        try:
+            condobj: Condition = self.cond_dict[condname]
+        except KeyError as e:
+            logger.warning("Not correct condname")
+            return ErrorCode.OP_ERROR
+        
+        try:
+            if real:
+                Condition.real_count += 1
+                self.kiwoom.sendCondition(scr_manager.scrAct("sendCondition"), condname, condobj.cidx, 1)
+            else:    
+                self.kiwoom.sendCondition(scr_manager.scrAct("sendCondition"), condname, condobj.cidx, 0)
+                
+            cond_stock_list = self.gstate.lock()
+            
+            return cond_stock_list
+            
+        except KiwoomException as e:
+            logger.warning(e)
+            return ErrorCode.OP_KIWOOM_ERROR
+        
     ############################################
     # Tr functions
     ############################################

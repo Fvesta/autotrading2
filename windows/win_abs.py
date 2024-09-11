@@ -13,9 +13,8 @@ from core.global_state import UseGlobal
 from style.colors import colors
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 
-class UIEventFilter(QObject, UseGlobal):
+class UIEventFilter(UseGlobal):
     def __init__(self, ui: QMainWindow):
-        QObject.__init__(self)
         UseGlobal.__init__(self)
         
     def eventFilter(self, ui: QMainWindow, event):

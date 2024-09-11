@@ -1,26 +1,23 @@
 from PySide2.QtWidgets import *
-from PySide2.QtCore import QTimer, Signal, QObject
+from PySide2.QtCore import Signal
 
 from core.account import Account
 from core.api import API
 from core.errors import ErrorCode
-from core.global_state import UseGlobal
 from core.logger import logger
 from core.stock import Stock
+from core.condition import Condition
 from core.real_processing import real_manager
-from core.wait_timer import WaitTimer
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.main_win.acc_info import newAccInfo
 from windows.trade_setting.trade_setting import TradeSettingWin
 from windows.win_abs import WindowAbs, showModal
 
-class MainWin(WindowAbs, UseGlobal, QObject):
+class MainWin(WindowAbs):
     update = Signal(str, dict)
     
     def __init__(self, name, ui_path, css_path):
-        QObject.__init__(self)
         WindowAbs.__init__(self, name, ui_path, css_path)
-        UseGlobal.__init__(self)
         
         self.api = API()
         
@@ -36,9 +33,7 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         self.is_login, self.setIsLogin = self.gstate.useState("is_login")
         self.account_dict, self.setAccountDict = self.gstate.useState("account_dict")
         
-        self.condtimer_dict, self.setCondTimerDict = self.gstate.useState("condtimer_dict")
-        self.cond2idx, self.setCond2idx = self.gstate.useState("cond2idx")
-        self.idx2cond, self.setIdx2cond = self.gstate.useState("idx2cond")
+        self.cond_dict, self.setCondDict = self.gstate.useState("cond_dict")
     
     def eventReg(self):
         self.update.connect(self.updateStates)
@@ -143,21 +138,14 @@ class MainWin(WindowAbs, UseGlobal, QObject):
         if load_success:
             cond_list = self.api.getConditionNameList()
             
-            idx2cond = {}
-            cond2idx = {}
-            condtimer_dict = {}
+            cond_dict = {}
             for cond in cond_list:
-                idx_str, cond_name = cond.split("^")
-                idx2cond[idx_str] = cond_name
-                cond2idx[cond_name] = idx_str
+                cidx, condname = cond.split("^")
+                cond_dict[condname] = Condition(cidx, condname)
                 
-                # Set req timer
-                timer = WaitTimer(cond_name, 63000) # 1 minute 3 sec
-                condtimer_dict[cond_name] = timer
-                
-            self.setCondTimerDict(condtimer_dict)
-            self.setCond2idx(cond2idx)
-            self.setIdx2cond(idx2cond)
+            self.setCondDict(cond_dict)
+            
+        self.api.sendCondition("당일핫종목", real=True)
         
     def updateBalTable(self, accno):
         acc: Account = self.account_dict[accno]
