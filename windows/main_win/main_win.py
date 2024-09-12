@@ -28,11 +28,15 @@ class MainWin(WindowAbs):
         self.ui.setWindowTitle("AutoTrading v2")
         self.ui.title.setProperty("class", "tx-title")
         
-    def updateStates(self, key='', extra={}):
+    def updateStates(self, key="", extra={}):
         self.user_id, self.setUserId = self.gstate.useState("user_id")
         self.user_name, self.setUserName = self.gstate.useState("user_name")
         self.is_login, self.setIsLogin = self.gstate.useState("is_login")
         self.account_dict, self.setAccountDict = self.gstate.useState("account_dict")
+        
+        if key == "main_win_accholdings":
+            accno = extra.get("accno")
+            self.updateBalTable(accno)
     
     def eventReg(self):
         self.update.connect(self.updateStates)
@@ -187,4 +191,4 @@ class MainWin(WindowAbs):
         if seed == "main_win_accholdings":
             for accno, acc in self.account_dict.items():
                 if acc.isHoldings(stockcode):
-                    self.updateBalTable(accno)
+                    self.gstate.callUpdate(key=seed, extra={"accno": accno})

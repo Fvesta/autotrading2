@@ -118,6 +118,10 @@ class GlobalState:
     def getState(self, key):
         return self._state[key]
     
+    def callUpdate(self, key=None, extra={}):
+        for obj in self.consumers:
+            obj.update.emit(key, extra)
+    
     ############################################
     # Kiwoom limit dealing
     ############################################
