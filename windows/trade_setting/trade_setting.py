@@ -2,17 +2,15 @@ from PySide2.QtCore import Signal, QTimer
 
 from core.logger import logger
 from core.api import API
-from core.global_state import UseGlobal
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.win_abs import WindowAbs, showModal
 
 
-class TradeSettingWin(WindowAbs, UseGlobal):
+class TradeSettingWin(WindowAbs):
     update = Signal(str, dict)
     
     def __init__(self, name, ui_path, css_path):
         WindowAbs.__init__(self, name, ui_path, css_path)
-        UseGlobal.__init__(self)
         try:
             self.accno = self.name.split("_")[1]
         except ValueError:

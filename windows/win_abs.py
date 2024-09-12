@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from qt_material import QtStyleTools
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtCore import QObject, QEvent, QTimer
+from PySide2.QtCore import QObject, QEvent, QTimer, QObject
 from PySide2.QtWidgets import QMainWindow
 
 from core.logger import logger
@@ -13,8 +13,9 @@ from core.global_state import UseGlobal
 from style.colors import colors
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 
-class UIEventFilter(UseGlobal):
+class UIEventFilter(UseGlobal, QObject):
     def __init__(self, ui: QMainWindow):
+        QObject.__init__(self)
         UseGlobal.__init__(self)
         
     def eventFilter(self, ui: QMainWindow, event):
@@ -66,8 +67,9 @@ def showModal(func, single=True):
     
     return wrapper
     
-class WindowAbs(QtStyleTools, UseGlobal):
+class WindowAbs(QtStyleTools, UseGlobal, QObject):
     def __init__(self, name, ui_path, css_path):
+        QObject.__init__(self)
         UseGlobal.__init__(self)
 
         self.name = name

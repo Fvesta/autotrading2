@@ -8,6 +8,7 @@ from core.logger import logger
 from core.stock import Stock
 from core.condition import Condition
 from core.real_processing import real_manager
+from core.condition import cond_manager
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.main_win.acc_info import newAccInfo
 from windows.trade_setting.trade_setting import TradeSettingWin
@@ -32,8 +33,6 @@ class MainWin(WindowAbs):
         self.user_name, self.setUserName = self.gstate.useState("user_name")
         self.is_login, self.setIsLogin = self.gstate.useState("is_login")
         self.account_dict, self.setAccountDict = self.gstate.useState("account_dict")
-        
-        self.cond_dict, self.setCondDict = self.gstate.useState("cond_dict")
     
     def eventReg(self):
         self.update.connect(self.updateStates)
@@ -138,14 +137,9 @@ class MainWin(WindowAbs):
         if load_success:
             cond_list = self.api.getConditionNameList()
             
-            cond_dict = {}
             for cond in cond_list:
                 cidx, condname = cond.split("^")
-                cond_dict[condname] = Condition(cidx, condname)
-                
-            self.setCondDict(cond_dict)
-            
-        self.api.sendCondition("당일핫종목", real=True)
+                cond_manager.cond_dict[condname] = Condition(cidx, condname)
         
     def updateBalTable(self, accno):
         acc: Account = self.account_dict[accno]

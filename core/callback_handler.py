@@ -1,9 +1,10 @@
-from PySide2.QtCore import SIGNAL
+from PySide2.QtCore import SIGNAL, QObject
 from PySide2.QtAxContainer import QAxWidget
 
 from core.constants import TR_RETURN_MAP
 from core.scr_manager import scr_manager
 from core.real_processing import real_manager
+from core.condition import Condition, cond_manager
 from core.api import API
 from core.global_state import UseGlobal
 from core.stock import Stock
@@ -14,12 +15,14 @@ signal_map = {
     "OnReceiveTrData": SIGNAL("OnReceiveTrData(QString, QString, QString, QString, QString, int, QString, QString, QString)"),
     "OnReceiveRealData": SIGNAL("OnReceiveRealData(QString, QString, QString)"),
     "OnReceiveConditionVer": SIGNAL("OnReceiveConditionVer(int, QString)"),
-    "OnReceiveTrCondition": SIGNAL("OnReceiveTrCondition(QString, QString, QString, int, int)")
+    "OnReceiveTrCondition": SIGNAL("OnReceiveTrCondition(QString, QString, QString, int, int)"),
+    "OnReceiveRealCondition": SIGNAL("OnReceiveRealCondition(QString, QString, QString, QString)")
 }
 
-class CallbackHandler(UseGlobal):
+class CallbackHandler(UseGlobal, QObject):
     def __init__(self):
-        super().__init__()
+        QObject.__init__(self)
+        UseGlobal.__init__(self)
         self.api = API()
         self.ocx: QAxWidget = self.api.ocx
         
@@ -27,29 +30,41 @@ class CallbackHandler(UseGlobal):
         self.eventReg()
         
     def eventReg(self):
-        self.ocx.connect(signal_map["OnEventConnect"], self.loginSuccess)
-        self.ocx.connect(signal_map["OnReceiveConditionVer"], self.loadConditionSuccess)
-        self.ocx.connect(signal_map["OnReceiveTrCondition"], self.getCondStockSuccess)
+        self.ocx.connect(signal_map["OnEventConnect"], self.loginCallback)
+        self.ocx.connect(signal_map["OnReceiveConditionVer"], self.loadCondCallback)
+        self.ocx.connect(signal_map["OnReceiveTrCondition"], self.condTrCallback)
+        self.ocx.connect(signal_map["OnReceiveRealCondition"], self.condRealCallback)
         self.ocx.connect(signal_map["OnReceiveTrData"], self.trCallback)
         self.ocx.connect(signal_map["OnReceiveRealData"], self.realEventCallback)
         
     # OnEventConnect
-    def loginSuccess(self, retcode):
+    def loginCallback(self, retcode):
         if retcode == 0:
             self.gstate.unlock(True)
         else:
             self.gstate.unlock(False)
             
-    def loadConditionSuccess(self, success, msg):
+    def loadCondCallback(self, success, msg):
         if success:
             self.gstate.unlock(True)
         else:
             self.gstate.unlock(False)
             
-    def getCondStockSuccess(self, scrno, cond_stocks, condname, cidx, next):
+    def condTrCallback(self, scrno, cond_stocks, condname, cidx, next):
         
         cond_stock_list = cond_stocks.split(";")[:-1]
         self.gstate.unlock(cond_stock_list)
+        
+    def condRealCallback(self, stockcode, tag, condname, cidx):
+        condobj: Condition = cond_manager.cond_dict[condname]
+        
+        # If stockcode enter
+        if tag == "I":
+            condobj.addStock(stockcode)
+        elif tag == "D":
+            condobj.removeStock(stockcode)
+            
+        cond_manager.addEvent((stockcode, tag, condname, cidx))
             
     def trCallback(self, scrno, rqname, trcode, record, next, *args):
         

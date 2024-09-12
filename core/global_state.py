@@ -4,9 +4,8 @@ from PySide2.QtCore import QEventLoop, QTimer, QObject
 from core.logger import logger
 from core.wait_timer import WaitTimer
 
-class UseGlobal(QObject):
+class UseGlobal:
     def __init__(self):
-        QObject.__init__(self)
         self.gstate = GlobalState()
     
     def updateStates(self, key='', extra={}):
@@ -36,8 +35,6 @@ class GlobalState:
         self._state["user_name"] = None
         self._state["is_login"] = False
         self._state["account_dict"] = {}
-        
-        self._state["cond_dict"] = {}
         
         # Market stocks
         self.kospi_stocks = {}

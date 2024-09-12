@@ -43,5 +43,8 @@ class ScrManager:
         
         self.scr_used[scrno] = False
         
+    def getNo(self, scrname):
+        return self.scrno_dict.get(scrname)
+        
 scr_manager = ScrManager()
         

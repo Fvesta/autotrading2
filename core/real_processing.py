@@ -1,4 +1,4 @@
-from PySide2.QtCore import QThread, Signal
+from PySide2.QtCore import QThread
 import debugpy
 import queue
 
@@ -20,7 +20,6 @@ class RealManager(QThread):
         super().__init__()
         
         self.event_queue = queue.Queue()
-        self.running = False
         
         self.api = None
         self.reg_stock_dict = {}
@@ -36,7 +35,6 @@ class RealManager(QThread):
         # Debug setting
         debugpy.debug_this_thread()
         
-        self.running = True
         while True:
             event = self.event_queue.get()
             
@@ -49,8 +47,10 @@ class RealManager(QThread):
         self.api = API
     
     def stop(self):
-        self.running = False
         self.event_queue.put(None)
+        
+    def addEvent(self, event):
+        self.event_queue.put(event)
         
     def realBackgroundProcess(self, event):
         stockcode, real_type, real_data = event
@@ -63,9 +63,6 @@ class RealManager(QThread):
         for seed in callback_seed_set:
             callback = self.seed_callback_dict[seed]
             callback(seed, stockcode, real_type, real_data)
-    
-    def addEvent(self, event):
-        self.event_queue.put(event)
 
     # callback args: seed, stockcode, real_type, real_data
     def regReal(self, seed, stockcode_list, callback):

@@ -46,10 +46,13 @@ class Kiwoom:
         return ret
     
     def sendCondition(self, scrno, condname, cidx, tag):
-        ret = self.ocx.dynamicCall("SendCondition(QString, QString, int, int)", scrno, condname, cidx, tag)
+        ret = self.ocx.dynamicCall("SendCondition(QString, QString, int, int)", [scrno, condname, cidx, tag])
         
         if ret == 0:
             raise KiwoomException(-10, "Load condstocks fail")
+        
+    def sendConditionStop(self, scrno, condname, cidx):
+        self.ocx.dynamicCall("SednConditionStop(QString, QString, int)", [scrno, condname, cidx])
     
     ############################################
     # Tr request
