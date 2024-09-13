@@ -133,4 +133,3 @@ class GlobalState:
             event_loop.quit()
         except:
             logger.debug("Eventloop not executing")
-    

@@ -1,3 +1,4 @@
+from core.autotrading.trading import Trading
 from core.logger import logger
 from core.api import API
 from core.errors import ErrorCode, StockNotFoundException
@@ -66,6 +67,9 @@ class Account:
         self.today_income = 0
         
         self.holdings = {}
+        
+        # Auto trading
+        self.trading = Trading(self)
     
     # data = {"total_amount": "00", "month_income": "00", "today_income": "00"}    
     def setAccInfo(self, data):

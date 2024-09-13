@@ -1,1 +1,15 @@
-2024-09-12 15:03:03:logger:WARNING:Buy amount is zero
+2024-09-13 19:37:02:base:INFO:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-09-13 19:37:02:base:INFO:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2024-09-13 19:37:04:logger:WARNING:Buy amount is zero
+2024-09-13 19:37:04:base:INFO:Added job "TrailingStop.trailingAlgo" to job store "default"
+2024-09-13 19:37:04:base:INFO:Scheduler started
+2024-09-13 19:37:04:base:INFO:Added job "TrailingStop.trailingAlgo" to job store "default"
+2024-09-13 19:37:04:base:INFO:Scheduler started
+2024-09-13 19:37:29:base:INFO:Running job "TrailingStop.trailingAlgo (trigger: interval[0:00:30], next run at: 2024-09-13 19:37:59 KST)" (scheduled at 2024-09-13 19:37:29.717899+09:00)
+2024-09-13 19:37:29:base:INFO:Job "TrailingStop.trailingAlgo (trigger: interval[0:00:30], next run at: 2024-09-13 19:37:59 KST)" executed successfully
+2024-09-13 19:37:29:base:INFO:Running job "TrailingStop.trailingAlgo (trigger: interval[0:00:30], next run at: 2024-09-13 19:37:59 KST)" (scheduled at 2024-09-13 19:37:29.729058+09:00)
+2024-09-13 19:37:29:base:INFO:Job "TrailingStop.trailingAlgo (trigger: interval[0:00:30], next run at: 2024-09-13 19:37:59 KST)" executed successfully
+2024-09-13 19:37:59:base:INFO:Running job "TrailingStop.trailingAlgo (trigger: interval[0:00:30], next run at: 2024-09-13 19:38:29 KST)" (scheduled at 2024-09-13 19:37:59.717899+09:00)
+2024-09-13 19:37:59:base:INFO:Job "TrailingStop.trailingAlgo (trigger: interval[0:00:30], next run at: 2024-09-13 19:38:29 KST)" executed successfully
+2024-09-13 19:37:59:base:INFO:Running job "TrailingStop.trailingAlgo (trigger: interval[0:00:30], next run at: 2024-09-13 19:38:29 KST)" (scheduled at 2024-09-13 19:37:59.729058+09:00)
+2024-09-13 19:37:59:base:INFO:Job "TrailingStop.trailingAlgo (trigger: interval[0:00:30], next run at: 2024-09-13 19:38:29 KST)" executed successfully

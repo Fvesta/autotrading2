@@ -1,6 +1,5 @@
 from PySide2.QtCore import Signal, QObject
 
-from core.condition import Condition, cond_manager
 from core.constants import REAL_NO_MAP, REAL_RET_MAP, TRCODE_DICT
 from core.kiwoom import Kiwoom
 from core.logger import logger
