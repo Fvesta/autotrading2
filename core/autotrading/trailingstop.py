@@ -1,18 +1,24 @@
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from copy import deepcopy
 
+from core.api import API
 from core.autotrading.basic_options import TRAILING_STOP_BASIC_OPTION
+from core.real_processing import real_manager
 
 
 class TrailingStop:
     def __init__(self, acc):
         self.acc = acc
         self.standard = "each"
-        
+        self.api = API()
         self.trailingScheduler = BackgroundScheduler(timezone="Asia/Seoul")
 
         self.setOption()
+        
+        # Algo states
+        self.prev_info = {}
     
     def setOption(self, option={}):
         if option == None:
@@ -25,7 +31,7 @@ class TrailingStop:
         self.division = option.get("division", TRAILING_STOP_BASIC_OPTION["division"])
         
         # Update tick, modify of add job
-        job = self.trailingScheduler.get_job("trailingAlgo")
+        job = self.trailingScheduler.get_job("trailing_algo")
         ticktype = self.tick.get("type", "seconds")
         tickval = self.tick.get("val", 30)
         
@@ -37,13 +43,35 @@ class TrailingStop:
         
         else:
             if ticktype == "seconds":
-                self.trailingScheduler.add_job(self.trailingAlgo, "interval", id="trailingAlgo", seconds=tickval)
+                self.trailingScheduler.add_job(self.trailingAlgo, "interval", id="trailing_algo", seconds=tickval)
             if ticktype == "minutes":
-                self.trailingScheduler.add_job(self.trailingAlgo, "interval", id="trailingAlgo", minutes=tickval)
+                self.trailingScheduler.add_job(self.trailingAlgo, "interval", id="trailing_algo", minutes=tickval)
     
     def trailingAlgo(self):
-        print(datetime.now())
-    
+        cur_holdings = deepcopy(self.acc.holdings)
+        
+        next_prev_info = {}
+        for stockcode, holding_info in cur_holdings.items():
+            
+            # Set prevholdings info
+            next_prev_info[stockcode] = {
+                "average_buyprice": holding_info.average_buyprice,
+                "income_rate": holding_info.incomeRate()
+            }
+            
+            # If stockcode not in prev holdings => ignore
+            if stockcode not in self.prev_info:
+                continue
+            
+            # Decide trailing or not
+            
+            prev_average_buyprice = self.prev_info.get("average_buyprice")
+            prev_income_rate = self.prev_info.get("imcome_rate")
+            
+            curobj = self.api.getStockObj(stockcode)
+            
+        self.prev_info = next_prev_info
+            
     def start(self):
         
         # Set next run time
@@ -61,16 +89,22 @@ class TrailingStop:
             rest = tickval - now.minute % tickval
             
             next_run = now - timedelta(seconds=now.second) + timedelta(minutes=rest) - timedelta(seconds=1)
-            
-        self.trailingScheduler.modify_job('trailingAlgo', next_run_time=next_run)
+        
+        # Init setting
+        self.prev_info = {}
+        self.trailingScheduler.modify_job('trailing_algo', next_run_time=next_run)
+        
+        # Register real event
+        holding_stockcodes = list(self.acc.holdings.keys())
+        real_manager.regReal(f"{self.acc.accno}$trailing_algo", holding_stockcodes)
         
         # Start scheduler
         if self.trailingScheduler.running:
-            self.trailingScheduler.resume("trailingAlgo")
+            self.trailingScheduler.resume("trailing_algo")
         else:
             self.trailingScheduler.start()
         
     def stop(self):
         
-        self.trailingScheduler.pause_job("trailingAlgo")
+        self.trailingScheduler.pause_job("trailing_algo")
         

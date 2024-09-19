@@ -6,6 +6,7 @@ from core.logger import logger
 from core.errors import ErrorCode, KiwoomException
 from core.scr_manager import scr_manager
 from core.global_state import UseGlobal
+from core.stock import Stock
 from core.utils.utils import getRegStock
 
 class API(UseGlobal, QObject):
@@ -36,7 +37,7 @@ class API(UseGlobal, QObject):
         self.update.connect(self.updateStates)
         
     def updateStates(self, key="", extra={}):
-        pass
+        self.account_dict = self.gstate.getState("account_dict")
     
     ############################################
     # Login
@@ -60,6 +61,13 @@ class API(UseGlobal, QObject):
         
         return [acc_list, user_id, user_name]
     
+    def getAccObj(self, accno):
+        if accno not in self.account_dict:
+            logger.warning("accno is not in account_dict")
+            return None
+        
+        return self.account_dict[accno]
+    
     ############################################
     # Stocks
     ############################################
@@ -79,7 +87,7 @@ class API(UseGlobal, QObject):
         
         return self.kiwoom.getCodeListByMarket(marketcode)
 
-    def getStockObj(self, stockcode):
+    def getStockObj(self, stockcode) -> Stock:
         stockcode = getRegStock(stockcode)
         
         if stockcode in self.gstate.kospi_stocks:
@@ -203,3 +211,43 @@ class API(UseGlobal, QObject):
         
         return data
     
+    ############################################
+    # Order request
+    ############################################
+    
+    def sendOrder(self, *args):
+        
+        order_timer = self.gstate.order_timer
+        order_loop = self.gstate._eventloop["order_loop"]
+        
+        if order_timer.isWait():
+            order_loop.exec_()
+
+        order_timer.startWait()
+        
+        try:
+            self.kiwoom.sendOrder(*args)
+            single_data = self.gstate.lock()
+        except KiwoomException as e:
+            logger.warning(e)
+            return ErrorCode.OP_KIWOOM_ERROR
+
+        orderno = single_data.get("주문번호", "")
+        if orderno == "":
+            return ErrorCode.OP_ERROR
+        
+        return orderno
+    
+    def getChejanData(self, tradetype):    
+        # 주문체결
+        data = {}
+        if tradetype == "0":
+            for data_type in REAL_RET_MAP["주문체결"]:
+                data[data_type] = self.kiwoom.getChejanData(REAL_NO_MAP[data_type])
+        
+        # 잔고
+        elif tradetype == "1":
+            for data_type in REAL_RET_MAP["잔고"]:
+                data[data_type] = self.kiwoom.getChejanData(REAL_NO_MAP[data_type])
+                
+        return data

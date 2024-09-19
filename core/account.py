@@ -4,6 +4,7 @@ from core.api import API
 from core.errors import ErrorCode, StockNotFoundException
 from core.stock import Stock
 from core.utils.utils import isStock, intOrZero, getRegStock
+from core.real_processing import real_manager
 
 class holdingInfo:
     def __init__(self, stockcode, quantity, average_buyprice):
@@ -63,6 +64,7 @@ class Account:
         self.accno = accno
         
         self.total_amount = 0
+        self.rest_amount = 0
         self.month_income = 0
         self.today_income = 0
         
@@ -70,13 +72,20 @@ class Account:
         
         # Auto trading
         self.trading = Trading(self)
+        
+        # Get acc info
+        self.reqAccInfo()
     
-    # data = {"total_amount": "00", "month_income": "00", "today_income": "00"}    
+    # data = {"total_amount": "00", "rest_amount": "00", "month_income": "00", "today_income": "00"}    
     def setAccInfo(self, data):
         
         total_amount = data.get("total_amount")
         if total_amount is not None:
             self.total_amount = intOrZero(total_amount)
+            
+        rest_amount = data.get("rest_amount")
+        if rest_amount is not None:
+            self.rest_amount = intOrZero(rest_amount)
         
         month_income = data.get("month_income")
         if month_income is not None:
@@ -96,11 +105,13 @@ class Account:
         multi_data = acc_bal_info.get("multi")
         
         total_amount = single_data.get("추정예탁자산")
+        rest_amount = single_data.get("D+2추정예수금")
         month_income = single_data.get("당월투자손익")
         today_income = single_data.get("당일투자손익")
         
         self.setAccInfo({
             "total_amount": total_amount,
+            "rest_amount": rest_amount,
             "month_income": month_income,
             "today_income": today_income
         })
@@ -132,6 +143,18 @@ class Account:
             
         self.holdings = holdings
         
+        # Register real event
+        real_manager.regReal(f"{self.accno}$holdings", list(self.holdings.keys()), self.changeHoldings)
+        
+    def changeHoldings(self, seed, stockcode, real_type, real_data):
+        if real_type == "주식체결":
+            stockcode = getRegStock(stockcode)
+            if self.isHoldings(stockcode):
+                total_cur_amount = self.getTotalCurAmount()
+                
+                total_amount = self.rest_amount + total_cur_amount
+                self.total_amount = total_amount
+            
     def getTotalBuyAmount(self):
         
         total_buy_amount = 0

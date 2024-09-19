@@ -93,6 +93,10 @@ class CondManager(QThread, UseGlobal):
             callback = self.seed_callback_dict[seed]
             callback(seed, stockcode, tag, condname, cidx)
         
+    ############################################
+        # User functions
+    ############################################
+        
     def regCondReal(self, seed, condname_list, callback):
         self.seed_callback_dict[seed] = callback
         
@@ -115,7 +119,7 @@ class CondManager(QThread, UseGlobal):
                 except KiwoomException as e:
                     logger.warning(e)
     
-    def regTerm(self, seed):
+    def termCondReal(self, seed):
         
         for condname in self.reg_cond_dict.keys():
             if seed in self.reg_cond_dict[condname]:

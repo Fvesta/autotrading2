@@ -84,6 +84,26 @@ class Kiwoom:
         self.ocx.dynamicCall("SetRealReg(QString, QString, QString, QString)", [scrno, stockcode_list, fid_list, tag])
         
     def getCommRealData(self, stockcode, fid):
-        data = self.ocx.dynamicCall("GetCommRealData(QString, int)", stockcode, fid)
+        data = self.ocx.dynamicCall("GetCommRealData(QString, int)", [stockcode, fid])
         return data
     
+    ############################################
+    # Order request
+    ############################################
+    
+    # orderType => 1: 신규매수, 2: 신규매도, 3: 매수취소, 4: 매도취소, 5:매수정정, 6: 매도정정
+    # tradeType => 00:지정가, 03:시장가, 05:조건부지정가, 06:최유리지정가, 07:최우선지정가, 10:지정
+    # 가IOC, 13:시장가IOC, 16:최유리IOC, 20:지정가FOK, 23:시장가FOK, 26:최유리FOK, 61:장전시간
+    # 외종가, 62:시간외단일가, 81:장후시간외종가
+    def sendOrder(self, rqname, scrno, accno, ordertype, stockcode, quantity, price, tradetype, org_orderno):
+        
+        kiwoom_retcode = self.ocx.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QStromg)",
+                                   [rqname, scrno, accno, ordertype, stockcode, quantity, price, tradetype, org_orderno])
+
+        if kiwoom_retcode != 0:
+            raise KiwoomException(kiwoom_retcode)
+        
+    def getChejanData(self, fid):
+        data = self.ocx.dynamicCall("GetChejanData(int)", fid)
+        return data
+        

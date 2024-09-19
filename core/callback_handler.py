@@ -5,6 +5,7 @@ from core.constants import TR_RETURN_MAP
 from core.scr_manager import scr_manager
 from core.real_processing import real_manager
 from core.condition import Condition, cond_manager
+from core.order_processing import order_manager
 from core.api import API
 from core.global_state import UseGlobal
 from core.stock import Stock
@@ -16,7 +17,8 @@ signal_map = {
     "OnReceiveRealData": SIGNAL("OnReceiveRealData(QString, QString, QString)"),
     "OnReceiveConditionVer": SIGNAL("OnReceiveConditionVer(int, QString)"),
     "OnReceiveTrCondition": SIGNAL("OnReceiveTrCondition(QString, QString, QString, int, int)"),
-    "OnReceiveRealCondition": SIGNAL("OnReceiveRealCondition(QString, QString, QString, QString)")
+    "OnReceiveRealCondition": SIGNAL("OnReceiveRealCondition(QString, QString, QString, QString)"),
+    "OnReceiveChejanData": SIGNAL("OnReceiveChejanData(QString, int, QString)")
 }
 
 class CallbackHandler(UseGlobal, QObject):
@@ -35,7 +37,8 @@ class CallbackHandler(UseGlobal, QObject):
         self.ocx.connect(signal_map["OnReceiveTrCondition"], self.condTrCallback)
         self.ocx.connect(signal_map["OnReceiveRealCondition"], self.condRealCallback)
         self.ocx.connect(signal_map["OnReceiveTrData"], self.trCallback)
-        self.ocx.connect(signal_map["OnReceiveRealData"], self.realEventCallback)
+        self.ocx.connect(signal_map["OnReceiveRealData"], self.realCallback)
+        self.ocx.connect(signal_map["OnReceiveChejanData"], self.orderCallback)
         
     # OnEventConnect
     def loginCallback(self, retcode):
@@ -80,10 +83,17 @@ class CallbackHandler(UseGlobal, QObject):
                 "single": single_data,
                 "multi": filtered_multi_data
             }
+        
+        if rqname == "주문요청":
+            single_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["주문요청"]["single"])
+            
+            ret_data = {
+                "single": single_data
+            }
             
         self.gstate.unlock(ret_data)
         
-    def realEventCallback(self, stockcode, real_type, data):
+    def realCallback(self, stockcode, real_type, data):
         
         stockobj: Stock = self.api.getStockObj(stockcode)
         
@@ -102,3 +112,16 @@ class CallbackHandler(UseGlobal, QObject):
             })
             
         real_manager.addEvent((stockcode, real_type, real_data))
+        
+    def orderCallback(self, tradetype, itemcnt, datalist):
+        
+        order_data = {}
+        # 주문체결
+        if tradetype == "0":
+            order_data = self.api.getChejanData(tradetype)
+        
+        # 잔고
+        elif tradetype == "1":
+            order_data = self.api.getChejanData(tradetype)
+        
+        order_manager.addEvent((tradetype, order_data))

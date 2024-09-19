@@ -42,12 +42,16 @@ class GlobalState:
         
         # Loop block
         self._eventloop = {
-            "tr_loop": QEventLoop()
+            "tr_loop": QEventLoop(),
+            "order_loop": QEventLoop()
         }
         self._return = {}
         
         # Tr request wait timer
         self.tr_timer = WaitTimer("tr_timer", 300, lambda: self.__quitEventLoop("tr_loop"))
+        
+        # Order request wait timer
+        self.order_timer = WaitTimer("order_timer", 300, lambda: self.__quitEventLoop("order_loop"))
         
         
         self.initialized = True

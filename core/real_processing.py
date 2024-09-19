@@ -63,9 +63,13 @@ class RealManager(QThread):
         for seed in callback_seed_set:
             callback = self.seed_callback_dict[seed]
             callback(seed, stockcode, real_type, real_data)
-
+            
+    ############################################
+        # User functions
+    ############################################
+    
     # callback args: seed, stockcode, real_type, real_data
-    def regReal(self, seed, stockcode_list, callback):
+    def regReal(self, seed, stockcode_list, callback = lambda: None):
         self.seed_callback_dict[seed] = callback
         
         for stockcode in stockcode_list:
@@ -76,7 +80,7 @@ class RealManager(QThread):
         
         self.updateReg()
           
-    def regTerm(self, seed):
+    def termReal(self, seed):
         
         for stockcode in self.reg_stock_dict.keys():
             if seed in self.reg_stock_dict[stockcode]:

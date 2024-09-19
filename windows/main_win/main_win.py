@@ -90,7 +90,6 @@ class MainWin(WindowAbs):
         
         # Get account balance
         for accno, acc in self.account_dict.items():
-            acc.reqAccInfo()
             self.updateBalTable(accno)
             
         # Register real data
@@ -188,7 +187,7 @@ class MainWin(WindowAbs):
             new_winobj.show()
 
     def realEventCallback(self, seed, stockcode, real_type, real_data):
-        if seed == "main_win_accholdings":
+        if real_type == "주식체결":
             for accno, acc in self.account_dict.items():
                 if acc.isHoldings(stockcode):
                     self.gstate.callUpdate(key=seed, extra={"accno": accno})
