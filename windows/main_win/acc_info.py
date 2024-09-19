@@ -1,6 +1,7 @@
 from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
+from PySide2.QtSvg import QSvgWidget
 
 def newAccInfo(ui, accno):    
     sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
@@ -47,10 +48,24 @@ def newAccInfo(ui, accno):
     horizontalLayout_2 = QHBoxLayout()
     horizontalLayout_2.setSpacing(15)
     horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+    horizontalLayout_2.setContentsMargins(0, 0, 10, 0)
     tradeset_label = QLabel(widget_2)
     tradeset_label.setObjectName(u"tradeset_label")
 
     horizontalLayout_2.addWidget(tradeset_label)
+    
+    setting_btn = QSvgWidget()
+    setting_btn.setObjectName(u"setting_btn")
+    sizePolicy_custom_1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+    sizePolicy_custom_1.setHorizontalStretch(0)
+    sizePolicy_custom_1.setVerticalStretch(0)
+    sizePolicy_custom_1.setHeightForWidth(setting_btn.sizePolicy().hasHeightForWidth())
+    setting_btn.setSizePolicy(sizePolicy_custom_1)
+    setting_btn.setMinimumSize(QSize(18, 18))
+    setting_btn.setMaximumSize(QSize(18, 18))
+    setting_btn.load("style/assets/setting_icon.svg")
+    
+    horizontalLayout_2.addWidget(setting_btn)
 
     verticalLayout_4.addLayout(horizontalLayout_2)
 

@@ -164,10 +164,32 @@ class MainWin(WindowAbs):
         item3_2.setText(str(acc.getTotalIncomeRate()))
         
     def setBtnEvents(self):
+        def settingBtnPress(btn):
+            def wrapper(event):
+                btn.load("style/assets/setting_icon_clicked.svg")
+            
+            return wrapper
+        
+        def settingBtnRelease(btn, accno):
+            def wrapper(event):
+                btn.load("style/assets/setting_icon.svg")
+            
+                win_name = f"_{accno}_trade_setting"
+                
+                if win_name in self.gstate.activated_windows:
+                    return
+                
+                new_winobj = TradeSettingWin(win_name, "GUI/trade_setting.ui", "style/trade_setting.css")
+                new_winobj.show()
+            
+            return wrapper
+        
         accounts = self.account_dict.keys()
         for accno in accounts:
-            setting_btn = getattr(self.ui, f"_{accno}_pushButton")
-            setting_btn.clicked.connect(self.newWindow)
+            # Setting button svg click event 
+            setting_btn = getattr(self.ui, f"_{accno}_setting_btn")
+            setting_btn.mousePressEvent = settingBtnPress(setting_btn)
+            setting_btn.mouseReleaseEvent = settingBtnRelease(setting_btn, accno)
 
     def newWindow(self):
         eventObj: QPushButton = self.sender()
@@ -178,13 +200,7 @@ class MainWin(WindowAbs):
         text = eventObj.text()
         
         if text == "매매설정":
-            win_name = f"_{accno}_trade_setting"
-            
-            if win_name in self.gstate.activated_windows:
-                return
-            
-            new_winobj = TradeSettingWin(win_name, "GUI/trade_setting.ui", "style/trade_setting.css")
-            new_winobj.show()
+            pass
 
     def realEventCallback(self, seed, stockcode, real_type, real_data):
         if real_type == "주식체결":

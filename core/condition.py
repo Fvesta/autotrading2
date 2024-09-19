@@ -109,6 +109,11 @@ class CondManager(QThread, UseGlobal):
             # If new reg condname
             if len(self.reg_cond_dict[condname]) == 1:
                 condobj: Condition = self.cond_dict[condname]
+                
+                if condobj.req_timer.isWait():
+                    continue
+                
+                condobj.req_timer.startWait()
                 try:
                     self.api.sendCondition(scr_manager.scrAct("sendCondition"), condname, condobj.cidx, 1)
                     self.reg_count += 1
