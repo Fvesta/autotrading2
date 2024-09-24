@@ -1,1 +1,5 @@
-2024-09-24 01:50:01:logger:WARNING:Buy amount is zero
+2024-09-24 10:37:12:logger:WARNING:Buy amount is zero
+2024-09-24 10:37:17:base:INFO:Scheduler started
+2024-09-24 10:37:23:base:INFO:Paused scheduler job processing
+2024-09-24 10:37:28:base:INFO:Resumed scheduler job processing
+2024-09-24 10:37:36:base:INFO:Paused scheduler job processing

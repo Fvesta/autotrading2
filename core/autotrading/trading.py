@@ -11,6 +11,7 @@ class Trading:
     def __init__(self, acc):
         self.acc = acc
         
+        self.running = False
         self.scheduler = BackgroundScheduler(timezone="Asia/Seoul")
         self.option = None
         
@@ -54,22 +55,26 @@ class Trading:
          
     def start(self):
               
-        # Trailing stop setting
-        if self.trailing_stop.used:
-            self.trailing_stop.calcStartTime()
+        # # Trailing stop setting
+        # if self.trailing_stop.used:
+        #     self.trailing_stop.calcStartTime()
             
-        # Base algorithm
-        if self.algo == "short_hit":
-            algo_obj = self.algorithm_dict[self.algo]
-            algo_obj.start()
+        # # Base algorithm
+        # if self.algo == "short_hit":
+        #     algo_obj = self.algorithm_dict[self.algo]
+        #     algo_obj.start()
                    
         # Start scheduler
         if self.scheduler.running:
-            for job in self.scheduler.get_jobs():
-                self.scheduler.resume(job.id)
+            # for job in self.scheduler.get_jobs():
+            #     self.scheduler.resume(job.id)
+            self.scheduler.resume()
         else:
-            self.scheduler.start()          
+            self.scheduler.start()
+        self.running = True          
             
     def stop(self):
-        for job in self.scheduler.get_jobs():
-            self.scheduler.pause_job(job.id)
+        # for job in self.scheduler.get_jobs():
+        #     self.scheduler.pause_job(job.id)
+        self.scheduler.pause()
+        self.running = False

@@ -179,12 +179,6 @@ class MainWin(WindowAbs):
             
             return wrapper
         
-        def svgImgLoad(obj, img_path):
-            def wrapper(event):
-                obj.load(img_path)
-            
-            return wrapper
-        
         def svgResize(obj, size):
             def wrapper(event):
                 obj.setFixedSize(size, size)
@@ -202,11 +196,43 @@ class MainWin(WindowAbs):
                 new_winobj.show()
             
             return wrapper
+
+        def playBtnEnter(btn, accno):
+            def wrapper(event):
+                btn.setCursor(Qt.PointingHandCursor)
+                acc = self.api.getAccObj(accno)
+                
+                if acc.trading.running:
+                    btn.load("style/assets/stop_icon_hover.svg")
+                else:
+                    btn.load("style/assets/play_icon_hover.svg")
+            
+            return wrapper
+                    
+        def playBtnLeave(btn, accno):
+            def wrapper(event):
+                btn.setCursor(Qt.ArrowCursor)
+                acc = self.api.getAccObj(accno)
+                
+                if acc.trading.running:
+                    btn.load("style/assets/stop_icon.svg")
+                else:
+                    btn.load("style/assets/play_icon.svg")
+        
+            return wrapper
         
         def playBtnRelease(btn, accno):
             def wrapper(event):
                 btn.setFixedSize(40, 40)
-                btn.load("style/assets/stop_icon.svg")
+                
+                acc = self.api.getAccObj(accno)
+                
+                if acc.trading.running:
+                    acc.trading.stop()
+                    btn.load("style/assets/play_icon_hover.svg")
+                else:
+                    acc.trading.start()
+                    btn.load("style/assets/stop_icon_hover.svg")
                 
             return wrapper
         
@@ -221,8 +247,8 @@ class MainWin(WindowAbs):
             
             # Play button events
             play_btn = getattr(self.ui, f"_{accno}_play_btn")
-            play_btn.enterEvent = svgImgLoad(play_btn, "style/assets/play_icon_hover.svg")
-            play_btn.leaveEvent = svgImgLoad(play_btn, "style/assets/play_icon.svg")
+            play_btn.enterEvent = playBtnEnter(play_btn, accno)
+            play_btn.leaveEvent = playBtnLeave(play_btn, accno)
             
             play_btn.mousePressEvent = svgResize(play_btn, 35)
             play_btn.mouseReleaseEvent = playBtnRelease(play_btn, accno)
