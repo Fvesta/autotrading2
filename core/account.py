@@ -99,7 +99,7 @@ class Account:
         acc_bal_info = self.api.sendTr("계좌평가현황요청", [self.accno, "", None, None])
         
         if isinstance(acc_bal_info, ErrorCode):
-            logger.warning("Can't load account balance info")
+            logger.warning("Can\'t load account balance info")
             
         single_data = acc_bal_info.get("single")
         multi_data = acc_bal_info.get("multi")

@@ -55,14 +55,14 @@ class Trading:
          
     def start(self):
               
-        # # Trailing stop setting
-        # if self.trailing_stop.used:
-        #     self.trailing_stop.calcStartTime()
+        # Trailing stop setting
+        if self.trailing_stop.used:
+            self.trailing_stop.calcStartTime()
             
-        # # Base algorithm
-        # if self.algo == "short_hit":
-        #     algo_obj = self.algorithm_dict[self.algo]
-        #     algo_obj.start()
+        # Base algorithm
+        if self.algo == "short_hit":
+            algo_obj = self.algorithm_dict[self.algo]
+            algo_obj.start()
                    
         # Start scheduler
         if self.scheduler.running:

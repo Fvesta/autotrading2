@@ -83,6 +83,13 @@ class CallbackHandler(UseGlobal, QObject):
                 "single": single_data,
                 "multi": filtered_multi_data
             }
+            
+        if rqname == "주식기본정보요청":
+            single_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["주식기본정보요청"]["single"])
+            
+            ret_data = {
+                "single": single_data
+            }
         
         if rqname == "주문요청":
             single_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["주문요청"]["single"])
@@ -103,12 +110,12 @@ class CallbackHandler(UseGlobal, QObject):
             
             cur_price = real_data["현재가"]
             today_updown_rate = real_data["등락율"]
-            today_trans_amount = real_data["누적거래대금"]
+            today_trans_count = real_data["누적거래량"]
             
             stockobj.setStockInfo({
                 "cur_price": cur_price,
                 "today_updown_rate": today_updown_rate,
-                "today_trans_amount": today_trans_amount,
+                "today_trans_count": today_trans_count,
             })
             
         real_manager.addEvent((stockcode, real_type, real_data))

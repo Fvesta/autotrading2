@@ -6,7 +6,6 @@ from core.logger import logger
 from core.errors import ErrorCode, KiwoomException
 from core.scr_manager import scr_manager
 from core.global_state import UseGlobal
-from core.stock import Stock
 from core.utils.utils import getRegStock
 
 class API(UseGlobal, QObject):
@@ -87,7 +86,7 @@ class API(UseGlobal, QObject):
         
         return self.kiwoom.getCodeListByMarket(marketcode)
 
-    def getStockObj(self, stockcode) -> Stock:
+    def getStockObj(self, stockcode):
         stockcode = getRegStock(stockcode)
         
         if stockcode in self.gstate.kospi_stocks:
@@ -144,7 +143,7 @@ class API(UseGlobal, QObject):
 
         tr_timer.startWait()
         
-        if trcode == "opw00004":
+        if rqname == "계좌평가현황요청":
             if len(inputs) != 4:
                 return ErrorCode.OP_INPUT_ERROR
             
@@ -153,6 +152,13 @@ class API(UseGlobal, QObject):
             self.kiwoom.setInputValue("비밀번호", password)
             self.kiwoom.setInputValue("상장폐지조회구분", 1)
             self.kiwoom.setInputValue("비밀번호입력매체구분", "00")
+            
+        if rqname == "주식기본정보요청":
+            if len(inputs) != 1:
+                return ErrorCode.OP_INPUT_ERROR
+            
+            stockcode = inputs
+            self.kiwoom.setInputValue("종목코드", stockcode)
             
         if next:
             try:

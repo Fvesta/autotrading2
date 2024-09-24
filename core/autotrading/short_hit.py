@@ -1,4 +1,4 @@
-from PySide2.QtCore import Signal
+from PySide2.QtCore import Signal, QObject
 
 from core.logger import logger
 from core.api import API
@@ -7,10 +7,11 @@ from core.order_processing import order_manager
 from core.autotrading.basic_options import ALGO_SHORT_HIT_BASIC_OPTION
 from core.global_state import UseGlobal
 
-class ShortHit(UseGlobal):
+class ShortHit(QObject, UseGlobal):
     update = Signal(str, dict)
     
     def __init__(self, acc):
+        QObject.__init__(self)
         UseGlobal.__init__(self)
         self.acc = acc
         
@@ -21,20 +22,32 @@ class ShortHit(UseGlobal):
         if key == f"{self.acc.accno}$short_hit":
             try:
                 stockcode = extra["stockcode"]
-                one_timer_amount = self.order["one_time_amount"]
+                one_time_amount = self.order["one_time_amount"]
                 buy_same_stock = self.order["buy_same_stock"]
                 order_type = self.order["order_type"]
+            
             except KeyError as e:
                 logger.error(f"{self.acc.accno} algorithm option not correct: {e}")
                 return
             
             stockobj = self.api.getStockObj(stockcode)
+            stockobj.reqStockInfo()
+            cur_price = stockobj.cur_price
             
+            try:
+                quantity = int(one_time_amount / cur_price)
+            except TypeError as e:
+                logger.error(e)
+                return
+            except ZeroDivisionError as e:
+                logger.error(e)
+                return
                 
             if order_type == "market_price":
-                
-                
-                order_manager.buyStockNow
+                order_manager.buyStockNow(self.acc.accno, stockcode, quantity)
+    
+    def eventReg(self):
+        self.update.connect(self.updateStates)
     
     def setOption(self, option={}):
         
@@ -48,8 +61,9 @@ class ShortHit(UseGlobal):
         
         self.stateReg()
         self.updateStates()
+        self.eventReg()
         
-        cond_manager.regCondReal(f"{self.acc.accno}$short_hit", [self.condition], self.orderCallback)
+        cond_manager.regCondReal(f"{self.acc.accno}$short_hit", [self.condition], self.condRealCallback)
         
     def condRealCallback(self, seed, stockcode, tag, condname, cidx):
 
@@ -61,5 +75,4 @@ class ShortHit(UseGlobal):
             self.gstate.callUpdate(seed, extra={
                 "stockcode": stockcode
             })
-            
             

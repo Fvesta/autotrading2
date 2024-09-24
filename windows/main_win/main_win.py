@@ -3,12 +3,14 @@ from PySide2.QtCore import Signal, Qt
 
 from core.account import Account
 from core.api import API
+from core.autotrading.basic_options import ALGO_SHORT_HIT_BASIC_OPTION, TRADING_BASIC_OPTION
 from core.errors import ErrorCode
 from core.logger import logger
 from core.stock import Stock
 from core.condition import Condition
 from core.real_processing import real_manager
 from core.condition import cond_manager
+from core.utils.utils import getAccnoFromObj
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.main_win.acc_info import newAccInfo
 from windows.trade_setting.trade_setting import TradeSettingWin
@@ -52,6 +54,8 @@ class MainWin(WindowAbs):
             # Set combo box
             combobox = getattr(self.ui, f"_{accno}_comboBox")
             combobox.addItems(cond_manager.cond_dict.keys())
+            
+            combobox.currentTextChanged.connect(self.comboChanged)
             
             # Set account balance
             self.updateBalTable(accno)
@@ -252,12 +256,29 @@ class MainWin(WindowAbs):
             
             play_btn.mousePressEvent = svgResize(play_btn, 35)
             play_btn.mouseReleaseEvent = playBtnRelease(play_btn, accno)
+            
+    def comboChanged(self, text):
+        obj_name = self.sender().objectName()
+        accno = getAccnoFromObj(obj_name)
+        
+        if isinstance(accno, ErrorCode):
+            return
+        
+        acc = self.api.getAccObj(accno)
+        
+        option = dict(TRADING_BASIC_OPTION)
+
+        short_hit_base_option = dict(ALGO_SHORT_HIT_BASIC_OPTION)
+        short_hit_base_option["condition"] = text
+        
+        option["base_algorithm"]["option"] = short_hit_base_option
+        acc.trading.setOption(option)
 
     def newWindow(self):
         eventObj: QPushButton = self.sender()
         
-        name = eventObj.objectName()
-        accno = name.split("_")[1]
+        obj_name = eventObj.objectName()
+        accno = getAccnoFromObj(obj_name)
         
         text = eventObj.text()
         
