@@ -54,7 +54,9 @@ class CondManager(QThread, UseGlobal):
         
         self.api = None
         self.reg_count = 0
-        self.cond_dict = {}
+        self.cond_dict = {
+            "선택안됨": Condition(-1, "선택안됨")
+        }
 
         self.reg_cond_dict = {}
         self.seed_callback_dict = {}
@@ -140,4 +142,4 @@ class CondManager(QThread, UseGlobal):
         if seed in self.seed_callback_dict:
             del self.seed_callback_dict[seed]
             
-cond_manager = CondManager()
+cond_manager: CondManager = CondManager()

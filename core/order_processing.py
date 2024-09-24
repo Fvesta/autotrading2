@@ -119,4 +119,4 @@ class OrderManager(QThread):
     def sellStockFix(self, acccno, stockcode, quantity, ask_step, cancel=False, cancel_sell=False, cancel_time_sec=0):
         pass
     
-order_manager = OrderManager()
+order_manager: OrderManager = OrderManager()

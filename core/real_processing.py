@@ -117,4 +117,4 @@ class RealManager(QThread):
             
             self.api.setRealReg(scr_manager.scrAct(f"real_processing_{idx}"), stock_input, self.fid_set, 0)
             
-real_manager = RealManager()
+real_manager: RealManager = RealManager()

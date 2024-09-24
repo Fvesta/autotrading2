@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import *
-from PySide2.QtCore import Signal
+from PySide2.QtCore import Signal, Qt
 
 from core.account import Account
 from core.api import API
@@ -42,10 +42,26 @@ class MainWin(WindowAbs):
         self.update.connect(self.updateStates)
 
     def afterSetting(self):
-        self.updateStyle()
-        
         accounts = self.account_dict.keys()
         
+        for accno in accounts:
+            # Set text feature
+            tradeset_label = getattr(self.ui, f"_{accno}_tradeset_label")
+            tradeset_label.setProperty("class", "tx-tradeset-label")
+            
+            # Set combo box
+            combobox = getattr(self.ui, f"_{accno}_comboBox")
+            combobox.addItems(cond_manager.cond_dict.keys())
+            
+            # Set account balance
+            self.updateBalTable(accno)
+
+        # Add additional btn event
+        self.setBtnEvents()
+        
+        self.updateStyle()
+        
+        # Resize table
         for accno in accounts:
             balanceTable = getattr(self.ui, f"_{accno}_balanceTable")
             setTableSizeSameHor(balanceTable)
@@ -85,13 +101,6 @@ class MainWin(WindowAbs):
 
         self.ui.verticalLayout_3.addItem(verticalSpacer)
         
-        # Add additional btn event
-        self.setBtnEvents()
-        
-        # Get account balance
-        for accno, acc in self.account_dict.items():
-            self.updateBalTable(accno)
-            
         # Register real data
         stockcode_set = set()
         for acc in self.account_dict.values():
@@ -164,16 +173,26 @@ class MainWin(WindowAbs):
         item3_2.setText(str(acc.getTotalIncomeRate()))
         
     def setBtnEvents(self):
-        def settingBtnPress(btn):
+        def changeMouseCursor(obj, shape):
             def wrapper(event):
-                btn.load("style/assets/setting_icon_clicked.svg")
+                obj.setCursor(shape)
             
             return wrapper
         
-        def settingBtnRelease(btn, accno):
+        def svgImgLoad(obj, img_path):
             def wrapper(event):
-                btn.load("style/assets/setting_icon.svg")
+                obj.load(img_path)
             
+            return wrapper
+        
+        def svgResize(obj, size):
+            def wrapper(event):
+                obj.setFixedSize(size, size)
+                
+            return wrapper
+        
+        def settingBtnRelease(btn, accno):
+            def wrapper(event):            
                 win_name = f"_{accno}_trade_setting"
                 
                 if win_name in self.gstate.activated_windows:
@@ -184,12 +203,29 @@ class MainWin(WindowAbs):
             
             return wrapper
         
+        def playBtnRelease(btn, accno):
+            def wrapper(event):
+                btn.setFixedSize(40, 40)
+                btn.load("style/assets/stop_icon.svg")
+                
+            return wrapper
+        
         accounts = self.account_dict.keys()
         for accno in accounts:
             # Setting button svg click event 
             setting_btn = getattr(self.ui, f"_{accno}_setting_btn")
-            setting_btn.mousePressEvent = settingBtnPress(setting_btn)
+            setting_btn.enterEvent = changeMouseCursor(setting_btn, Qt.PointingHandCursor)
+            setting_btn.leaveEvent = changeMouseCursor(setting_btn, Qt.ArrowCursor)
+            
             setting_btn.mouseReleaseEvent = settingBtnRelease(setting_btn, accno)
+            
+            # Play button events
+            play_btn = getattr(self.ui, f"_{accno}_play_btn")
+            play_btn.enterEvent = svgImgLoad(play_btn, "style/assets/play_icon_hover.svg")
+            play_btn.leaveEvent = svgImgLoad(play_btn, "style/assets/play_icon.svg")
+            
+            play_btn.mousePressEvent = svgResize(play_btn, 35)
+            play_btn.mouseReleaseEvent = playBtnRelease(play_btn, accno)
 
     def newWindow(self):
         eventObj: QPushButton = self.sender()

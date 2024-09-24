@@ -43,12 +43,13 @@ def newAccInfo(ui, accno):
     horizontalLayout_3 = QHBoxLayout()
     horizontalLayout_3.setSpacing(0)
     horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+    horizontalLayout_3.setContentsMargins(0, 8, 0, 0)
     verticalLayout_4 = QVBoxLayout()
     verticalLayout_4.setObjectName(u"verticalLayout_4")
     horizontalLayout_2 = QHBoxLayout()
     horizontalLayout_2.setSpacing(15)
     horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-    horizontalLayout_2.setContentsMargins(0, 0, 10, 0)
+    horizontalLayout_2.setContentsMargins(6, 0, 10, 3)
     tradeset_label = QLabel(widget_2)
     tradeset_label.setObjectName(u"tradeset_label")
 
@@ -83,10 +84,32 @@ def newAccInfo(ui, accno):
 
     horizontalLayout_3.addLayout(verticalLayout_4)
 
+    horizontal_custom_layout_1 = QHBoxLayout()
+    horizontal_custom_layout_1.setObjectName(u"horizontal_custom_layout_1")
+    horizontal_custom_layout_1.setContentsMargins(60, 0, 0, 0)
+    
+    horizontal_custom_layout_2 = QHBoxLayout()
+    horizontal_custom_layout_2.setObjectName(u"horizontal_custom_layout_2")
+    
+    play_btn = QSvgWidget()
+    play_btn.setObjectName(u"play_btn")
+    sizePolicy_custom_2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+    sizePolicy_custom_2.setHeightForWidth(setting_btn.sizePolicy().hasHeightForWidth())
+    play_btn.setSizePolicy(sizePolicy_custom_2)
+    play_btn.setFixedSize(40, 40)
+    play_btn.load("style/assets/play_icon.svg")
+    
+    horizontal_custom_layout_2.addWidget(play_btn, 0, Qt.AlignCenter)
+    
+    horizontal_custom_layout_1.addLayout(horizontal_custom_layout_2)
+    
     widget_3 = QWidget(widget_2)
     widget_3.setObjectName(u"widget_3")
 
-    horizontalLayout_3.addWidget(widget_3)
+    horizontal_custom_layout_1.addWidget(widget_3)
+    horizontal_custom_layout_1.setStretch(10, 1)
+
+    horizontalLayout_3.addLayout(horizontal_custom_layout_1)
 
     horizontalLayout_3.setStretch(1, 1)
 

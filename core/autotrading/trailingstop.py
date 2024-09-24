@@ -9,19 +9,26 @@ from core.real_processing import real_manager
 
 
 class TrailingStop:
-    def __init__(self, acc):
+    def __init__(self, acc, scheduler):
         self.acc = acc
-        self.standard = "each"
+        self.scheduler = scheduler
+        
         self.api = API()
-        self.trailingScheduler = BackgroundScheduler(timezone="Asia/Seoul")
-
-        self.setOption()
+        self.jobid = "trailing_algo"
+        self.used = False
         
         # Algo states
         self.prev_info = {}
     
-    def setOption(self, option={}):
-        if option == None:
+    def setOption(self, used, option={}):
+        self.used = used
+        
+        job = self.scheduler.get_job(self.jobid)
+        
+        if not self.used:
+            # If job exist, remove
+            if job:
+                self.scheduler.remove_job(job.id)
             return
         
         # Update options
@@ -31,7 +38,6 @@ class TrailingStop:
         self.division = option.get("division", TRAILING_STOP_BASIC_OPTION["division"])
         
         # Update tick, modify of add job
-        job = self.trailingScheduler.get_job("trailing_algo")
         ticktype = self.tick.get("type", "seconds")
         tickval = self.tick.get("val", 30)
         
@@ -43,9 +49,9 @@ class TrailingStop:
         
         else:
             if ticktype == "seconds":
-                self.trailingScheduler.add_job(self.trailingAlgo, "interval", id="trailing_algo", seconds=tickval)
+                self.scheduler.add_job(self.trailingAlgo, "interval", id=self.jobid, seconds=tickval)
             if ticktype == "minutes":
-                self.trailingScheduler.add_job(self.trailingAlgo, "interval", id="trailing_algo", minutes=tickval)
+                self.scheduler.add_job(self.trailingAlgo, "interval", id=self.jobid, minutes=tickval)
     
     def trailingAlgo(self):
         cur_holdings = deepcopy(self.acc.holdings)
@@ -72,7 +78,7 @@ class TrailingStop:
             
         self.prev_info = next_prev_info
             
-    def start(self):
+    def calcStartTime(self):
         
         # Set next run time
         ticktype = self.tick.get("type", "seconds")
@@ -92,19 +98,9 @@ class TrailingStop:
         
         # Init setting
         self.prev_info = {}
-        self.trailingScheduler.modify_job('trailing_algo', next_run_time=next_run)
-        
-        # Register real event
-        holding_stockcodes = list(self.acc.holdings.keys())
-        real_manager.regReal(f"{self.acc.accno}$trailing_algo", holding_stockcodes)
-        
-        # Start scheduler
-        if self.trailingScheduler.running:
-            self.trailingScheduler.resume("trailing_algo")
-        else:
-            self.trailingScheduler.start()
+        self.scheduler.modify_job(self.jobid, next_run_time=next_run)
         
     def stop(self):
         
-        self.trailingScheduler.pause_job("trailing_algo")
+        self.scheduler.pause_job(self.jobid)
         
