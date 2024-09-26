@@ -1,5 +1,5 @@
 # General constants
-TRADING_TAX = 0.17
+TRADING_TAX = 0
 
 # TR constants
 TRCODE_DICT = {

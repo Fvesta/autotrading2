@@ -18,6 +18,7 @@ signal_map = {
     "OnReceiveConditionVer": SIGNAL("OnReceiveConditionVer(int, QString)"),
     "OnReceiveTrCondition": SIGNAL("OnReceiveTrCondition(QString, QString, QString, int, int)"),
     "OnReceiveRealCondition": SIGNAL("OnReceiveRealCondition(QString, QString, QString, QString)"),
+    "OnReceiveMsg": SIGNAL("OnReceiveMsg(QString, QString, QString, QString)"),
     "OnReceiveChejanData": SIGNAL("OnReceiveChejanData(QString, int, QString)")
 }
 
@@ -38,6 +39,7 @@ class CallbackHandler(UseGlobal, QObject):
         self.ocx.connect(signal_map["OnReceiveRealCondition"], self.condRealCallback)
         self.ocx.connect(signal_map["OnReceiveTrData"], self.trCallback)
         self.ocx.connect(signal_map["OnReceiveRealData"], self.realCallback)
+        self.ocx.connect(signal_map["OnReceiveMsg"], self.orderMsgCallback)
         self.ocx.connect(signal_map["OnReceiveChejanData"], self.orderCallback)
         
     # OnEventConnect
@@ -129,8 +131,15 @@ class CallbackHandler(UseGlobal, QObject):
             
         real_manager.addEvent((stockcode, real_type, real_data))
         
-    def orderCallback(self, tradetype, itemcnt, datalist):
+    def orderMsgCallback(self, scrno, rqname, trcode, msg):
+        # if rqname == "주문요청":
+        #     self.gstate.unlock(msg, "order_msg")
         
+        pass
+        
+    def orderCallback(self, tradetype, itemcnt, datalist):
+        # 매수 시 주문체결(접수) - 주문체결(체결) 잔고,
+        # 매도 시 주문체결(접수) - 잔고(기존보유수량) - 주문체결(체결) - 잔고(체결이후 보유수량)
         order_data = {}
         # 주문체결
         if tradetype == "0":

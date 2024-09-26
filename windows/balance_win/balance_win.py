@@ -36,7 +36,7 @@ class BalanceWin(WindowAbs):
         setTableSizeSameHor(holding_table)
         
     def updateStates(self, key='', extra={}):
-        if key == f"{self.accno}$holdings":
+        if key == f"{self.accno}$holdings" or key == f"{self.accno}$balance":
             self.setHoldingsData()
                 
     

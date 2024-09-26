@@ -65,11 +65,18 @@ class ShortHit(QObject, UseGlobal):
         
         cond_manager.regCondReal(f"{self.acc.accno}$short_hit", [self.condition], self.condRealCallback)
         
+    def stop(self):
+        cond_manager.termCondReal(f"{self.acc.accno}$short_hit")
+        
     def condRealCallback(self, seed, stockcode, tag, condname, cidx):
 
         if tag == "I":
             # Already holding => ignore
             if self.acc.isHoldings(stockcode):
+                return
+            
+            # If already 10 stocks => ignore
+            if len(self.acc.holdings.keys()) >= self.max_stock_cnt:
                 return
             
             self.gstate.callUpdate(seed, extra={

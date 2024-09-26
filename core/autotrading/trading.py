@@ -76,5 +76,9 @@ class Trading:
     def stop(self):
         # for job in self.scheduler.get_jobs():
         #     self.scheduler.pause_job(job.id)
+        if self.algo == "short_hit":
+            algo_obj = self.algorithm_dict[self.algo]
+            algo_obj.stop()
+            
         self.scheduler.pause()
         self.running = False

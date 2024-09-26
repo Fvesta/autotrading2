@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-from copy import deepcopy
 
 from core.api import API
 from core.autotrading.basic_options import TRAILING_STOP_BASIC_OPTION
@@ -54,7 +53,7 @@ class TrailingStop:
                 self.scheduler.add_job(self.trailingAlgo, "interval", id=self.jobid, minutes=tickval)
     
     def trailingAlgo(self):
-        cur_holdings = deepcopy(self.acc.holdings)
+        cur_holdings = dict(self.acc.holdings)
         
         next_prev_info = {}
         for stockcode, holding_info in cur_holdings.items():

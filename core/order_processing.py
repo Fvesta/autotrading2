@@ -2,14 +2,16 @@ from PySide2.QtCore import QThread, Signal
 import debugpy
 import queue
 
+from core.global_state import UseGlobal
 from core.logger import logger
 from core.constants import ORDER_TAG, ORDER_TYPE
 from core.errors import ErrorCode
 from core.scr_manager import scr_manager
 from core.wait_timer import WaitTimer
 
-class OrderManager(QThread):
+class OrderManager(UseGlobal, QThread):
     acc_update_signal = Signal()
+    timer_start_signal = Signal()
     
     def __new__(cls, *args):
         if not hasattr(cls, "instance"):
@@ -22,7 +24,8 @@ class OrderManager(QThread):
         if hasattr(self, "initialized"):
             return
         
-        super().__init__()
+        QThread.__init__(self)
+        UseGlobal.__init__(self)
         
         self.event_queue = queue.Queue()
         
@@ -37,8 +40,10 @@ class OrderManager(QThread):
         
     def eventReg(self):
         self.acc_update_signal.connect(self.updateAccounts)
+        self.timer_start_signal.connect(self.orderTimerStart)
         
     def run(self):
+        self.eventReg()
         # Debug setting
         debugpy.debug_this_thread()
         
@@ -75,6 +80,9 @@ class OrderManager(QThread):
         # initialize event_accno_set
         self.event_accno_set = set()
         
+    def orderTimerStart(self):
+        self.account_timer.startWait()
+        
     def orderBackgroundProcess(self, event):
         tradetype, order_data = event
         
@@ -83,8 +91,10 @@ class OrderManager(QThread):
             logger.warning("주문에 계좌번호 정보가 없습니다.")
             return
         
-        if not self.account_timer.isWait():
-            self.account_timer.startWait()
+        if tradetype == "0":
+            order_status = order_data.get("주문상태")
+            if order_status == "체결" and not self.account_timer.isWait():
+                self.timer_start_signal.emit()
             
         self.event_accno_set.add(accno)
         
@@ -109,6 +119,7 @@ class OrderManager(QThread):
     
         if isinstance(orderno, ErrorCode):
             logger.error(f"accno: {accno}, 주문요청에 실패했습니다.")
+            # server_msg = self.gstate.lock("order_msg")
     
     def buyStockFix(self, accno, stockcode, quantity, ask_step, cancel=False, cancel_buy=False, cancel_time_sec=0):
         pass

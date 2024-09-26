@@ -37,7 +37,7 @@ class holdingInfo:
         quantity = self.quantity
         cur_price = stockobj.cur_price
         
-        return absIntOrZero(quantity * cur_price * (1 - TRADING_TAX / 100))
+        return quantity * cur_price - absIntOrZero(self.average_buyprice * quantity * (TRADING_TAX / 100))
     
     def getIncomeRate(self):
         cur_amount = self.getCurAmount()
@@ -146,6 +146,10 @@ class Account(UseGlobal):
         multi_data = stocks_info.get("multi")
         for row_data in multi_data:
             stockcode = row_data.get("종목코드")
+            
+            if stockcode == '':
+                continue
+            
             cur_price = row_data.get("현재가")
             today_updown_rate = row_data.get("등락율")
             today_trans_count = row_data.get("거래량")
@@ -158,6 +162,9 @@ class Account(UseGlobal):
                 "today_trans_count": today_trans_count,
                 "buy_sell_strength": buy_sell_strength,
             })
+        
+        # Announce changed to all objects
+        self.gstate.callUpdate(key=f"{self.accno}$balance")
 
         # Register real event
         real_manager.regReal(f"{self.accno}$holdings", list(self.holdings.keys()), self.changeHoldings)

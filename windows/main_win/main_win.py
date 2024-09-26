@@ -37,6 +37,10 @@ class MainWin(WindowAbs):
         self.is_login, self.setIsLogin = self.gstate.useState("is_login")
         self.account_dict, self.setAccountDict = self.gstate.useState("account_dict")
         
+        for accno in self.account_dict.keys():
+            if key == f"{accno}$holdings" or key == f"{accno}$balance":
+                self.updateBalTable(accno)
+        
         if key == "main_win_accholdings":
             accno = extra.get("accno")
             self.updateBalTable(accno)
@@ -160,6 +164,9 @@ class MainWin(WindowAbs):
         
     def updateBalTable(self, accno):
         acc: Account = self.account_dict[accno]
+        
+        if not hasattr(self.ui, f"_{accno}_balance_table"):
+            return
         
         table: QTableWidget = getattr(self.ui, f"_{accno}_balance_table")
         item1_0 = table.item(1, 0)
