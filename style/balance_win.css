@@ -1,3 +1,11 @@
 QHeaderView::section:horizontal {{
     padding: 0;
 }}
+
+.tx-red {{
+    color:{QT_RED};
+}}
+
+.tx-blue {{
+    color: {QTMATERIAL_PRIMARYCOLOR};
+}}

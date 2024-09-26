@@ -4,6 +4,7 @@ from core.global_state import UseGlobal
 from core.logger import logger
 from core.api import API
 from core.errors import ErrorCode, StockNotFoundException
+from core.utils.type_util import absIntOrZero
 from core.utils.utils import isStock, intOrZero, getRegStock
 from core.real_processing import real_manager
 
@@ -36,7 +37,7 @@ class holdingInfo:
         quantity = self.quantity
         cur_price = stockobj.cur_price
         
-        return quantity * cur_price * (1 - TRADING_TAX / 100)
+        return absIntOrZero(quantity * cur_price * (1 - TRADING_TAX / 100))
     
     def getIncomeRate(self):
         cur_amount = self.getCurAmount()

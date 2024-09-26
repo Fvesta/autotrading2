@@ -1,5 +1,5 @@
 from PySide2.QtCore import Signal, Qt
-from PySide2.QtWidgets import QTableWidgetItem
+from PySide2.QtWidgets import *
 
 from core.account import Account, holdingInfo
 from core.api import API
@@ -81,7 +81,33 @@ class BalanceWin(WindowAbs):
         
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
-                item = QTableWidgetItem(str(tb_data[i][j]))
-                item.setTextAlignment(Qt.AlignCenter)
-                self.ui.holding_table.setItem(i, j, item)            
+                
+                # If field is income_rate
+                if j == 7:
+                    virtual_widget = QWidget()
+                    
+                    layout = QHBoxLayout()
+                    layout.setContentsMargins(0, 0, 0, 0)
+                    
+                    label = QLabel(virtual_widget)
+                    income_formatted = tb_data[i][j]
+                    
+                    if income_formatted[0] == "+":
+                        label.setProperty("class", "tx-red")
+                    else:
+                        label.setProperty("class", "tx-blue")
+                    
+                    label.setText(tb_data[i][j])
+                    label.setAlignment(Qt.AlignCenter)
+                    
+                    layout.addWidget(label)
+                    
+                    virtual_widget.setLayout(layout)
+                
+                    self.ui.holding_table.setCellWidget(i, j, virtual_widget)
+                else:
+                    item = QTableWidgetItem(str(tb_data[i][j]))
+                    item.setTextAlignment(Qt.AlignCenter)
+                    
+                    self.ui.holding_table.setItem(i, j, item)          
             
