@@ -68,6 +68,17 @@ class Kiwoom:
         if kiwoom_retcode == -200 or kiwoom_retcode == -201 or kiwoom_retcode == -202:
             raise KiwoomException(kiwoom_retcode)
         
+    def commKwRqData(self, rqname, stockcode_list, next, scrno):
+        
+        stockcode_input=""
+        for stockcode in stockcode_list:
+            stockcode_input += f"{stockcode};"
+        
+        kiwoom_retcode = self.ocx.dynamicCall("CommKwRqData(QString, int, int, int, QString, QString)", [stockcode_input, next, len(stockcode_list), 0, rqname, scrno])
+        
+        if kiwoom_retcode == -202:
+            raise KiwoomException(kiwoom_retcode)
+        
     def getRepeatCnt(self, trcode, record):
         rows = self.ocx.dynamicCall("GetRepeatCnt(QString, QString)", [trcode, record])
         return rows

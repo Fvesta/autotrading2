@@ -11,13 +11,13 @@ class Stock:
         self.name = stockname
         self.cur_price = 0              # 현재가
         self.today_updown_rate = 0      # 등락률
-        self.today_trans_count = 0     # 거래량 
-        self.buy_rate = 0               # 매수비율
+        self.today_trans_count = 0      # 거래량 
+        self.buy_sell_strength = 0      # 체결강도
         self.chart = {}
         
         self.api = API()
     
-    # cur_price, today_updown_rate, today_trans_count, buy_rate    
+    # cur_price, today_updown_rate, today_trans_count, buy_sell_strength    
     def setStockInfo(self, data):
         
         cur_price = data.get("cur_price")
@@ -32,9 +32,9 @@ class Stock:
         if today_trans_count is not None:
             self.today_trans_count = absIntOrZero(today_trans_count)
         
-        buy_rate = data.get("buy_rate")
-        if buy_rate is not None:
-            self.buy_rate = buy_rate
+        buy_sell_strength = data.get("buy_sell_strength")
+        if buy_sell_strength is not None:
+            self.buy_sell_strength = floatOrZero(buy_sell_strength)
             
     def reqStockInfo(self):
         stock_info = self.api.sendTr("주식기본정보요청", [self.stockcode])

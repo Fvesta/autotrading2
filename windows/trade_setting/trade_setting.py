@@ -1,8 +1,9 @@
-from PySide2.QtCore import Signal, QTimer
+from PySide2.QtCore import Signal
 
+from core.errors import ErrorCode
 from core.logger import logger
 from core.api import API
-from style.utils import setTableSizeSameHor, setTableSizeSameVer
+from core.utils.utils import getAccnoFromObj
 from windows.win_abs import WindowAbs, showModal
 
 
@@ -11,11 +12,12 @@ class TradeSettingWin(WindowAbs):
     
     def __init__(self, name, ui_path, css_path):
         WindowAbs.__init__(self, name, ui_path, css_path)
-        try:
-            self.accno = self.name.split("_")[1]
-        except ValueError:
-            logger.error("Wrong window name")
+        accno = getAccnoFromObj(name)
+        
+        if isinstance(accno, ErrorCode):
             return
+        
+        self.accno = accno
         
         self.api = API()
         
@@ -25,13 +27,13 @@ class TradeSettingWin(WindowAbs):
         self.ui.title.setProperty("class", "tx-title")
     
     def afterSetting(self):
-         self.updateStyle()
+        self.updateStyle()
         
     def updateStates(self, key='', extra={}):
         pass
     
     def eventReg(self):
-        pass
+        self.update.connect(self.updateStates)
     
     @showModal
     def show(self):

@@ -12,6 +12,7 @@ from core.real_processing import real_manager
 from core.condition import cond_manager
 from core.utils.utils import getAccnoFromObj
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
+from windows.balance_win.balance_win import BalanceWin
 from windows.main_win.acc_info import newAccInfo
 from windows.trade_setting.trade_setting import TradeSettingWin
 from windows.win_abs import WindowAbs, showModal
@@ -67,9 +68,9 @@ class MainWin(WindowAbs):
         
         # Resize table
         for accno in accounts:
-            balanceTable = getattr(self.ui, f"_{accno}_balanceTable")
-            setTableSizeSameHor(balanceTable)
-            setTableSizeSameVer(balanceTable)
+            balance_table = getattr(self.ui, f"_{accno}_balance_table")
+            setTableSizeSameHor(balance_table)
+            setTableSizeSameVer(balance_table)
     
     @showModal
     def show(self):
@@ -160,7 +161,7 @@ class MainWin(WindowAbs):
     def updateBalTable(self, accno):
         acc: Account = self.account_dict[accno]
         
-        table: QTableWidget = getattr(self.ui, f"_{accno}_balanceTable")
+        table: QTableWidget = getattr(self.ui, f"_{accno}_balance_table")
         item1_0 = table.item(1, 0)
         item1_1 = table.item(1, 1)
         item1_2 = table.item(1, 2)
@@ -239,6 +240,21 @@ class MainWin(WindowAbs):
                     btn.load("style/assets/stop_icon_hover.svg")
                 
             return wrapper
+
+        def pushButtonClick(obj, accno):
+            def wrapper():
+                text = obj.text()
+                
+                if text == "잔고":
+                    win_name = f"_{accno}_balance_win"
+                    
+                    if win_name in self.gstate.activated_windows:
+                        return
+                    
+                    new_winobj = BalanceWin(win_name, "GUI/balance_win.ui", "style/balance_win.css")
+                    new_winobj.show()
+                    
+            return wrapper
         
         accounts = self.account_dict.keys()
         for accno in accounts:
@@ -257,6 +273,10 @@ class MainWin(WindowAbs):
             play_btn.mousePressEvent = svgResize(play_btn, 35)
             play_btn.mouseReleaseEvent = playBtnRelease(play_btn, accno)
             
+            # Balance button event
+            balance_btn = getattr(self.ui, f"_{accno}_balance_btn")
+            balance_btn.clicked.connect(pushButtonClick(balance_btn, accno))
+            
     def comboChanged(self, text):
         obj_name = self.sender().objectName()
         accno = getAccnoFromObj(obj_name)
@@ -273,17 +293,6 @@ class MainWin(WindowAbs):
         
         option["base_algorithm"]["option"] = short_hit_base_option
         acc.trading.setOption(option)
-
-    def newWindow(self):
-        eventObj: QPushButton = self.sender()
-        
-        obj_name = eventObj.objectName()
-        accno = getAccnoFromObj(obj_name)
-        
-        text = eventObj.text()
-        
-        if text == "매매설정":
-            pass
 
     def realEventCallback(self, seed, stockcode, real_type, real_data):
         if real_type == "주식체결":

@@ -38,11 +38,14 @@ class UIEventFilter(UseGlobal, QObject):
             if win_name == "main_win":
                 accounts = account_dict.keys()
                 for accno in accounts:
-                    balanceTable = getattr(ui, f"_{accno}_balanceTable")
-                    setTableSizeSameHor(balanceTable)
+                    balance_table = getattr(ui, f"_{accno}_balance_table")
+                    setTableSizeSameHor(balance_table)
             
             if win_name == "trade_setting":
                 pass
+            
+            if win_name == "balance_win":
+                setTableSizeSameHor(ui.holding_table)
         
         if event.type() == QEvent.Close:
             if full_name in self.gstate.activated_windows:

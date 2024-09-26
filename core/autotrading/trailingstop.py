@@ -62,7 +62,7 @@ class TrailingStop:
             # Set prevholdings info
             next_prev_info[stockcode] = {
                 "average_buyprice": holding_info.average_buyprice,
-                "income_rate": holding_info.incomeRate()
+                "income_rate": holding_info.getIncomeRate()
             }
             
             # If stockcode not in prev holdings => ignore

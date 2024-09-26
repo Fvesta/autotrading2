@@ -1,8 +1,9 @@
 from core.autotrading.trading import Trading
+from core.constants import TRADING_TAX
+from core.global_state import UseGlobal
 from core.logger import logger
 from core.api import API
 from core.errors import ErrorCode, StockNotFoundException
-from core.stock import Stock
 from core.utils.utils import isStock, intOrZero, getRegStock
 from core.real_processing import real_manager
 
@@ -29,20 +30,16 @@ class holdingInfo:
     def getBuyAmount(self):
         return self.quantity * self.average_buyprice
     
-    def getCurAmount(self, tax=False):
+    def getCurAmount(self):
         stockobj = self.api.getStockObj(self.stockcode)
         
         quantity = self.quantity
         cur_price = stockobj.cur_price
         
-        # Assume tax is 0.17%
-        if tax:
-            return quantity * cur_price * 0.9983
-        
-        return quantity * cur_price
+        return quantity * cur_price * (1 - TRADING_TAX / 100)
     
-    def incomeRate(self, tax=False):
-        cur_amount = self.getCurAmount(tax)
+    def getIncomeRate(self):
+        cur_amount = self.getCurAmount()
         buy_amount = self.getBuyAmount()
         
         try:
@@ -54,10 +51,11 @@ class holdingInfo:
         return round(income_rate, 2)
         
 
-class Account:
+class Account(UseGlobal):
     accountCnt = 0
     
     def __init__(self, accno):
+        UseGlobal.__init__(self)
         Account.accountCnt += 1
         
         self.api = API()
@@ -100,6 +98,7 @@ class Account:
         
         if isinstance(acc_bal_info, ErrorCode):
             logger.warning("Can\'t load account balance info")
+            return
             
         single_data = acc_bal_info.get("single")
         multi_data = acc_bal_info.get("multi")
@@ -126,12 +125,6 @@ class Account:
             
             quantity = row_data.get("보유수량")
             average_buyprice = row_data.get("평균단가")
-            cur_price = row_data.get("현재가")
-            
-            stockobj: Stock = self.api.getStockObj(stockcode)
-            stockobj.setStockInfo({
-                "cur_price": cur_price
-            })
             
             try:
                 holding_info = holdingInfo(stockcode, quantity, average_buyprice)
@@ -143,6 +136,28 @@ class Account:
             
         self.holdings = holdings
         
+        stocks_info = self.api.sendTrMany("관심종목정보요청", list(self.holdings.keys()))
+        
+        if isinstance(stocks_info, ErrorCode):
+            logger.warning("Can\'t load each holdings info")
+            return
+        
+        multi_data = stocks_info.get("multi")
+        for row_data in multi_data:
+            stockcode = row_data.get("종목코드")
+            cur_price = row_data.get("현재가")
+            today_updown_rate = row_data.get("등락율")
+            today_trans_count = row_data.get("거래량")
+            buy_sell_strength = row_data.get("체결강도")
+            
+            stockobj = self.api.getStockObj(stockcode)
+            stockobj.setStockInfo({
+                "cur_price": cur_price,
+                "today_updown_rate": today_updown_rate,
+                "today_trans_count": today_trans_count,
+                "buy_sell_strength": buy_sell_strength,
+            })
+
         # Register real event
         real_manager.regReal(f"{self.accno}$holdings", list(self.holdings.keys()), self.changeHoldings)
         
@@ -154,6 +169,9 @@ class Account:
                 
                 total_amount = self.rest_amount + total_cur_amount
                 self.total_amount = total_amount
+                
+                self.gstate.callUpdate(key=seed)
+                
             
     def getTotalBuyAmount(self):
         
@@ -163,11 +181,11 @@ class Account:
             
         return total_buy_amount
     
-    def getTotalCurAmount(self, tax=False):
+    def getTotalCurAmount(self):
         
         total_cur_amount = 0
         for holding_info in self.holdings.values():
-            total_cur_amount += holding_info.getCurAmount(tax)
+            total_cur_amount += holding_info.getCurAmount()
         
         return total_cur_amount
     

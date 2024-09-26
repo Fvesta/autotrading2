@@ -179,6 +179,36 @@ class API(UseGlobal, QObject):
         ret = self.gstate.lock()
         return ret
     
+    def sendTrMany(self, rqname, stockcode_list, next=False):
+        trcode = TRCODE_DICT[rqname]
+        
+        tr_timer = self.gstate.tr_timer
+        tr_loop = self.gstate._eventloop["tr_loop"]
+        
+        if tr_timer.isWait():
+            tr_loop.exec_()
+
+        tr_timer.startWait()
+        
+        if next:
+            try:
+                self.kiwoom.commKwRqData(rqname, stockcode_list, 2, scr_manager.scrAct(trcode.lower()))
+            except KiwoomException as e:
+                logger.warning(e)
+                return ErrorCode.OP_KIWOOM_ERROR
+            
+            ret = self.gstate.lock()
+            return ret
+        
+        try:
+            self.kiwoom.commKwRqData(rqname, stockcode_list, 0, scr_manager.scrAct(rqname))
+        except KiwoomException as e:
+            logger.warning(e)
+            return ErrorCode.OP_KIWOOM_ERROR
+        
+        ret = self.gstate.lock()
+        return ret
+    
     def getTrData(self, rqname, trcode, record, info_list, multi=False):
         
         if multi:
