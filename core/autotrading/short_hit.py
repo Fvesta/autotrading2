@@ -79,7 +79,7 @@ class ShortHit(QObject, UseGlobal):
             if len(self.acc.holdings.keys()) >= self.max_stock_cnt:
                 return
             
-            self.gstate.callUpdate(seed, extra={
+            self.update.emit(seed, extra={
                 "stockcode": stockcode
             })
             

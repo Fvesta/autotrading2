@@ -118,15 +118,20 @@ class OrderManager(UseGlobal, QThread):
         orderno = self.api.sendOrder("주문요청", scr_manager.scrAct("buystock"), accno, ORDER_TYPE["신규매수"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
     
         if isinstance(orderno, ErrorCode):
-            logger.error(f"accno: {accno}, 주문요청에 실패했습니다.")
+            logger.error(f"accno: {accno}, 매수 주문요청에 실패했습니다.")
             # server_msg = self.gstate.lock("order_msg")
     
     def buyStockFix(self, accno, stockcode, quantity, ask_step, cancel=False, cancel_buy=False, cancel_time_sec=0):
         pass
     
     def sellStockNow(self, accno, stockcode, quantity):
-        pass
+        
+        orderno = self.api.sendOrder("주문요청", scr_manager.scrAct("sellstock"), accno, ORDER_TYPE["신규매도"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
     
+        if isinstance(orderno, ErrorCode):
+            logger.error(f"accno: {accno}, 매도 주문요청에 실패했습니다.")
+            # server_msg = self.gstate.lock("order_msg")
+            
     def sellStockFix(self, acccno, stockcode, quantity, ask_step, cancel=False, cancel_sell=False, cancel_time_sec=0):
         pass
     

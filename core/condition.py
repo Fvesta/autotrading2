@@ -103,6 +103,9 @@ class CondManager(QThread, UseGlobal):
         self.seed_callback_dict[seed] = callback
         
         for condname in condname_list:
+            if condname not in self.cond_dict:
+                continue
+            
             if condname in self.reg_cond_dict:
                 self.reg_cond_dict[condname].add(seed)
             else:

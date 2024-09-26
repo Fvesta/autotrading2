@@ -305,4 +305,4 @@ class MainWin(WindowAbs):
         if real_type == "주식체결":
             for accno, acc in self.account_dict.items():
                 if acc.isHoldings(stockcode):
-                    self.gstate.callUpdate(key=seed, extra={"accno": accno})
+                    self.update.emit(seed, extra={"accno": accno})

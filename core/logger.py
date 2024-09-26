@@ -70,6 +70,9 @@ class Logger:
         
         self.base_logger = logging.getLogger()
         self.base_logger.setLevel(level_mapping.get(level, logging.DEBUG))
+        
+        self.scheduler_logger = logging.getLogger("apscheduler")
+        self.scheduler_logger.setLevel(level_mapping.get("warning"))
 
         self.initialized = True
         
