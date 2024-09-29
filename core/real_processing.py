@@ -72,6 +72,12 @@ class RealManager(QThread):
     def regReal(self, seed, stockcode_list, callback = lambda: None):
         self.seed_callback_dict[seed] = callback
         
+        # Delete prev seed
+        for stockcode in self.reg_stock_dict.keys():
+            if seed in self.reg_stock_dict[stockcode]:
+                self.reg_stock_dict[stockcode].remove(seed)
+        
+        # Add new seed
         for stockcode in stockcode_list:
             if stockcode in self.reg_stock_dict:
                 self.reg_stock_dict[stockcode].add(seed)
@@ -82,10 +88,12 @@ class RealManager(QThread):
           
     def termReal(self, seed):
         
+        # Delete seed
         for stockcode in self.reg_stock_dict.keys():
             if seed in self.reg_stock_dict[stockcode]:
                 self.reg_stock_dict[stockcode].remove(seed)
-                
+
+        # Remove callback
         if seed in self.seed_callback_dict:
             del self.seed_callback_dict[seed]
             

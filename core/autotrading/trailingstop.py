@@ -119,7 +119,7 @@ class TrailingStop(QObject, UseGlobal):
             
             # stop
             if prev_line > cur_line:
-                self.update.emit("trailing_sell", extra={
+                self.update.emit("trailing_sell", {
                     "stockcode": stockcode,
                     "quantity": holding_info.quantity
                 })

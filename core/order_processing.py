@@ -114,23 +114,34 @@ class OrderManager(UseGlobal, QThread):
             del self.seed_callback_dict[seed]
     
     def buyStockNow(self, accno, stockcode, quantity):
-        
-        orderno = self.api.sendOrder("주문요청", scr_manager.scrAct("buystock"), accno, ORDER_TYPE["신규매수"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
-    
-        if isinstance(orderno, ErrorCode):
+        logger.debug("시장가 매수 호출")
+        buy_success_info = self.api.sendOrder("주문요청", scr_manager.scrAct("buystock"), accno, ORDER_TYPE["신규매수"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
+
+        if isinstance(buy_success_info, ErrorCode):
             logger.error(f"accno: {accno}, 매수 주문요청에 실패했습니다.")
-            # server_msg = self.gstate.lock("order_msg")
-    
+        
+        single_data = buy_success_info.get("single")
+        try:
+            orderno = single_data["주문번호"]
+        except KeyError as e:
+            logger.error(e)
+        
     def buyStockFix(self, accno, stockcode, quantity, ask_step, cancel=False, cancel_buy=False, cancel_time_sec=0):
         pass
     
     def sellStockNow(self, accno, stockcode, quantity):
+        logger.debug("시장가 매도 호출")
         
-        orderno = self.api.sendOrder("주문요청", scr_manager.scrAct("sellstock"), accno, ORDER_TYPE["신규매도"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
-    
-        if isinstance(orderno, ErrorCode):
+        order_success_info = self.api.sendOrder("주문요청", scr_manager.scrAct("sellstock"), accno, ORDER_TYPE["신규매도"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
+
+        if isinstance(order_success_info, ErrorCode):
             logger.error(f"accno: {accno}, 매도 주문요청에 실패했습니다.")
-            # server_msg = self.gstate.lock("order_msg")
+            
+        single_data = order_success_info.get("single")
+        try:
+            orderno = single_data["주문번호"]
+        except KeyError as e:
+            logger.error(e)
             
     def sellStockFix(self, acccno, stockcode, quantity, ask_step, cancel=False, cancel_sell=False, cancel_time_sec=0):
         pass

@@ -157,7 +157,7 @@ class API(UseGlobal, QObject):
             if len(inputs) != 1:
                 return ErrorCode.OP_INPUT_ERROR
             
-            stockcode = inputs
+            stockcode = inputs[0]
             self.kiwoom.setInputValue("종목코드", stockcode)
             
         if next:
@@ -263,16 +263,13 @@ class API(UseGlobal, QObject):
         
         try:
             self.kiwoom.sendOrder(*args)
-            single_data = self.gstate.lock()
+                    
         except KiwoomException as e:
             logger.warning(e)
             return ErrorCode.OP_KIWOOM_ERROR
-
-        orderno = single_data.get("주문번호", "")
-        if orderno == "":
-            return ErrorCode.OP_ERROR
         
-        return orderno
+        ret = self.gstate.lock()
+        return ret
     
     def getChejanData(self, tradetype):    
         # 주문체결

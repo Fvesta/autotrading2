@@ -1,5 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from core.autotrading.stoploss import StopLoss
 from core.errors import ErrorCode
 from core.logger import logger
 from core.autotrading.basic_options import TRADING_BASIC_OPTION
@@ -19,6 +20,7 @@ class Trading:
         self.trailing_stop = TrailingStop(self.acc, self.scheduler)
         
         # Stop loss
+        self.stop_loss = StopLoss(self.acc)
         
         # Base algorithm
         self.algorithm_dict = {
@@ -41,6 +43,10 @@ class Trading:
             self.trailing_stop.setOption(False)
         
         # Stop loss
+        if option_stop_loss and option_stop_loss.get("used"):
+            self.stop_loss.setOption(True, option_stop_loss.get("option", {}))
+        else:
+            self.stop_loss.setOption(False)
         
         # Base Algorithm
         try:
@@ -63,22 +69,28 @@ class Trading:
         if self.algo == "short_hit":
             algo_obj = self.algorithm_dict[self.algo]
             algo_obj.start()
+            
+        # Stop loss
+        if self.stop_loss.used:
+            self.stop_loss.start()
                    
-        # Start scheduler
-        if self.scheduler.running:
-            # for job in self.scheduler.get_jobs():
-            #     self.scheduler.resume(job.id)
-            self.scheduler.resume()
-        else:
-            self.scheduler.start()
+        # # Start scheduler
+        # if self.scheduler.running:
+        #     # for job in self.scheduler.get_jobs():
+        #     #     self.scheduler.resume(job.id)
+        #     self.scheduler.resume()
+        # else:
+        #     self.scheduler.start()
+        
         self.running = True          
             
     def stop(self):
-        # for job in self.scheduler.get_jobs():
-        #     self.scheduler.pause_job(job.id)
+        if self.stop_loss.used:
+            self.stop_loss.stop()
+            
         if self.algo == "short_hit":
             algo_obj = self.algorithm_dict[self.algo]
             algo_obj.stop()
             
-        self.scheduler.pause()
+        # self.scheduler.pause()
         self.running = False

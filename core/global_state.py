@@ -48,10 +48,10 @@ class GlobalState:
         self._return = {}
         
         # Tr request wait timer
-        self.tr_timer = WaitTimer("tr_timer", 300, lambda: self.__quitEventLoop("tr_loop"))
+        self.tr_timer = WaitTimer("tr_timer", 300, lambda: self.__exitEventLoop("tr_loop"))
         
         # Order request wait timer
-        self.order_timer = WaitTimer("order_timer", 300, lambda: self.__quitEventLoop("order_loop"))
+        self.order_timer = WaitTimer("order_timer", 300, lambda: self.__exitEventLoop("order_loop"))
         
         
         self.initialized = True
@@ -71,13 +71,18 @@ class GlobalState:
         
         if timer:
             QTimer.singleShot(time, partial(self.timeout, seed))
-            
-        self._eventloop[seed].exec_()
         
-        return self.getRet(seed)
+        if not self._eventloop[seed].isRunning():
+            self._eventloop[seed].exec_()
+        
+        ret = self.getRet(seed)
+        if ret == None:
+            logger.error("Request error")
+            
+        return ret
     
     def getRet(self, seed):
-        if not seed in self._return:
+        if seed not in self._return:
             return None
         
         ret = self._return[seed]
@@ -87,10 +92,10 @@ class GlobalState:
     def unlock(self, ret=None, seed="main_block"):
         self._return[seed] = ret
         
-        if not seed in self._eventloop:
+        if seed not in self._eventloop:
             return
         
-        self._eventloop[seed].quit()
+        self._eventloop[seed].exit()
         del self._eventloop[seed]
         
     ############################################
@@ -130,10 +135,10 @@ class GlobalState:
     # Kiwoom limit dealing
     ############################################
     
-    def __quitEventLoop(self, key):
+    def __exitEventLoop(self, key):
         try:
             event_loop = self._eventloop[key]
         
-            event_loop.quit()
+            event_loop.exit()
         except:
             logger.debug("Eventloop not executing")
