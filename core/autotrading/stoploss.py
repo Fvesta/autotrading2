@@ -58,6 +58,9 @@ class StopLoss(QObject, UseGlobal):
     
     def eventReg(self):
         self.update.connect(self.updateStates)
+    
+    def eventTerm(self):
+        self.update.disconnect(self.updateStates)
         
     def setOption(self, used, option={}):
         self.used = used
@@ -84,6 +87,8 @@ class StopLoss(QObject, UseGlobal):
         real_manager.regReal(f"{self.acc.accno}$stoploss", list(cur_holdings.keys()), self.realEventCallback)
     
     def stop(self):
+        self.eventTerm()
+        self.stateTerm()
         real_manager.termReal(f"{self.acc.accno}$stoploss") 
     
     def realEventCallback(self, seed, stockcode, real_type, real_data):

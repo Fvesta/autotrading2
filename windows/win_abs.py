@@ -49,6 +49,9 @@ class UIEventFilter(UseGlobal, QObject):
         
         if event.type() == QEvent.Close:
             if full_name in self.gstate.activated_windows:
+                winobj = self.gstate.activated_windows[full_name]
+                winobj.eventTerm()
+                winobj.stateTerm()
                 del self.gstate.activated_windows[full_name]
         
         return super(UIEventFilter, self).eventFilter(ui, event)

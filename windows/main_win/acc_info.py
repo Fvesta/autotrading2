@@ -139,10 +139,10 @@ def newAccInfo(ui, accno):
 
     gridLayout_2.addWidget(balance_btn, 0, 0, 1, 1)
 
-    pushButton_2 = QPushButton(widget_2)
-    pushButton_2.setObjectName(u"pushButton_2")
+    trading_log_btn = QPushButton(widget_2)
+    trading_log_btn.setObjectName(u"trading_log_btn")
 
-    gridLayout_2.addWidget(pushButton_2, 0, 1, 1, 1)
+    gridLayout_2.addWidget(trading_log_btn, 0, 1, 1, 1)
 
 
     verticalLayout_5.addLayout(gridLayout_2)
@@ -215,7 +215,7 @@ def newAccInfo(ui, accno):
     accGroup.setTitle(QCoreApplication.translate("MainWindow", f"계좌번호: {str(accno)}", None))
     tradeset_label.setText(QCoreApplication.translate("MainWindow", u"매매 설정", None))
     balance_btn.setText(QCoreApplication.translate("MainWindow", u"잔고", None))
-    pushButton_2.setText(QCoreApplication.translate("MainWindow", u"거래내역", None))
+    trading_log_btn.setText(QCoreApplication.translate("MainWindow", u"거래내역", None))
     pushButton_3.setText(QCoreApplication.translate("MainWindow", u"test", None))
     pushButton_5.setText(QCoreApplication.translate("MainWindow", u"test", None))
     pushButton_6.setText(QCoreApplication.translate("MainWindow", u"test", None))

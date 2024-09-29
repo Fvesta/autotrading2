@@ -35,6 +35,9 @@ class TradeSettingWin(WindowAbs):
     def eventReg(self):
         self.update.connect(self.updateStates)
     
+    def eventTerm(self):
+        self.update.disconnect(self.updateStates)
+    
     @showModal
     def show(self):
         

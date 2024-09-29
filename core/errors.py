@@ -25,4 +25,11 @@ class StockNotFoundException(Exception):
             super().__init__(f"Stock is not found in market")
         else:
             super().__init__(f"Stock is not found in market: {msg}")
+            
+class OrderFailedException(Exception):
+    def __init__(self, msg=None):
+        if msg == None:
+            super().__init__(f"Order failed")
+        else:
+            super().__init__(f"Order failed: {msg}")
         

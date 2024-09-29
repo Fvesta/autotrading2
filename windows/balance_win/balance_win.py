@@ -39,9 +39,11 @@ class BalanceWin(WindowAbs):
         if key == f"{self.accno}$holdings" or key == f"{self.accno}$balance":
             self.setHoldingsData()
                 
-    
     def eventReg(self):
         self.update.connect(self.updateStates)
+    
+    def eventTerm(self):
+        self.update.disconnect(self.updateStates)
     
     @showModal
     def show(self):

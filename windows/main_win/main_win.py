@@ -47,6 +47,9 @@ class MainWin(WindowAbs):
     
     def eventReg(self):
         self.update.connect(self.updateStates)
+        
+    def eventTerm(self):
+        self.update.disconnect(self.updateStates)
 
     def afterSetting(self):
         accounts = self.account_dict.keys()
@@ -260,6 +263,18 @@ class MainWin(WindowAbs):
                     
                     new_winobj = BalanceWin(win_name, "GUI/balance_win.ui", "style/balance_win.css")
                     new_winobj.show()
+                
+                if text == "거래내역":
+                    stockcode = "005930"
+                    
+                    for i in range(100):
+                        self.gstate.callUpdate(f"{accno}$short_hit", extra={
+                            "stockcode": stockcode
+                        })
+                    
+                    stockobj = self.api.getStockObj(stockcode)
+                    
+                    logger.debug(stockobj.cur_price)
                     
             return wrapper
         
@@ -283,6 +298,10 @@ class MainWin(WindowAbs):
             # Balance button event
             balance_btn = getattr(self.ui, f"_{accno}_balance_btn")
             balance_btn.clicked.connect(pushButtonClick(balance_btn, accno))
+            
+            # Trading log event
+            trading_log_btn = getattr(self.ui, f"_{accno}_trading_log_btn")
+            trading_log_btn.clicked.connect(pushButtonClick(trading_log_btn, accno))
             
     def comboChanged(self, text):
         obj_name = self.sender().objectName()

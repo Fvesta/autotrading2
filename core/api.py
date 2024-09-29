@@ -271,7 +271,7 @@ class API(UseGlobal, QObject):
         ret = self.gstate.lock()
         return ret
     
-    def getChejanData(self, tradetype):    
+    def getChejanData(self, tradetype):
         # 주문체결
         data = {}
         if tradetype == "0":

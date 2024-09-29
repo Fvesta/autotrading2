@@ -48,6 +48,9 @@ class ShortHit(QObject, UseGlobal):
     
     def eventReg(self):
         self.update.connect(self.updateStates)
+        
+    def eventTerm(self):
+        self.update.disconnect(self.updateStates)
     
     def setOption(self, option={}):
         
@@ -66,6 +69,9 @@ class ShortHit(QObject, UseGlobal):
         cond_manager.regCondReal(f"{self.acc.accno}$short_hit", [self.condition], self.condRealCallback)
         
     def stop(self):
+        
+        self.eventTerm()
+        self.stateTerm()
         cond_manager.termCondReal(f"{self.acc.accno}$short_hit")
         
     def condRealCallback(self, seed, stockcode, tag, condname, cidx):
