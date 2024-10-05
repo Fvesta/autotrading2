@@ -267,10 +267,9 @@ class MainWin(WindowAbs):
                 if text == "거래내역":
                     stockcode = "005930"
                     
-                    for i in range(100):
-                        self.gstate.callUpdate(f"{accno}$short_hit", extra={
-                            "stockcode": stockcode
-                        })
+                    self.gstate.callUpdate(f"{accno}$short_hit", extra={
+                        "stockcode": stockcode
+                    })
                     
                     stockobj = self.api.getStockObj(stockcode)
                     

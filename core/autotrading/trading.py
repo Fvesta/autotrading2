@@ -63,7 +63,7 @@ class Trading:
               
         # Trailing stop setting
         if self.trailing_stop.used:
-            self.trailing_stop.calcStartTime()
+            self.trailing_stop.start()
             
         # Base algorithm
         if self.algo == "short_hit":
@@ -74,17 +74,18 @@ class Trading:
         if self.stop_loss.used:
             self.stop_loss.start()
                    
-        # # Start scheduler
-        # if self.scheduler.running:
-        #     # for job in self.scheduler.get_jobs():
-        #     #     self.scheduler.resume(job.id)
-        #     self.scheduler.resume()
-        # else:
-        #     self.scheduler.start()
+        # Start scheduler
+        if self.scheduler.running:
+            self.scheduler.resume()
+        else:
+            self.scheduler.start()
         
         self.running = True          
             
     def stop(self):
+        if self.trailing_stop.used:
+            self.trailing_stop.stop()
+            
         if self.stop_loss.used:
             self.stop_loss.stop()
             
