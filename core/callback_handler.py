@@ -1,6 +1,9 @@
 from PySide2.QtCore import SIGNAL, QObject
 from PySide2.QtAxContainer import QAxWidget
 
+from core.account import holdingInfo
+from core.errors import StockNotFoundException
+from core.logger import logger
 from core.constants import TR_RETURN_MAP
 from core.scr_manager import scr_manager
 from core.real_processing import real_manager
@@ -9,7 +12,8 @@ from core.order_processing import order_manager
 from core.api import API
 from core.global_state import UseGlobal
 from core.stock import Stock
-from core.utils.utils import isStock
+from core.utils.type_util import intOrZero
+from core.utils.utils import isStock, getRegStock
 
 signal_map = {
     "OnEventConnect": SIGNAL("OnEventConnect(int)"),
@@ -141,12 +145,86 @@ class CallbackHandler(UseGlobal, QObject):
         # 매수 시 주문체결(접수) - 주문체결(체결) 잔고,
         # 매도 시 주문체결(접수) - 잔고(기존보유수량) - 주문체결(체결) - 잔고(체결이후 보유수량)
         order_data = {}
+        
         # 주문체결
         if tradetype == "0":
             order_data = self.api.getChejanData(tradetype)
-        
+            
+            accno = order_data.get("계좌번호")
+            orderno = order_data.get("주문번호")
+            stockcode = order_data.get("종목코드,업종코드")
+            order_quantity = intOrZero(order_data.get("주문수량"))
+            rest_quantity = intOrZero(order_data.get("미체결수량"))
+            order_price = intOrZero(order_data.get("주문가격"))
+            order_status = order_data.get("주문상태")
+            order_op = order_data.get("매도수구분")         # 1 is 매도, 2 is 매수
+            order_gubun = order_data.get("주문구분")
+            op_time = order_data.get("주문/체결시간")    # ex) 121252
+            
+            try:
+                stockcode = getRegStock(stockcode)
+            except:
+                logger.debug("There is not stockcode")
+            
+            acc = self.api.getAccObj(accno)
+            if order_status == "접수" and (order_gubun == "+매수" or order_gubun == "-매도"):
+                    if rest_quantity == 0:
+                        del acc.not_completed_order[orderno]
+                    else:
+                        acc.addNewOrder(op_time, orderno, stockcode, order_op, order_quantity, order_price)
+            
+            elif order_status == "체결":
+                # Add 체결 log
+                exec_price = intOrZero(order_data.get("단위체결가"))
+                exec_quantity = intOrZero(order_data.get("단위체결량"))
+                
+                acc.addExecLog(op_time, stockcode, order_op, exec_price, exec_quantity)
+                
+                # Fix order info
+                new_order_info = dict(acc.not_completed_order[orderno])
+                new_order_info["rest_quantity"] = rest_quantity
+                
+                if rest_quantity == 0:
+                    acc.completed_order[orderno] = new_order_info
+                    del acc.not_completed_order[orderno]
+                else:
+                    acc.not_completed_order[orderno] = new_order_info
+                
         # 잔고
         elif tradetype == "1":
             order_data = self.api.getChejanData(tradetype)
+            
+            accno = order_data.get("계좌번호")
+            stockcode = order_data.get("종목코드,업종코드")
+            quantity = order_data.get("보유수량")
+            possible_quantity = order_data.get("주문가능수량")
+            totay_buy_quantity = order_data.get("당일순매수량")
+            average_buyprice = order_data.get("매입단가")
+
+            try:
+                stockcode = getRegStock(stockcode)
+            except:
+                logger.debug("There is not stockcode")
+            
+            # Update holdings
+            acc = self.api.getAccObj(accno)
+            holdings = dict(acc.holdings)
+            
+            try:
+                quantity = int(quantity)
+            except TypeError as e:
+                logger.warning(e)
+            
+            if quantity <= 0:
+                del holdings[stockcode]
+            else:
+                try:
+                    holding_info = holdingInfo(stockcode, quantity, possible_quantity, average_buyprice)
+                except StockNotFoundException as e:
+                    logger.error(e)
+                
+                holdings[stockcode] = holding_info
+                
+            acc.holdings = holdings
         
         order_manager.addEvent((tradetype, order_data))

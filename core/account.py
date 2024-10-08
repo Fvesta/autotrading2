@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from core.autotrading.trading import Trading
 from core.constants import TRADING_TAX
 from core.global_state import UseGlobal
@@ -9,21 +11,22 @@ from core.utils.utils import isStock, intOrZero, getRegStock
 from core.real_processing import real_manager
 
 class holdingInfo:
-    def __init__(self, stockcode, quantity, average_buyprice):
+    def __init__(self, stockcode, quantity, possible_quantity, average_buyprice):
         
-        if not self.__validate(stockcode, quantity, average_buyprice):
+        if not self.__validate(stockcode, quantity, possible_quantity, average_buyprice):
             raise StockNotFoundException
         
         self.api = API()
         
     def __validate(self, *args):
-        stockcode, quantity, average_buyprice = args
+        stockcode, quantity, possible_quantity, average_buyprice = args
         
         if not isStock(stockcode):
             return False
         
         self.stockcode = getRegStock(stockcode)
         self.quantity = intOrZero(quantity)
+        self.possible_quantity = intOrZero(possible_quantity)
         self.average_buyprice = intOrZero(average_buyprice)
         
         return True
@@ -62,18 +65,24 @@ class Account(UseGlobal):
         self.api = API()
         self.accno = accno
         
-        self.total_amount = 0
-        self.rest_amount = 0
-        self.month_income = 0
-        self.today_income = 0
+        self.total_amount = 0   # 예탁자금
+        self.rest_amount = 0    # 매수가능금액
+        self.month_income = 0   # 당월실현손익
+        self.today_income = 0   # 당일실현손익
         
+        # Order info
         self.holdings = {}
+        self.not_completed_order = {}
+        self.completed_order = {}
+        
+        self.exec_log = []
+        self.balance_log = {}
         
         # Auto trading
         self.trading = Trading(self)
         
         # Get acc info
-        self.reqAccInfo()
+        self.reqAccInfo(init=True)
     
     # data = {"total_amount": "00", "rest_amount": "00", "month_income": "00", "today_income": "00"}    
     def setAccInfo(self, data):
@@ -93,8 +102,51 @@ class Account(UseGlobal):
         today_income = data.get("today_income")
         if today_income is not None:
             self.today_income = intOrZero(today_income)
+    
+    def addNewOrder(self, op_time, orderno, stockcode, order_op, order_quantity, order_price):
+        today = datetime.now()
+        time_tmp = datetime.strptime(op_time, "%H%M%S")
+        order_time = today.replace(hour=time_tmp.hour, minute=time_tmp.minute, second=time_tmp.second)
         
-    def reqAccInfo(self):
+        order_gubun = ""
+        if order_op == "1":
+            order_gubun = "매도"
+        elif order_op == "2":
+            order_gubun = "매수"
+        
+        self.not_completed_order[orderno] = {
+            "stockcode": stockcode,
+            "order_gubun": order_gubun,                # 매도수구분
+            "order_quantity": order_quantity,          # 주문수량
+            "rest_quantity": order_quantity,           # 미체결수량
+            "order_price": order_price,                # 주문가격
+            "order_time": order_time,                  # 주문시간
+        }
+        
+    def addExecLog(self, op_time, stockcode, exec_op, exec_price, exec_quantity):
+        today = datetime.now()
+        time_tmp = datetime.strptime(op_time, "%H%M%S")
+        exec_time = today.replace(hour=time_tmp.hour, minute=time_tmp.minute, second=time_tmp.second)
+        
+        exec_gubun = ""
+        if exec_op == "1":
+            exec_gubun = "매도"
+        elif exec_op == "2":
+            exec_gubun = "매수"
+            
+        self.exec_log.append({
+            "stockcode": stockcode,
+            "exec_gubun": exec_gubun,
+            "exec_amount": exec_quantity * exec_price,
+            "exec_quantity": exec_quantity,
+            "exec_price": exec_price,
+            "exec_time": exec_time,
+        })
+        
+    def updateBalanceLog(self, stockcode, totay_buy_quantity,):
+        pass
+
+    def reqAccInfo(self, init=False):
         acc_bal_info = self.api.sendTr("계좌평가현황요청", [self.accno, "", None, None])
         
         if isinstance(acc_bal_info, ErrorCode):
@@ -116,26 +168,27 @@ class Account(UseGlobal):
             "today_income": today_income
         })
         
-        holdings = {}
-        for row_data in multi_data:
-            stockcode = row_data.get("종목코드")
-            try:
-                stockcode = getRegStock(stockcode)
-            except:
-                logger.debug("There is not stockcode")
-            
-            quantity = row_data.get("보유수량")
-            average_buyprice = row_data.get("평균단가")
-            
-            try:
-                holding_info = holdingInfo(stockcode, quantity, average_buyprice)
-            except StockNotFoundException as e:
-                logger.error(e)
-                continue
-            
-            holdings[stockcode] = holding_info
-            
-        self.holdings = holdings
+        if init:
+            holdings = {}
+            for row_data in multi_data:
+                stockcode = row_data.get("종목코드")
+                try:
+                    stockcode = getRegStock(stockcode)
+                except:
+                    logger.debug("There is not stockcode")
+                
+                quantity = row_data.get("보유수량")
+                average_buyprice = row_data.get("평균단가")
+                
+                try:
+                    holding_info = holdingInfo(stockcode, quantity, quantity, average_buyprice)
+                except StockNotFoundException as e:
+                    logger.error(e)
+                    continue
+                
+                holdings[stockcode] = holding_info
+                
+            self.holdings = holdings
         
         stocks_info = self.api.sendTrMany("관심종목정보요청", list(self.holdings.keys()))
         

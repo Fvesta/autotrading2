@@ -14,6 +14,7 @@ from core.utils.utils import getAccnoFromObj
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.balance_win.balance_win import BalanceWin
 from windows.main_win.acc_info import newAccInfo
+from windows.trade_log_win.trade_log_win import TradeLogWin
 from windows.trade_setting.trade_setting import TradeSettingWin
 from windows.win_abs import WindowAbs, showModal
 
@@ -265,15 +266,13 @@ class MainWin(WindowAbs):
                     new_winobj.show()
                 
                 if text == "거래내역":
-                    stockcode = "005930"
+                    win_name = f"_{accno}_trade_log_win"
                     
-                    self.gstate.callUpdate(f"{accno}$short_hit", extra={
-                        "stockcode": stockcode
-                    })
+                    if win_name in self.gstate.activated_windows:
+                        return
                     
-                    stockobj = self.api.getStockObj(stockcode)
-                    
-                    logger.debug(stockobj.cur_price)
+                    new_winobj = TradeLogWin(win_name, "GUI/trade_log_win.ui", "style/trade_log_win.css")
+                    new_winobj.show()
                     
             return wrapper
         
@@ -299,8 +298,8 @@ class MainWin(WindowAbs):
             balance_btn.clicked.connect(pushButtonClick(balance_btn, accno))
             
             # Trading log event
-            trading_log_btn = getattr(self.ui, f"_{accno}_trading_log_btn")
-            trading_log_btn.clicked.connect(pushButtonClick(trading_log_btn, accno))
+            trade_log_btn = getattr(self.ui, f"_{accno}_trade_log_btn")
+            trade_log_btn.clicked.connect(pushButtonClick(trade_log_btn, accno))
             
     def comboChanged(self, text):
         obj_name = self.sender().objectName()

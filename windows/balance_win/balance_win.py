@@ -6,7 +6,7 @@ from core.api import API
 from core.errors import ErrorCode
 from core.stock import Stock
 from core.utils.utils import getAccnoFromObj
-from style.utils import setTableSizeSameHor, setTableSizeSameVer
+from style.utils import setTableSizeSameHor
 from windows.win_abs import WindowAbs, showModal
 
 
@@ -35,7 +35,7 @@ class BalanceWin(WindowAbs):
         holding_table = self.ui.holding_table
         setTableSizeSameHor(holding_table)
         
-    def updateStates(self, key='', extra={}):
+    def updateStates(self, key="", extra={}):
         if key == f"{self.accno}$holdings" or key == f"{self.accno}$balance":
             self.setHoldingsData()
                 
