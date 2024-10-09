@@ -58,7 +58,6 @@ class Trading:
         if self.algo == "short_hit":
             self.algorithm_dict[self.algo].setOption(option_base_algorithm.get("option", {}))
         
-         
     def start(self):
               
         # Trailing stop setting

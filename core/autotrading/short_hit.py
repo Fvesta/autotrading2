@@ -6,6 +6,7 @@ from core.condition import cond_manager
 from core.order_processing import order_manager
 from core.autotrading.basic_options import ALGO_SHORT_HIT_BASIC_OPTION
 from core.global_state import UseGlobal
+from core.utils.stock_util import getRegStock
 
 class ShortHit(QObject, UseGlobal):
     update = Signal(str, dict)
@@ -28,7 +29,17 @@ class ShortHit(QObject, UseGlobal):
             
             except KeyError as e:
                 logger.error(f"{self.acc.accno} algorithm option not correct: {e}")
-                return
+                return                     
+            
+            if not buy_same_stock:
+                # Stockcode repeat => ignore
+                for log in self.acc.exec_log:
+                    if log["stockcode"] == stockcode and log["exec_gubun"] == "매수":
+                        return 
+            
+            # If there is no money to buy, set one_time_amount to limit amount
+            if self.acc.rest_amount < one_time_amount:
+                one_time_amount = self.acc.rest_amount
             
             stockobj = self.api.getStockObj(stockcode)
             stockobj.reqStockInfo()
@@ -77,6 +88,11 @@ class ShortHit(QObject, UseGlobal):
     def condRealCallback(self, seed, stockcode, tag, condname, cidx):
 
         if tag == "I":
+            try:
+                stockcode = getRegStock(stockcode)
+            except:
+                logger.debug("There is not stockcode")
+            
             # Already holding => ignore
             if self.acc.isHoldings(stockcode):
                 return

@@ -51,7 +51,7 @@ class StopLoss(QObject, UseGlobal):
                 holding_info = self.acc.holdings[stockcode]
             
                 # Calculate quantity
-                total_quantity = holding_info.quantity
+                total_quantity = holding_info.possible_quantity
                 sell_quantity = math.ceil(total_quantity * (sell_percent / 100))
                 
                 order_manager.sellStockNow(self.acc.accno, stockcode, sell_quantity)
