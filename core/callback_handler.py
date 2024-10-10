@@ -167,7 +167,15 @@ class CallbackHandler(UseGlobal, QObject):
                 logger.debug("There is not stockcode")
             
             acc = self.api.getAccObj(accno)
-            if order_status == "접수" and (order_gubun == "+매수" or order_gubun == "-매도"):
+            if order_status == "접수":
+                if order_gubun == "+매수" or order_gubun == "-매도":
+                    if rest_quantity == 0:
+                        del acc.not_completed_order[orderno]
+                    else:
+                        acc.addNewOrder(op_time, orderno, stockcode, order_op, order_quantity, order_price)
+                        
+            if order_status == "확인":
+                if order_gubun == "+매수정정" or order_gubun == "-매도정정":
                     if rest_quantity == 0:
                         del acc.not_completed_order[orderno]
                     else:
