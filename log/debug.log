@@ -1,1 +1,4 @@
-2024-10-10 09:52:32:logger:WARNING:Buy amount is zero
+2024-10-11 13:49:51:logger:ERROR:accno: 8087918911, 매도 주문요청에 실패했습니다.
+2024-10-11 13:49:51:logger:ERROR:Request error
+2024-10-11 13:50:47:logger:ERROR:accno: 8087918911, stockcode: 424960, quantity: 5 주문과정에서 문제가 생겼습니다.
+2024-10-11 13:50:47:base:WARNING:Run time of job "TrailingStop.trailingAlgo (trigger: interval[0:00:30], next run at: 2024-10-11 13:51:09 KST)" was missed by 0:00:08.349302

@@ -22,13 +22,14 @@ TRAILING_STOP_BASIC_OPTION = {
 STOP_LOSS_BASIC_OPTION = {
     "division": [
         {
-            "income_rate": -1,
-            "sell_percent": 50
+            "income_rate": -4,
+            "sell_percent": 100
         },
         {
             "income_rate": -2,
-            "sell_percent": 100
-        }
+            "sell_percent": 50
+        },
+        
     ]
 }
 

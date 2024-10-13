@@ -150,15 +150,18 @@ class TrailingStop(QObject, UseGlobal):
                 conditions = self.observe_condition[stockcode]
                 try:
                     cur_condition = conditions[0]
+                    new_observe_condition = conditions[1:]
+                    
+                    sell_percent = cur_condition["sell_percent"]
+                               
+                    self.update.emit("trailing_sell", {
+                        "stockcode": stockcode,
+                        "sell_percent": sell_percent
+                    })
+                    
+                    self.observe_condition[stockcode] = new_observe_condition
                 except KeyError:
                     logger.error(f"There is no other condition in stock: {stockcode}")
-                
-                sell_percent = cur_condition["sell_percent"]
-                
-                self.update.emit("trailing_sell", {
-                    "stockcode": stockcode,
-                    "sell_percent": sell_percent
-                })
             
         self.prev_info = next_prev_info
             

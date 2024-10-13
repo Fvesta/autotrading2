@@ -160,6 +160,22 @@ class API(UseGlobal, QObject):
             stockcode = inputs[0]
             self.kiwoom.setInputValue("종목코드", stockcode)
             
+        if rqname == "계좌별주문체결내역상세요청":
+            if len(inputs) != 9:
+                return ErrorCode.OP_INPUT_ERROR
+            
+            order_date, accno, password, _, _, _, _, _, _ = inputs
+            
+            self.kiwoom.setInputValue("주문일자", order_date)
+            self.kiwoom.setInputValue("계좌번호", accno)
+            self.kiwoom.setInputValue("비밀번호", password)
+            self.kiwoom.setInputValue("비밀번호입력매체구분", "00")
+            self.kiwoom.setInputValue("조회구분", 2)                # 주문순
+            self.kiwoom.setInputValue("주식채권구분", 1)            # 주식
+            self.kiwoom.setInputValue("매도수구분", 0)              # 전체
+            self.kiwoom.setInputValue("종목코드", "")               # 전체
+            self.kiwoom.setInputValue("시작주문번호", "")           # 전체
+            
         if next:
             try:
                 self.kiwoom.commRqData(rqname, trcode, 2, scr_manager.scrAct(trcode.lower()))

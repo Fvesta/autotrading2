@@ -140,6 +140,9 @@ class OrderManager(UseGlobal, QThread):
         if isinstance(order_success_info, ErrorCode):
             logger.error(f"accno: {accno}, 매도 주문 함수 실행에 실패했습니다.")
             
+        if order_success_info == None:
+            logger.error(f"accno: {accno}, stockcode: {stockcode}, quantity: {quantity} 주문과정에서 문제가 생겼습니다.")
+            
         single_data = order_success_info.get("single")
         try:
             orderno = single_data["주문번호"]

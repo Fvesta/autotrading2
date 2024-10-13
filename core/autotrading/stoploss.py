@@ -116,6 +116,7 @@ class StopLoss(QObject, UseGlobal):
                             "stockcode": stockcode,
                             "sell_percent": cond_sell_percent
                         })
+                        break
                     else:
                         new_observe_condition.append(condition)
                     

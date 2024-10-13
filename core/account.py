@@ -1,4 +1,5 @@
 from datetime import datetime
+import math
 
 from core.autotrading.trading import Trading
 from core.constants import TRADING_TAX
@@ -76,13 +77,13 @@ class Account(UseGlobal):
         self.completed_order = {}
         
         self.exec_log = []
-        self.balance_log = {}
         
         # Auto trading
         self.trading = Trading(self)
         
         # Get acc info
         self.reqAccInfo(init=True)
+        # self.getTodayTradeLog()
     
     # data = {"total_amount": "00", "rest_amount": "00", "month_income": "00", "today_income": "00"}    
     def setAccInfo(self, data):
@@ -122,8 +123,8 @@ class Account(UseGlobal):
             "order_price": order_price,                # 주문가격
             "order_time": order_time,                  # 주문시간
         }
-        
-    def addExecLog(self, op_time, stockcode, exec_op, exec_price, exec_quantity):
+
+    def addExecLog(self, op_time, orderno, stockcode, exec_op, exec_price, exec_quantity, exec_fee, exec_tax):
         today = datetime.now()
         time_tmp = datetime.strptime(op_time, "%H%M%S")
         exec_time = today.replace(hour=time_tmp.hour, minute=time_tmp.minute, second=time_tmp.second)
@@ -133,19 +134,138 @@ class Account(UseGlobal):
             exec_gubun = "매도"
         elif exec_op == "2":
             exec_gubun = "매수"
-            
+
         self.exec_log.append({
-            "stockcode": stockcode,
-            "exec_gubun": exec_gubun,
-            "exec_amount": exec_quantity * exec_price,
-            "exec_quantity": exec_quantity,
-            "exec_price": exec_price,
-            "exec_time": exec_time,
+            "stockcode": stockcode,                     # 종목코드
+            "exec_orderno": orderno,                    # 주문번호
+            "exec_gubun": exec_gubun,                   # 매도수구분
+            "exec_amount": exec_quantity * exec_price,  # 체결금액
+            "exec_quantity": exec_quantity,             # 체결수량
+            "exec_price": exec_price,                   # 체결가격
+            "exec_fee": exec_fee,                       # 수수료
+            "exec_tax": exec_tax,                       # 세금
+            "exec_time": exec_time,                     # 체결시간
         })
         
-    def updateBalanceLog(self, stockcode, totay_buy_quantity,):
-        pass
+    def calculateBalLog(self):
+        balance_log = {}
+        
+        today_merged_log = {}
+        
+        for log in self.exec_log:
+            stockcode = log["stockcode"]
+            
+            try:
+                stockcode = getRegStock(stockcode)
+            except:
+                logger.debug("There is not stockcode")
+                continue
+            
+            # Init stock
+            if stockcode not in today_merged_log:
+                today_merged_log[stockcode] = {
+                    "today_buy_quantity": 0,
+                    "today_buy_amount": 0,
+                    "today_sell_quantity": 0,
+                    "today_sell_amount": 0,
+                    "buy_origin_amount": 0,
+                    "today_fee_log_dict": {},
+                    "today_tax_log_dict": {},
+                } 
+            
+            exec_orderno = log["exec_orderno"]
+            exec_gubun = log["exec_gubun"]
+            exec_amount = log["exec_amount"]
+            exec_quantity = log["exec_quantity"]
+            exec_fee = log["exec_fee"]
+            exec_tax = log["exec_tax"]
+            average_buyprice = log["average_buyprice"]
+            
+            # Calculate quantity
+            if exec_gubun == "매수":
+                today_merged_log[stockcode]["today_buy_quantity"] += exec_quantity
+                today_merged_log[stockcode]["today_buy_amount"] += exec_amount
+            elif exec_gubun == "매도":
+                today_merged_log[stockcode]["today_sell_quantity"] += exec_quantity
+                today_merged_log[stockcode]["today_sell_amount"] += exec_amount
+                today_merged_log[stockcode]["buy_origin_amount"] += average_buyprice * exec_quantity
+                
+            # Calculate tax, fee
+            today_merged_log[stockcode]["today_fee_log_dict"][exec_orderno] = exec_fee
+            today_merged_log[stockcode]["today_tax_log_dict"][exec_orderno] = exec_tax
+            
+        for stockcode in today_merged_log.keys():
+            merged_log = today_merged_log[stockcode]
+            
+            # Buy info
+            today_buy_quantity = merged_log["today_buy_quantity"]
+            today_buy_amount = merged_log["today_buy_amount"]
+            try:    
+                today_average_buy_price = math.floor(today_buy_amount / today_buy_quantity)
+            except ZeroDivisionError:
+                today_average_buy_price = 0
 
+            # Sell info
+            today_sell_quantity = merged_log["today_sell_quantity"]
+            today_sell_amount = merged_log["today_sell_amount"]
+            try:    
+                today_average_sell_price = math.floor(today_sell_amount / today_sell_quantity)
+            except ZeroDivisionError:
+                today_average_sell_price = 0
+                
+            # Calculate fee, tax
+            today_total_fee = 0
+            for each_fee in merged_log["today_fee_log_dict"].values():
+                today_total_fee += each_fee
+                
+            today_total_tax = 0
+            for each_tax in merged_log["today_tax_log_dict"].values():
+                today_total_tax += each_tax
+            
+            today_total_tax_fee = today_total_tax + today_total_fee
+            
+            # Calculate income rate
+            buy_origin_amount = merged_log["buy_origin_amount"]
+            today_income = today_sell_amount - buy_origin_amount - today_total_tax_fee
+            try:
+                today_income_rate = round((today_income / buy_origin_amount) * 100, 2)
+            except ZeroDivisionError:
+                today_income_rate = 0
+                
+            balance_log[stockcode] = {
+                "today_average_buy_price": today_average_buy_price,     # 매수평균가
+                "today_buy_quantity": today_buy_quantity,               # 매수수량
+                "today_buy_amount": today_buy_amount,                   # 매수금액
+                "today_average_sell_price": today_average_sell_price,   # 매도평균가
+                "today_sell_quantity": today_sell_quantity,             # 매도수량
+                "today_sell_amount": today_sell_amount,                 # 매도금액
+                "buy_origin_amount": buy_origin_amount,                 # 매입평가금
+                "today_total_tax_fee": today_total_tax_fee,             # 세금, 수수료
+                "today_income": today_income,                           # 실현손익
+                "today_income_rate": today_income_rate                  # 손익율
+            }
+        
+        return balance_log
+    
+    def getTodayTradeLog(self):
+        trade_log = self.api.sendTr("계좌별주문체결내역상세요청", ["20241010", self.accno, "", "00", 1, 1, 0, "", ""])
+        
+        single_merged_data = trade_log.get("single")
+        multi_merged_data = trade_log.get("multi")
+        next = trade_log.get("next")
+        
+        while(next == "2"):
+            trade_log = self.api.sendTr("계좌별주문체결내역상세요청", ["20241010", self.accno, "", "00", 1, 1, 0, "", ""], True)
+
+            single_data = trade_log.get("single")
+            multi_data = trade_log.get("multi")
+            next = trade_log.get("next")
+            
+            multi_merged_data.extend(multi_data)
+            
+        print(multi_merged_data)
+            
+    
     def reqAccInfo(self, init=False):
         acc_bal_info = self.api.sendTr("계좌평가현황요청", [self.accno, "", None, None])
         

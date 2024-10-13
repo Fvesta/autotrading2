@@ -79,6 +79,8 @@ class CallbackHandler(UseGlobal, QObject):
         
         scr_manager.deAct(scrno)
         
+        ret_data = {}
+        
         if rqname == "계좌평가현황요청":
             single_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["계좌평가현황요청"]["single"])
             multi_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["계좌평가현황요청"]["multi"], True)
@@ -109,6 +111,16 @@ class CallbackHandler(UseGlobal, QObject):
             
             ret_data = {
                 "single": single_data
+            }
+        
+        if rqname == "계좌별주문체결내역상세요청":
+            single_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["계좌별주문체결내역요청"]["single"])
+            multi_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["계좌별주문체결내역요청"]["multi"], True)
+            
+            ret_data = {
+                "single": single_data,
+                "multi": multi_data,
+                "next": next
             }
             
         self.gstate.unlock(ret_data)
@@ -185,8 +197,10 @@ class CallbackHandler(UseGlobal, QObject):
                 # Add 체결 log
                 exec_price = intOrZero(order_data.get("단위체결가"))
                 exec_quantity = intOrZero(order_data.get("단위체결량"))
+                exec_fee = intOrZero(order_data.get("당일매매수수료"))
+                exec_tax = intOrZero(order_data.get("당일매매세금"))
                 
-                acc.addExecLog(op_time, stockcode, order_op, exec_price, exec_quantity)
+                acc.addExecLog(op_time, orderno, stockcode, order_op, exec_price, exec_quantity, exec_fee, exec_tax)
                 
                 # Fix order info
                 new_order_info = dict(acc.not_completed_order[orderno])
@@ -206,7 +220,6 @@ class CallbackHandler(UseGlobal, QObject):
             stockcode = order_data.get("종목코드,업종코드")
             quantity = order_data.get("보유수량")
             possible_quantity = order_data.get("주문가능수량")
-            totay_buy_quantity = order_data.get("당일순매수량")
             average_buyprice = order_data.get("매입단가")
 
             try:

@@ -33,7 +33,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QTableWidget" name="income_log_table">
+         <widget class="QTableWidget" name="balance_log_table">
           <property name="editTriggers">
            <set>QAbstractItemView::NoEditTriggers</set>
           </property>
@@ -46,6 +46,61 @@
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectRows</enum>
           </property>
+          <column>
+           <property name="text">
+            <string>종목이름</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>매수평균가</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>매수수량</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>매수금액</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>매도평균가</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>매도수량</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>매도금액</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>매입평가금</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>세금,수수료</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>실현손익</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>손익율</string>
+           </property>
+          </column>
          </widget>
         </item>
        </layout>
@@ -82,7 +137,7 @@
            </attribute>
            <column>
             <property name="text">
-             <string>종목코드</string>
+             <string>주문번호</string>
             </property>
            </column>
            <column>
@@ -151,11 +206,6 @@
            <column>
             <property name="text">
              <string>주문번호</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>종목코드</string>
             </property>
            </column>
            <column>
