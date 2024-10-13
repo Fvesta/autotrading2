@@ -9,6 +9,7 @@ from core.utils.utils import getAccnoFromObj
 from core.order_processing import order_manager
 from style.utils import setTableSizeSameHor
 from windows.win_abs import WindowAbs, showModal
+from style.colors import decimal_colors
 
 
 class BalanceWin(WindowAbs):
@@ -28,13 +29,15 @@ class BalanceWin(WindowAbs):
         self.initSetting()
         
     def initSetting(self):
+        self.ui.splitter.setSizes([950, 450])
         self.ui.setWindowTitle(f"잔고: {self.accno}")
     
     def afterSetting(self):
         self.updateStyle()
         
-        holding_table = self.ui.holding_table
-        setTableSizeSameHor(holding_table)
+        setTableSizeSameHor(self.ui.holding_table)
+        setTableSizeSameHor(self.ui.not_completed_table)
+        setTableSizeSameHor(self.ui.real_exec_table)
         
     def updateStates(self, key="", extra={}):
         if key == f"{self.accno}$holdings" or key == f"{self.accno}$balance":
@@ -53,12 +56,19 @@ class BalanceWin(WindowAbs):
             
                 
     def eventReg(self):
+        self.ui.splitter.splitterMoved.connect(self.resizeTable)
         self.update.connect(self.updateStates)
         order_manager.regOrderReal(f"{self.accno}$balance_win_order", self.orderCallback)
     
     def eventTerm(self):
+        self.ui.splitter.splitterMoved.disconnect(self.resizeTable)
         self.update.disconnect(self.updateStates)
         order_manager.termOrderReal(f"{self.accno}$balance_win_order")
+        
+    def resizeTable(self):
+        setTableSizeSameHor(self.ui.holding_table)
+        setTableSizeSameHor(self.ui.not_completed_table)
+        setTableSizeSameHor(self.ui.real_exec_table)
     
     @showModal
     def show(self):
@@ -101,27 +111,18 @@ class BalanceWin(WindowAbs):
                 
                 # If field is income_rate
                 if j == 7:
-                    virtual_widget = QWidget()
+
+                    item = QTableWidgetItem(str(tb_data[i][j]))
+                    item.setTextAlignment(Qt.AlignCenter)
                     
-                    layout = QHBoxLayout()
-                    layout.setContentsMargins(0, 0, 0, 0)
-                    
-                    label = QLabel(virtual_widget)
                     income_formatted = tb_data[i][j]
-                    
                     if income_formatted[0] == "+":
-                        label.setProperty("class", "tx-red")
+                        item.setForeground(decimal_colors["QT_RED"])
                     else:
-                        label.setProperty("class", "tx-blue")
+                        item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
                     
-                    label.setText(tb_data[i][j])
-                    label.setAlignment(Qt.AlignCenter)
+                    self.ui.holding_table.setItem(i, j, item)
                     
-                    layout.addWidget(label)
-                    
-                    virtual_widget.setLayout(layout)
-                
-                    self.ui.holding_table.setCellWidget(i, j, virtual_widget)
                 else:
                     item = QTableWidgetItem(str(tb_data[i][j]))
                     item.setTextAlignment(Qt.AlignCenter)

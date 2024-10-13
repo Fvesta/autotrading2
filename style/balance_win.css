@@ -9,3 +9,7 @@ QHeaderView::section:horizontal {{
 .tx-blue {{
     color: {QTMATERIAL_PRIMARYCOLOR};
 }}
+
+QTableView::item {{
+  color: auto;
+}}

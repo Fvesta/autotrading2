@@ -46,6 +46,8 @@ class UIEventFilter(UseGlobal, QObject):
             
             if win_name == "balance_win":
                 setTableSizeSameHor(ui.holding_table)
+                setTableSizeSameHor(ui.not_completed_table)
+                setTableSizeSameHor(ui.real_exec_table)
                 
             if win_name == "trade_log_win":
                 setTableSizeSameHor(ui.balance_log_table)
