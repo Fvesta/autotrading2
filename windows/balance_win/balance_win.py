@@ -6,6 +6,7 @@ from core.api import API
 from core.errors import ErrorCode
 from core.stock import Stock
 from core.utils.utils import getAccnoFromObj
+from core.order_processing import order_manager
 from style.utils import setTableSizeSameHor
 from windows.win_abs import WindowAbs, showModal
 
@@ -38,12 +39,26 @@ class BalanceWin(WindowAbs):
     def updateStates(self, key="", extra={}):
         if key == f"{self.accno}$holdings" or key == f"{self.accno}$balance":
             self.setHoldingsData()
+            
+        if key == f"{self.accno}$balane_win_order":
+            order_status = extra.get("order_status")
+            
+            # if order_status == "접수":
+            #     self.setNotCompletedData()
+                
+            # if order_status == "체결":
+            #     self.setBalanceLogData()
+            #     self.setExecData()
+            #     self.setNotCompletedData()
+            
                 
     def eventReg(self):
         self.update.connect(self.updateStates)
+        order_manager.regOrderReal(f"{self.accno}$balance_win_order", self.orderCallback)
     
     def eventTerm(self):
         self.update.disconnect(self.updateStates)
+        order_manager.termOrderReal(f"{self.accno}$balance_win_order")
     
     @showModal
     def show(self):
@@ -111,5 +126,58 @@ class BalanceWin(WindowAbs):
                     item = QTableWidgetItem(str(tb_data[i][j]))
                     item.setTextAlignment(Qt.AlignCenter)
                     
-                    self.ui.holding_table.setItem(i, j, item)          
+                    self.ui.holding_table.setItem(i, j, item)
+                    
+    # def setNotCompletedData(self):
+    #     # 주문번호
+    #     # 종목이름
+    #     # 매도수구분
+    #     # 주문수량
+    #     # 미체결수량
+    #     # 주문시간
+    #     # 주문가격
+    #     acc: Account = self.api.getAccObj(self.accno)
+    #     not_completed_orderno_list = list(acc.not_completed_order.keys())
+        
+    #     tb_data = []
+    #     self.ui.not_completed_table.setRowCount(len(not_completed_orderno_list))
+    #     for orderno in not_completed_orderno_list:
+    #         order_info = acc.not_completed_order[orderno]
             
+    #         stockcode = order_info["stockcode"]
+            
+    #         try:
+    #             stockcode = getRegStock(stockcode)
+    #         except:
+    #             logger.debug("There is not stockcode")
+    #             continue
+            
+    #         stockobj = self.api.getStockObj(stockcode)
+            
+    #         order_gubun = order_info["order_gubun"]
+    #         order_quantity = order_info["order_quantity"]
+    #         rest_quantity = order_info["rest_quantity"]
+    #         order_price = order_info["order_price"]
+    #         order_time = order_info["order_time"]
+            
+    #         tb_data.append((orderno, stockobj.name, order_gubun, order_quantity, rest_quantity, order_price, order_time))
+            
+    #     for i in range(len(tb_data)):
+    #         for j in range(len(tb_data[0])):
+    #             item = QTableWidgetItem(str(tb_data[i][j]))
+    #             item.setTextAlignment(Qt.AlignCenter)
+        
+    #             self.ui.not_completed_table.setItem(i, j, item)
+            
+    def orderCallback(self, seed, tradetype, order_data):
+        accno = order_data.get("계좌번호")
+        if accno != self.accno:
+            return
+        
+        # 주문체결
+        if tradetype == "0":     
+            order_status = order_data.get("주문상태")
+            
+            self.update.emit(seed, {
+                "order_status": order_status
+            })

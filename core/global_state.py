@@ -48,10 +48,10 @@ class GlobalState:
         self._return = {}
         
         # Tr request wait timer
-        self.tr_timer = WaitTimer("tr_timer", 300, lambda: self.__exitEventLoop("tr_loop"))
+        self.tr_timer = WaitTimer("tr_timer", 500, lambda: self.__exitEventLoop("tr_loop"))
         
         # Order request wait timer
-        self.order_timer = WaitTimer("order_timer", 300, lambda: self.__exitEventLoop("order_loop"))
+        self.order_timer = WaitTimer("order_timer", 500, lambda: self.__exitEventLoop("order_loop"))
         
         
         self.initialized = True

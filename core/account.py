@@ -68,8 +68,8 @@ class Account(UseGlobal):
         
         self.total_amount = 0   # 예탁자금
         self.rest_amount = 0    # 매수가능금액
-        self.month_income = 0   # 당월실현손익
         self.today_income = 0   # 당일실현손익
+        self.today_buy_stocks = set() # 당일 매수종목
         
         # Order info
         self.holdings = {}
@@ -83,9 +83,17 @@ class Account(UseGlobal):
         
         # Get acc info
         self.reqAccInfo(init=True)
-        # self.getTodayTradeLog()
+        
+        # Get not completed order
+        self.getNCLog()
+        
+        # Get today income
+        self.getTodayIncome()
+        
+        # Test Tr
+        
     
-    # data = {"total_amount": "00", "rest_amount": "00", "month_income": "00", "today_income": "00"}    
+    # data = {"total_amount": "00", "rest_amount": "00", "today_income": "00"}    
     def setAccInfo(self, data):
         
         total_amount = data.get("total_amount")
@@ -95,16 +103,13 @@ class Account(UseGlobal):
         rest_amount = data.get("rest_amount")
         if rest_amount is not None:
             self.rest_amount = intOrZero(rest_amount)
-        
-        month_income = data.get("month_income")
-        if month_income is not None:
-            self.month_income = intOrZero(month_income)
             
         today_income = data.get("today_income")
         if today_income is not None:
             self.today_income = intOrZero(today_income)
     
-    def addNewOrder(self, op_time, orderno, stockcode, order_op, order_quantity, order_price):
+    # Add not completed order
+    def addNCOrder(self, op_time, orderno, stockcode, order_op, order_quantity, rest_quantity, order_price):
         today = datetime.now()
         time_tmp = datetime.strptime(op_time, "%H%M%S")
         order_time = today.replace(hour=time_tmp.hour, minute=time_tmp.minute, second=time_tmp.second)
@@ -119,7 +124,7 @@ class Account(UseGlobal):
             "stockcode": stockcode,
             "order_gubun": order_gubun,                # 매도수구분
             "order_quantity": order_quantity,          # 주문수량
-            "rest_quantity": order_quantity,           # 미체결수량
+            "rest_quantity": rest_quantity,           # 미체결수량
             "order_price": order_price,                # 주문가격
             "order_time": order_time,                  # 주문시간
         }
@@ -247,25 +252,6 @@ class Account(UseGlobal):
         
         return balance_log
     
-    def getTodayTradeLog(self):
-        trade_log = self.api.sendTr("계좌별주문체결내역상세요청", ["20241010", self.accno, "", "00", 1, 1, 0, "", ""])
-        
-        single_merged_data = trade_log.get("single")
-        multi_merged_data = trade_log.get("multi")
-        next = trade_log.get("next")
-        
-        while(next == "2"):
-            trade_log = self.api.sendTr("계좌별주문체결내역상세요청", ["20241010", self.accno, "", "00", 1, 1, 0, "", ""], True)
-
-            single_data = trade_log.get("single")
-            multi_data = trade_log.get("multi")
-            next = trade_log.get("next")
-            
-            multi_merged_data.extend(multi_data)
-            
-        print(multi_merged_data)
-            
-    
     def reqAccInfo(self, init=False):
         acc_bal_info = self.api.sendTr("계좌평가현황요청", [self.accno, "", None, None])
         
@@ -276,19 +262,15 @@ class Account(UseGlobal):
         single_data = acc_bal_info.get("single")
         multi_data = acc_bal_info.get("multi")
         
-        total_amount = single_data.get("추정예탁자산")
         rest_amount = single_data.get("D+2추정예수금")
-        month_income = single_data.get("당월투자손익")
-        today_income = single_data.get("당일투자손익")
         
         self.setAccInfo({
-            "total_amount": total_amount,
             "rest_amount": rest_amount,
-            "month_income": month_income,
-            "today_income": today_income
         })
         
         if init:
+            
+            # Set holdings data
             holdings = {}
             for row_data in multi_data:
                 stockcode = row_data.get("종목코드")
@@ -335,6 +317,11 @@ class Account(UseGlobal):
                 "today_trans_count": today_trans_count,
                 "buy_sell_strength": buy_sell_strength,
             })
+            
+        # Calculate total_amount
+        total_eval_amount = self.getTotalEvalAmount()
+        total_amount = self.rest_amount + total_eval_amount
+        self.total_amount = total_amount
         
         # Announce changed to all objects
         self.gstate.callUpdate(key=f"{self.accno}$balance")
@@ -346,13 +333,65 @@ class Account(UseGlobal):
         if real_type == "주식체결":
             stockcode = getRegStock(stockcode)
             if self.isHoldings(stockcode):
-                total_cur_amount = self.getTotalCurAmount()
+                total_eval_amount = self.getTotalEvalAmount()
                 
-                total_amount = self.rest_amount + total_cur_amount
+                total_amount = self.rest_amount + total_eval_amount
                 self.total_amount = total_amount
                 
                 self.gstate.callUpdate(key=seed)
                 
+    def getTodayIncome(self):
+        # Set Today income
+        today_trade_log = self.api.sendTr("당일매매일지요청", [self.accno, "", "", None, None])
+        
+        single_data = today_trade_log.get("single")
+        multi_data = today_trade_log.get("multi")
+        
+        today_income = intOrZero(single_data.get("총손익금액"))
+        
+        self.setAccInfo({
+            "today_income": today_income,
+        })
+        
+        for data in multi_data:
+            stockcode = data.get("종목코드")
+            
+            if stockcode == '':
+                continue
+
+            stockcode = getRegStock(stockcode)
+            today_buy_quantity = data.get("매수수량")  
+            if today_buy_quantity != "0":
+                self.today_buy_stocks.add(stockcode)
+        
+    def getNCLog(self):
+        nc_log = self.api.sendTr("미체결요청", [self.accno, None, None, None, None])
+        
+        multi_data = nc_log.get("multi")
+        
+        for data in multi_data:
+            stockcode = data.get("종목코드")
+            
+            if stockcode == '':
+                continue
+
+            stockcode = getRegStock(stockcode)
+            
+            orderno = data.get("주문번호")
+            order_gubun = data.get("주문구분")
+            
+            order_op = 0
+            if order_gubun == "-매도" or order_gubun == "-매도정정":
+                order_op = 1
+            elif order_gubun == "+매수" or order_gubun == "+매수정정":
+                order_op = 2
+            
+            order_quantity = intOrZero(data.get("주문수량"))
+            order_price = intOrZero(data.get("주문가격"))
+            rest_quantity = intOrZero(data.get("미체결수량"))
+            order_time = data.get("시간")
+            
+            self.addNCOrder(order_time, orderno, stockcode, order_op, order_quantity, rest_quantity, order_price)
             
     def getTotalBuyAmount(self):
         
@@ -362,7 +401,7 @@ class Account(UseGlobal):
             
         return total_buy_amount
     
-    def getTotalCurAmount(self):
+    def getTotalEvalAmount(self):
         
         total_cur_amount = 0
         for holding_info in self.holdings.values():
@@ -370,12 +409,18 @@ class Account(UseGlobal):
         
         return total_cur_amount
     
+    def getTotalIncomeAmount(self):
+        total_buy_amount = self.getTotalBuyAmount()
+        total_eval_amount = self.getTotalEvalAmount()
+        
+        return total_eval_amount - total_buy_amount
+    
     def getTotalIncomeRate(self):
         total_buy_amount = self.getTotalBuyAmount()
-        total_cur_amount = self.getTotalCurAmount()
+        total_eval_amount = self.getTotalEvalAmount()
         
         try:
-            income_rate = (total_cur_amount - total_buy_amount) / total_buy_amount * 100
+            income_rate = (total_eval_amount - total_buy_amount) / total_buy_amount * 100
         except ZeroDivisionError:
             logger.warning("Buy amount is zero")
             return None
@@ -387,4 +432,26 @@ class Account(UseGlobal):
             return True
         
         return False
+    
+    ############################################
+    # Test TR functions
+    ############################################
+    
+    def getTodayTradeLog(self):
+        trade_log = self.api.sendTr("계좌별주문체결내역상세요청", ["20241010", self.accno, "", "00", 1, 1, 0, "", ""])
+        
+        single_merged_data = trade_log.get("single")
+        multi_merged_data = trade_log.get("multi")
+        next = trade_log.get("next")
+        
+        while(next == "2"):
+            trade_log = self.api.sendTr("계좌별주문체결내역상세요청", ["20241010", self.accno, "", "00", 1, 1, 0, "", ""], True)
+
+            single_data = trade_log.get("single")
+            multi_data = trade_log.get("multi")
+            next = trade_log.get("next")
+            
+            multi_merged_data.extend(multi_data)
+            
+        # print(multi_merged_data)
         

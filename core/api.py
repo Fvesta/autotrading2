@@ -150,7 +150,7 @@ class API(UseGlobal, QObject):
             accno, password, _, _ = inputs
             self.kiwoom.setInputValue("계좌번호", accno)
             self.kiwoom.setInputValue("비밀번호", password)
-            self.kiwoom.setInputValue("상장폐지조회구분", 1)
+            self.kiwoom.setInputValue("상장폐지조회구분", "1")
             self.kiwoom.setInputValue("비밀번호입력매체구분", "00")
             
         if rqname == "주식기본정보요청":
@@ -170,11 +170,35 @@ class API(UseGlobal, QObject):
             self.kiwoom.setInputValue("계좌번호", accno)
             self.kiwoom.setInputValue("비밀번호", password)
             self.kiwoom.setInputValue("비밀번호입력매체구분", "00")
-            self.kiwoom.setInputValue("조회구분", 2)                # 주문순
-            self.kiwoom.setInputValue("주식채권구분", 1)            # 주식
-            self.kiwoom.setInputValue("매도수구분", 0)              # 전체
+            self.kiwoom.setInputValue("조회구분", "2")                # 주문순
+            self.kiwoom.setInputValue("주식채권구분", "1")            # 주식
+            self.kiwoom.setInputValue("매도수구분", "0")              # 전체
             self.kiwoom.setInputValue("종목코드", "")               # 전체
             self.kiwoom.setInputValue("시작주문번호", "")           # 전체
+            
+        if rqname == "미체결요청":
+            if len(inputs) != 5:
+                return ErrorCode.OP_INPUT_ERROR
+            
+            accno, _, _, _, _ = inputs
+            
+            self.kiwoom.setInputValue("계좌번호", accno)
+            self.kiwoom.setInputValue("전체종목구분", "0")              # 전체
+            self.kiwoom.setInputValue("매매구분", "0")                  # 전체
+            self.kiwoom.setInputValue("종목코드", "")                   # 전체
+            self.kiwoom.setInputValue("체결구분", "1")                  # 미체결
+            
+        if rqname == "당일매매일지요청":
+            if len(inputs) != 5:
+                return ErrorCode.OP_INPUT_ERROR
+            
+            accno, password, date, _, _ = inputs
+            
+            self.kiwoom.setInputValue("계좌번호", accno)
+            self.kiwoom.setInputValue("비밀번호", password)
+            self.kiwoom.setInputValue("기준일자", date)
+            self.kiwoom.setInputValue("단주구분", "2")                  # 전체
+            self.kiwoom.setInputValue("현금신용구분", "0")            # 전체
             
         if next:
             try:

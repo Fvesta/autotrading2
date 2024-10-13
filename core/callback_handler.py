@@ -123,6 +123,23 @@ class CallbackHandler(UseGlobal, QObject):
                 "next": next
             }
             
+        if rqname == "미체결요청":
+            multi_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["미체결요청"]["multi"], True)
+            
+            ret_data = {
+                "multi": multi_data,
+                "next": next
+            }
+            
+        if rqname == "당일매매일지요청":
+            single_data =self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["당일매매일지요청"]["single"])
+            multi_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["당일매매일지요청"]["multi"], True)
+            
+            ret_data = {
+                "single": single_data,
+                "multi": multi_data
+            }
+            
         self.gstate.unlock(ret_data)
         
     def realCallback(self, stockcode, real_type, data):
@@ -184,14 +201,14 @@ class CallbackHandler(UseGlobal, QObject):
                     if rest_quantity == 0:
                         del acc.not_completed_order[orderno]
                     else:
-                        acc.addNewOrder(op_time, orderno, stockcode, order_op, order_quantity, order_price)
+                        acc.addNCOrder(op_time, orderno, stockcode, order_op, order_quantity, rest_quantity, order_price)
                         
             if order_status == "확인":
                 if order_gubun == "+매수정정" or order_gubun == "-매도정정":
                     if rest_quantity == 0:
                         del acc.not_completed_order[orderno]
                     else:
-                        acc.addNewOrder(op_time, orderno, stockcode, order_op, order_quantity, order_price)
+                        acc.addNCOrder(op_time, orderno, stockcode, order_op, order_quantity, rest_quantity, order_price)
             
             elif order_status == "체결":
                 # Add 체결 log

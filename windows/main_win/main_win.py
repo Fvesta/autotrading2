@@ -10,6 +10,7 @@ from core.stock import Stock
 from core.condition import Condition
 from core.real_processing import real_manager
 from core.condition import cond_manager
+from core.utils.type_util import makeAccent
 from core.utils.utils import getAccnoFromObj
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from windows.balance_win.balance_win import BalanceWin
@@ -181,12 +182,12 @@ class MainWin(WindowAbs):
         item3_2 = table.item(3, 2)
         
         item1_0.setText(str(acc.total_amount))
-        item1_1.setText(str(acc.month_income))
-        item1_2.setText(str(acc.today_income))
+        item1_1.setText(str(acc.rest_amount))
+        item1_2.setText(makeAccent(acc.today_income))
         
-        item3_0.setText(str(acc.getTotalBuyAmount()))
-        item3_1.setText(str(acc.getTotalCurAmount()))
-        item3_2.setText(str(acc.getTotalIncomeRate()))
+        item3_0.setText(str(acc.getTotalEvalAmount()))
+        item3_1.setText(makeAccent(acc.getTotalIncomeAmount()))
+        item3_2.setText(makeAccent(acc.getTotalIncomeRate()))
         
     def setBtnEvents(self):
         def changeMouseCursor(obj, shape):
