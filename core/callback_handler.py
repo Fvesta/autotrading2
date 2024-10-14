@@ -132,12 +132,19 @@ class CallbackHandler(UseGlobal, QObject):
             }
             
         if rqname == "당일매매일지요청":
-            single_data =self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["당일매매일지요청"]["single"])
+            single_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["당일매매일지요청"]["single"])
             multi_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["당일매매일지요청"]["multi"], True)
             
             ret_data = {
                 "single": single_data,
                 "multi": multi_data
+            }
+            
+        if rqname == "예수금상세현황요청":
+            single_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["예수금상세현황요청"]["single"])
+            
+            ret_data = {
+                "single": single_data
             }
             
         self.gstate.unlock(ret_data)
@@ -208,6 +215,10 @@ class CallbackHandler(UseGlobal, QObject):
                         acc.addNCOrder(op_time, orderno, stockcode, order_op, order_quantity, rest_quantity, order_price)
             
             elif order_status == "체결":
+                # if 매수
+                if order_op == "2":
+                    acc.today_buy_stocks.add(stockcode)
+                
                 # Add 체결 log
                 exec_price = intOrZero(order_data.get("단위체결가"))
                 exec_quantity = intOrZero(order_data.get("단위체결량"))
@@ -216,14 +227,14 @@ class CallbackHandler(UseGlobal, QObject):
                 
                 acc.addExecLog(op_time, orderno, stockcode, order_op, exec_price, exec_quantity, exec_fee, exec_tax)
                 
-                # Fix order info
-                new_order_info = dict(acc.not_completed_order[orderno])
-                new_order_info["rest_quantity"] = rest_quantity
+                # Fix not completed order info
+                new_nc_order = dict(acc.not_completed_order[orderno])
+                new_nc_order["rest_quantity"] = rest_quantity
                 
                 if rest_quantity == 0:
                     del acc.not_completed_order[orderno]
                 else:
-                    acc.not_completed_order[orderno] = new_order_info
+                    acc.not_completed_order[orderno] = new_nc_order
                 
         # 잔고
         elif tradetype == "1":
@@ -234,16 +245,19 @@ class CallbackHandler(UseGlobal, QObject):
             quantity = order_data.get("보유수량")
             possible_quantity = order_data.get("주문가능수량")
             average_buyprice = order_data.get("매입단가")
+            today_income = order_data.get("당일실현손익(유가)")
 
-            try:
-                stockcode = getRegStock(stockcode)
-            except:
-                logger.debug("There is not stockcode")
+            stockcode = getRegStock(stockcode)
+
+            acc = self.api.getAccObj(accno)
+                       
+            # Update today income
+            acc.setAccInfo({
+                "today_income": today_income
+            })
             
             # Update holdings
-            acc = self.api.getAccObj(accno)
             holdings = dict(acc.holdings)
-            
             try:
                 quantity = int(quantity)
             except TypeError as e:

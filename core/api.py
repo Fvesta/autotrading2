@@ -200,6 +200,17 @@ class API(UseGlobal, QObject):
             self.kiwoom.setInputValue("단주구분", "2")                  # 전체
             self.kiwoom.setInputValue("현금신용구분", "0")            # 전체
             
+        if rqname == "예수금상세현황요청":
+            if len(inputs) != 4:
+                return ErrorCode.OP_INPUT_ERROR
+            
+            accno, password, _, _ = inputs
+            
+            self.kiwoom.setInputValue("계좌번호", accno)
+            self.kiwoom.setInputValue("비밀번호", password)
+            self.kiwoom.setInputValue("비밀번호입력매체구분", "00")
+            self.kiwoom.setInputValue("조회구분", "2")              # 일반조회
+            
         if next:
             try:
                 self.kiwoom.commRqData(rqname, trcode, 2, scr_manager.scrAct(trcode.lower()))

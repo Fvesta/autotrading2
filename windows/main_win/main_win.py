@@ -39,7 +39,7 @@ class MainWin(WindowAbs):
         self.account_dict, self.setAccountDict = self.gstate.useState("account_dict")
         
         for accno in self.account_dict.keys():
-            if key == f"{accno}$holdings" or key == f"{accno}$balance":
+            if key == f"{accno}$holdings" or key == f"{accno}$balance" or key == f"{accno}$rest":
                 self.updateBalTable(accno)
         
         if key == "main_win_accholdings":

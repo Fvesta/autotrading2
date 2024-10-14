@@ -7,7 +7,7 @@ TRAILING_STOP_BASIC_OPTION = {
         },                   
         "line_opt": {
             "type": "manual",           # manual or auto
-            "lines": [1, 3, 5, 8, 12, 16, 20, 25]
+            "lines": [1.5, 3, 5, 8, 11, 15, 20, 25]
         },
         "division": [
             {

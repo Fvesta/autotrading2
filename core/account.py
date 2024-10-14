@@ -68,6 +68,7 @@ class Account(UseGlobal):
         
         self.total_amount = 0   # 예탁자금
         self.rest_amount = 0    # 매수가능금액
+        self.d2_depos_amount = 0  # D+2 추정예수금
         self.today_income = 0   # 당일실현손익
         self.today_buy_stocks = set() # 당일 매수종목
         
@@ -80,7 +81,10 @@ class Account(UseGlobal):
         # Auto trading
         self.trading = Trading(self)
         
-        # Get acc info
+        # Set rest_amount, d2_depos_amount
+        self.getRestAmount()
+        
+        # Get acc balance info
         self.reqAccInfo(init=True)
         
         # Get not completed order
@@ -92,7 +96,7 @@ class Account(UseGlobal):
         # Test Tr
         
     
-    # data = {"total_amount": "00", "rest_amount": "00", "today_income": "00"}    
+    # data = {"total_amount": "00", "rest_amount": "00", "d2_depos_amount": "00", "today_income": "00"}    
     def setAccInfo(self, data):
         
         total_amount = data.get("total_amount")
@@ -102,6 +106,10 @@ class Account(UseGlobal):
         rest_amount = data.get("rest_amount")
         if rest_amount is not None:
             self.rest_amount = intOrZero(rest_amount)
+            
+        d2_depos_amount = data.get("d2_depos_amount")
+        if d2_depos_amount is not None:
+            self.d2_depos_amount = intOrZero(d2_depos_amount)
             
         today_income = data.get("today_income")
         if today_income is not None:
@@ -251,23 +259,32 @@ class Account(UseGlobal):
         
         return balance_log
     
-    def reqAccInfo(self, init=False):
-        acc_bal_info = self.api.sendTr("계좌평가현황요청", [self.accno, "", None, None])
+    def getRestAmount(self):
+        deposit_info = self.api.sendTr("예수금상세현황요청", [self.accno, "", None, None])
         
-        if isinstance(acc_bal_info, ErrorCode):
-            logger.warning("Can\'t load account balance info")
-            return
-            
-        single_data = acc_bal_info.get("single")
-        multi_data = acc_bal_info.get("multi")
+        single_data = deposit_info.get("single")
         
-        rest_amount = single_data.get("D+2추정예수금")
+        rest_amount = single_data.get("주문가능금액")
+        d2_depos_amount = single_data.get("d+2추정예수금")
         
         self.setAccInfo({
             "rest_amount": rest_amount,
+            "d2_depos_amount": d2_depos_amount
         })
         
+        self.gstate.callUpdate(key=f"{self.accno}$rest")
+    
+    def reqAccInfo(self, init=False):
+        
         if init:
+            
+            acc_bal_info = self.api.sendTr("계좌평가현황요청", [self.accno, "", None, None])
+        
+            if isinstance(acc_bal_info, ErrorCode):
+                logger.warning("Can\'t load account balance info")
+                return
+                
+            multi_data = acc_bal_info.get("multi")
             
             # Set holdings data
             holdings = {}
@@ -319,7 +336,7 @@ class Account(UseGlobal):
             
         # Calculate total_amount
         total_eval_amount = self.getTotalEvalAmount()
-        total_amount = self.rest_amount + total_eval_amount
+        total_amount = self.d2_depos_amount + total_eval_amount
         self.total_amount = total_amount
         
         # Announce changed to all objects
@@ -346,7 +363,7 @@ class Account(UseGlobal):
         single_data = today_trade_log.get("single")
         multi_data = today_trade_log.get("multi")
         
-        today_income = intOrZero(single_data.get("총손익금액"))
+        today_income = single_data.get("총손익금액")
         
         self.setAccInfo({
             "today_income": today_income,

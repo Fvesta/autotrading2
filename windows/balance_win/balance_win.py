@@ -148,11 +148,13 @@ class BalanceWin(WindowAbs):
             stockobj = self.api.getStockObj(stockcode)
             
             exec_time = log["exec_time"]
+            exec_time_formatted = exec_time.strftime("%d/%H:%M:%S")
+            
             exec_gubun = log["exec_gubun"]
             exec_quantity = log["exec_quantity"]
             exec_price = log["exec_price"]
             
-            tb_data.append((exec_time, stockobj.name, exec_gubun, exec_quantity, exec_price))
+            tb_data.append((exec_time_formatted, stockobj.name, exec_gubun, exec_quantity, exec_price))
         
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
@@ -199,9 +201,11 @@ class BalanceWin(WindowAbs):
             order_quantity = order_info["order_quantity"]
             rest_quantity = order_info["rest_quantity"]
             order_price = order_info["order_price"]
-            order_time = order_info["order_time"]
             
-            tb_data.append((orderno, stockobj.name, order_gubun, order_quantity, rest_quantity, order_price, order_time))
+            order_time = order_info["order_time"]
+            order_time_formatted = order_time.strftime("%d/%H:%M:%S")
+            
+            tb_data.append((orderno, stockobj.name, order_gubun, order_quantity, rest_quantity, order_price, order_time_formatted))
             
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):

@@ -7,10 +7,12 @@ from core.logger import logger
 from core.constants import ORDER_TAG, ORDER_TYPE
 from core.errors import ErrorCode, OrderFailedException
 from core.scr_manager import scr_manager
+from core.utils.type_util import intOrZero
 from core.wait_timer import WaitTimer
 
 class OrderManager(UseGlobal, QThread):
     acc_update_signal = Signal()
+    acc_rest_signal = Signal(str)
     timer_start_signal = Signal()
     
     def __new__(cls, *args):
@@ -40,6 +42,7 @@ class OrderManager(UseGlobal, QThread):
         
     def eventReg(self):
         self.acc_update_signal.connect(self.updateAccounts)
+        self.acc_rest_signal.connect(self.updateAccRest)
         self.timer_start_signal.connect(self.orderTimerStart)
         
     def run(self):
@@ -63,6 +66,10 @@ class OrderManager(UseGlobal, QThread):
         
     def addEvent(self, event):
         self.event_queue.put(event)
+        
+    def updateAccRest(self, accno):
+        acc = self.api.getAccObj(accno)
+        acc.getRestAmount()
         
     def updateAccounts(self):
         
@@ -93,6 +100,18 @@ class OrderManager(UseGlobal, QThread):
         
         if tradetype == "0":
             order_status = order_data.get("주문상태")
+            order_gubun = order_data.get("주문구분")
+            order_quantity = intOrZero(order_data.get("주문수량"))
+            rest_quantity = intOrZero(order_data.get("미체결수량"))
+            
+            if order_status == "접수" and order_gubun == "+매수":
+                self.acc_rest_signal.emit(accno)
+                
+            if order_status == "확인" and order_gubun == "+매수정정":
+                # If first fix order => ignore
+                if order_quantity != rest_quantity:
+                    self.acc_rest_signal.emit(accno)
+                
             if order_status == "체결" and not self.account_timer.isWait():
                 self.timer_start_signal.emit()
             
