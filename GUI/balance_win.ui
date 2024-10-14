@@ -118,6 +118,14 @@
           </item>
           <item>
            <widget class="QTableWidget" name="not_completed_table">
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>주문번호</string>
+             </property>
+            </column>
             <column>
              <property name="text">
               <string>종목이름</string>
@@ -168,6 +176,9 @@
         </item>
         <item>
          <widget class="QTableWidget" name="real_exec_table">
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string>체결시간</string>

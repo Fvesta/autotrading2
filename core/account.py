@@ -53,7 +53,7 @@ class holdingInfo:
             logger.warning("Buy amount is zero")
             return None
         
-        return round(income_rate, 2)
+        return income_rate
         
 
 class Account(UseGlobal):
@@ -74,9 +74,8 @@ class Account(UseGlobal):
         # Order info
         self.holdings = {}
         self.not_completed_order = {}
-        self.completed_order = {}
         
-        self.exec_log = []
+        self.real_exec_log = []
         
         # Auto trading
         self.trading = Trading(self)
@@ -140,7 +139,7 @@ class Account(UseGlobal):
         elif exec_op == "2":
             exec_gubun = "매수"
 
-        self.exec_log.append({
+        self.real_exec_log.append({
             "stockcode": stockcode,                     # 종목코드
             "exec_orderno": orderno,                    # 주문번호
             "exec_gubun": exec_gubun,                   # 매도수구분
@@ -157,7 +156,7 @@ class Account(UseGlobal):
         
         today_merged_log = {}
         
-        for log in self.exec_log:
+        for log in self.real_exec_log:
             stockcode = log["stockcode"]
             
             try:
@@ -233,7 +232,7 @@ class Account(UseGlobal):
             buy_origin_amount = merged_log["buy_origin_amount"]
             today_income = today_sell_amount - buy_origin_amount - today_total_tax_fee
             try:
-                today_income_rate = round((today_income / buy_origin_amount) * 100, 2)
+                today_income_rate = (today_income / buy_origin_amount) * 100
             except ZeroDivisionError:
                 today_income_rate = 0
                 
@@ -380,11 +379,11 @@ class Account(UseGlobal):
             orderno = data.get("주문번호")
             order_gubun = data.get("주문구분")
             
-            order_op = 0
+            order_op = ""
             if order_gubun == "-매도" or order_gubun == "-매도정정":
-                order_op = 1
+                order_op = "1"
             elif order_gubun == "+매수" or order_gubun == "+매수정정":
-                order_op = 2
+                order_op = "2"
             
             order_quantity = intOrZero(data.get("주문수량"))
             order_price = intOrZero(data.get("주문가격"))
@@ -425,7 +424,7 @@ class Account(UseGlobal):
             logger.warning("Buy amount is zero")
             return None
         
-        return round(income_rate, 2)
+        return income_rate
     
     def isHoldings(self, stockcode):
         if stockcode in self.holdings:

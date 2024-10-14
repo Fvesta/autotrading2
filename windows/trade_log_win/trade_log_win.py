@@ -224,4 +224,3 @@ class TradeLogWin(WindowAbs):
         
                 self.ui.not_completed_table.setItem(i, j, item)
                 
-                

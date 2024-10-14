@@ -5,6 +5,7 @@ from core.account import Account, holdingInfo
 from core.api import API
 from core.errors import ErrorCode
 from core.stock import Stock
+from core.utils.stock_util import getRegStock
 from core.utils.utils import getAccnoFromObj
 from core.order_processing import order_manager
 from style.utils import setTableSizeSameHor
@@ -43,16 +44,15 @@ class BalanceWin(WindowAbs):
         if key == f"{self.accno}$holdings" or key == f"{self.accno}$balance":
             self.setHoldingsData()
             
-        if key == f"{self.accno}$balane_win_order":
+        if key == f"{self.accno}$balance_win_order":
             order_status = extra.get("order_status")
             
-            # if order_status == "접수":
-            #     self.setNotCompletedData()
+            if order_status == "접수":
+                self.setNotCompletedData()
                 
-            # if order_status == "체결":
-            #     self.setBalanceLogData()
-            #     self.setExecData()
-            #     self.setNotCompletedData()
+            if order_status == "체결":
+                self.setRealExecData()
+                self.setNotCompletedData()
             
                 
     def eventReg(self):
@@ -79,6 +79,8 @@ class BalanceWin(WindowAbs):
         self.eventReg()
         
         self.setHoldingsData()
+        self.setNotCompletedData()
+        self.setRealExecData()
     
     def setHoldingsData(self):
         acc: Account = self.api.getAccObj(self.accno)
@@ -92,19 +94,18 @@ class BalanceWin(WindowAbs):
             
             stockname = stockobj.name
             quantity = info.quantity
-            today_updown_rate = stockobj.today_updown_rate
+            today_updown_rate = f"{stockobj.today_updown_rate:+.2f}%"
             cur_price = stockobj.cur_price
+            
             cur_amount = info.getCurAmount()
+            cur_amount_formatted = f"{cur_amount:,}"
+            
             average_buy_price = info.average_buyprice
+            
             income_rate = info.getIncomeRate()
+            income_formatted = f"{income_rate:+.2f}%" 
             
-            income_formatted = ""
-            if income_rate >= 0:
-                income_formatted = f"+{income_rate}%"
-            else:
-                income_formatted = f"{income_rate}%"
-            
-            tb_data.append((stockcode, stockname, quantity, today_updown_rate, cur_price, cur_amount, average_buy_price, income_formatted))
+            tb_data.append((stockcode, stockname, quantity, today_updown_rate, cur_price, cur_amount_formatted, average_buy_price, income_formatted))
         
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
@@ -129,46 +130,85 @@ class BalanceWin(WindowAbs):
                     
                     self.ui.holding_table.setItem(i, j, item)
                     
-    # def setNotCompletedData(self):
-    #     # 주문번호
-    #     # 종목이름
-    #     # 매도수구분
-    #     # 주문수량
-    #     # 미체결수량
-    #     # 주문시간
-    #     # 주문가격
-    #     acc: Account = self.api.getAccObj(self.accno)
-    #     not_completed_orderno_list = list(acc.not_completed_order.keys())
+    def setRealExecData(self):
+        # 체결시간
+        # 종목이름
+        # 매도수구분
+        # 체결수량
+        # 체결가격
+        acc: Account = self.api.getAccObj(self.accno)
+        real_exec_log = list(acc.real_exec_log)
         
-    #     tb_data = []
-    #     self.ui.not_completed_table.setRowCount(len(not_completed_orderno_list))
-    #     for orderno in not_completed_orderno_list:
-    #         order_info = acc.not_completed_order[orderno]
+        tb_data = []
+        self.ui.real_exec_table.setRowCount(len(real_exec_log))
+        for log in real_exec_log:
+            stockcode = log["stockcode"] 
+            stockcode = getRegStock(stockcode)
             
-    #         stockcode = order_info["stockcode"]
+            stockobj = self.api.getStockObj(stockcode)
             
-    #         try:
-    #             stockcode = getRegStock(stockcode)
-    #         except:
-    #             logger.debug("There is not stockcode")
-    #             continue
+            exec_time = log["exec_time"]
+            exec_gubun = log["exec_gubun"]
+            exec_quantity = log["exec_quantity"]
+            exec_price = log["exec_price"]
             
-    #         stockobj = self.api.getStockObj(stockcode)
-            
-    #         order_gubun = order_info["order_gubun"]
-    #         order_quantity = order_info["order_quantity"]
-    #         rest_quantity = order_info["rest_quantity"]
-    #         order_price = order_info["order_price"]
-    #         order_time = order_info["order_time"]
-            
-    #         tb_data.append((orderno, stockobj.name, order_gubun, order_quantity, rest_quantity, order_price, order_time))
-            
-    #     for i in range(len(tb_data)):
-    #         for j in range(len(tb_data[0])):
-    #             item = QTableWidgetItem(str(tb_data[i][j]))
-    #             item.setTextAlignment(Qt.AlignCenter)
+            tb_data.append((exec_time, stockobj.name, exec_gubun, exec_quantity, exec_price))
         
-    #             self.ui.not_completed_table.setItem(i, j, item)
+        for i in range(len(tb_data)):
+            for j in range(len(tb_data[0])):
+                
+                if j == 2:
+                    item = QTableWidgetItem(str(tb_data[i][j]))
+                    item.setTextAlignment(Qt.AlignCenter)
+                    
+                    order_gubun = tb_data[i][j]
+                    if order_gubun == "매수":
+                        item.setForeground(decimal_colors["QT_RED"])
+                    elif order_gubun == "매도":
+                        item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
+                    
+                    self.ui.real_exec_table.setItem(i, j, item)
+                else:
+                    item = QTableWidgetItem(str(tb_data[i][j]))
+                    item.setTextAlignment(Qt.AlignCenter)
+            
+                    self.ui.real_exec_table.setItem(i, j, item)    
+                    
+    def setNotCompletedData(self):
+        # 주문번호
+        # 종목이름
+        # 매도수구분
+        # 주문수량
+        # 미체결수량
+        # 주문가격
+        # 주문시간
+        acc: Account = self.api.getAccObj(self.accno)
+        not_completed_orderno_list = list(acc.not_completed_order.keys())
+        
+        tb_data = []
+        self.ui.not_completed_table.setRowCount(len(not_completed_orderno_list))
+        for orderno in not_completed_orderno_list:
+            order_info = acc.not_completed_order[orderno]
+            
+            stockcode = order_info["stockcode"]
+            stockcode = getRegStock(stockcode)
+            
+            stockobj = self.api.getStockObj(stockcode)
+            
+            order_gubun = order_info["order_gubun"]
+            order_quantity = order_info["order_quantity"]
+            rest_quantity = order_info["rest_quantity"]
+            order_price = order_info["order_price"]
+            order_time = order_info["order_time"]
+            
+            tb_data.append((orderno, stockobj.name, order_gubun, order_quantity, rest_quantity, order_price, order_time))
+            
+        for i in range(len(tb_data)):
+            for j in range(len(tb_data[0])):
+                item = QTableWidgetItem(str(tb_data[i][j]))
+                item.setTextAlignment(Qt.AlignCenter)
+        
+                self.ui.not_completed_table.setItem(i, j, item)
             
     def orderCallback(self, seed, tradetype, order_data):
         accno = order_data.get("계좌번호")

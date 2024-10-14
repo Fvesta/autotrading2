@@ -48,9 +48,3 @@ def floatOrZero(val):
         val = 0
     
     return val
-
-def makeAccent(val):
-    if val > 0:
-        return f"+{val}"
-    else:
-        return f"{val}"

@@ -190,10 +190,7 @@ class CallbackHandler(UseGlobal, QObject):
             order_gubun = order_data.get("주문구분")
             op_time = order_data.get("주문/체결시간")    # ex) 121252
             
-            try:
-                stockcode = getRegStock(stockcode)
-            except:
-                logger.debug("There is not stockcode")
+            stockcode = getRegStock(stockcode)
             
             acc = self.api.getAccObj(accno)
             if order_status == "접수":
@@ -224,7 +221,6 @@ class CallbackHandler(UseGlobal, QObject):
                 new_order_info["rest_quantity"] = rest_quantity
                 
                 if rest_quantity == 0:
-                    acc.completed_order[orderno] = new_order_info
                     del acc.not_completed_order[orderno]
                 else:
                     acc.not_completed_order[orderno] = new_order_info

@@ -33,7 +33,7 @@ class ShortHit(QObject, UseGlobal):
             
             if not buy_same_stock:
                 # Stockcode repeat => ignore
-                for log in self.acc.exec_log:
+                for log in self.acc.real_exec_log:
                     if log["stockcode"] == stockcode and log["exec_gubun"] == "매수":
                         return 
             
