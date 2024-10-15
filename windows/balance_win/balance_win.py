@@ -46,14 +46,22 @@ class BalanceWin(WindowAbs):
             self.setHoldingsData()
             
         if key == f"{self.accno}$balance_win_order":
+            tradetype = extra.get("tradetype")
             order_status = extra.get("order_status")
             
-            if order_status == "접수":
-                self.setNotCompletedData()
-                
-            if order_status == "체결":
-                self.setRealExecData()
-                self.setNotCompletedData()
+            # 주문체결
+            if tradetype == "0":
+                if order_status == "접수":
+                    self.setBalanceEval()
+                    self.setNotCompletedData()
+                    
+                if order_status == "체결":
+                    self.setRealExecData()
+                    self.setNotCompletedData()
+            
+            # 잔고
+            if tradetype == "1":
+                self.setBalanceEval()
             
                 
     def eventReg(self):
@@ -89,7 +97,6 @@ class BalanceWin(WindowAbs):
         stock_list = list(acc.holdings.keys())
         
         tb_data = []
-        self.ui.holding_table.setRowCount(len(stock_list))
         for stockcode in stock_list:
             stockobj: Stock = self.api.getStockObj(stockcode)
             info: holdingInfo = acc.holdings[stockcode]
@@ -109,6 +116,7 @@ class BalanceWin(WindowAbs):
             
             tb_data.append((stockcode, stockname, quantity, today_updown_rate, cur_price, cur_amount_formatted, average_buy_price, income_formatted))
         
+        self.ui.holding_table.setRowCount(len(tb_data))
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
                 
@@ -166,7 +174,6 @@ class BalanceWin(WindowAbs):
         real_exec_log = list(acc.real_exec_log)
         
         tb_data = []
-        self.ui.real_exec_table.setRowCount(len(real_exec_log))
         for log in real_exec_log:
             stockcode = log["stockcode"] 
             stockcode = getRegStock(stockcode)
@@ -182,6 +189,7 @@ class BalanceWin(WindowAbs):
             
             tb_data.append((exec_time_formatted, stockobj.name, exec_gubun, exec_quantity, exec_price))
         
+        self.ui.real_exec_table.setRowCount(len(tb_data))
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
                 
@@ -214,7 +222,6 @@ class BalanceWin(WindowAbs):
         not_completed_orderno_list = list(acc.not_completed_order.keys())
         
         tb_data = []
-        self.ui.not_completed_table.setRowCount(len(not_completed_orderno_list))
         for orderno in not_completed_orderno_list:
             order_info = acc.not_completed_order[orderno]
             
@@ -232,7 +239,8 @@ class BalanceWin(WindowAbs):
             order_time_formatted = order_time.strftime("%d/%H:%M:%S")
             
             tb_data.append((orderno, stockobj.name, order_gubun, order_quantity, rest_quantity, order_price, order_time_formatted))
-            
+        
+        self.ui.not_completed_table.setRowCount(len(tb_data))
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
                 item = QTableWidgetItem(str(tb_data[i][j]))
@@ -250,5 +258,12 @@ class BalanceWin(WindowAbs):
             order_status = order_data.get("주문상태")
             
             self.update.emit(seed, {
+                "tradetype": tradetype,
                 "order_status": order_status
             })
+            
+        if tradetype == "1":
+            self.update.emit(seed, {
+                "tradetype": tradetype
+            })
+            

@@ -4,6 +4,7 @@ from PySide2.QtWidgets import *
 
 from core import logger
 from core.account import Account
+from core.loading import LoadingIndicator
 from core.utils.type_util import absIntOrZero, floatOrZero, intOrZero
 from core.utils.utils import getAccnoFromObj
 from core.errors import ErrorCode
@@ -24,6 +25,7 @@ class TradeLogWin(WindowAbs):
         
         self.accno = accno
         self.api = API()
+        self.loading_indicator = LoadingIndicator("style/assets/gif/loading_2.gif")
         
         self.exec_logs = []
         
@@ -31,6 +33,8 @@ class TradeLogWin(WindowAbs):
         
     def initSetting(self):
         self.ui.setWindowTitle(f"거래내역: {self.accno}")
+        self.loading_indicator.setSize(40, 40)
+        self.ui.lookup_layout.addWidget(self.loading_indicator.label)
         
         self.ui.balance_log_label.setProperty("class", "tx-bold")
         self.ui.exec_log_label.setProperty("class", "tx-bold")
@@ -64,12 +68,12 @@ class TradeLogWin(WindowAbs):
     
     def eventReg(self):
         self.update.connect(self.updateStates)
-        self.ui.lookup_btn.clicked.connect(self.getTodayInfo)
+        self.ui.lookup_btn.clicked.connect(self.lookupBtnClicked)
         self.ui.balance_log_table.itemSelectionChanged.connect(self.selectStock)
         
     def eventTerm(self):
         self.update.disconnect(self.updateStates)
-        self.ui.lookup_btn.clicked.disconnect(self.getTodayInfo)
+        self.ui.lookup_btn.clicked.disconnect(self.lookupBtnClicked)
         self.ui.balance_log_table.itemSelectionChanged.disconnect(self.selectStock)
         
     @showModal
@@ -89,13 +93,19 @@ class TradeLogWin(WindowAbs):
         except KeyError:
             logger.warning("No selected item")
             
-    def getTodayInfo(self):
+    def lookupBtnClicked(self):
+        self.ui.lookup_btn.hide()
+        self.loading_indicator.show()
+        
         # Balance log
         self.setBalanceLogData()
         
         # Exec log
         self.getExecLogData()
         self.setExecLogData()
+        
+        self.loading_indicator.hide()
+        self.ui.lookup_btn.show()
     
     def setBalanceLogData(self):
         # 종목이름
@@ -125,7 +135,6 @@ class TradeLogWin(WindowAbs):
         self.ui.income_label.setText(f"{'손익금액:':<10}{today_income:+,}")
         
         tb_data = []
-        self.ui.balance_log_table.setRowCount(len(multi_data))
         total_stock_count = 0
         for data in multi_data:
             
@@ -164,6 +173,7 @@ class TradeLogWin(WindowAbs):
         self.ui.diff_label.setText(f"{'매수종목수:':<10}{len(acc.today_buy_stocks)}")
         self.ui.count_label.setText(f"{'매도종목수:':<10}{total_stock_count}")
         
+        self.ui.balance_log_table.setRowCount(len(tb_data))
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
                 
@@ -203,8 +213,8 @@ class TradeLogWin(WindowAbs):
         
         # 00:00:00
         start_time = time(0, 0, 0)
-        # 05:00:00
-        end_time = time(5, 0, 0)
+        # 04:00:00
+        end_time = time(4, 0, 0)
         
         cur_time = now.time()
         
@@ -292,3 +302,4 @@ class TradeLogWin(WindowAbs):
                 item.setTextAlignment(Qt.AlignCenter)
         
                 self.ui.exec_log_table.setItem(i, j, item)   
+                
