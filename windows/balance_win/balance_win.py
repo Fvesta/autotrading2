@@ -128,7 +128,7 @@ class BalanceWin(WindowAbs):
                     
                     income_formatted = tb_data[i][j]
                     if income_formatted[0] == "+":
-                        item.setForeground(decimal_colors["QT_RED"])
+                        item.setForeground(decimal_colors["QT_LIGHT_RED"])
                     else:
                         item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
                     
@@ -199,7 +199,7 @@ class BalanceWin(WindowAbs):
                     
                     order_gubun = tb_data[i][j]
                     if order_gubun == "매수":
-                        item.setForeground(decimal_colors["QT_RED"])
+                        item.setForeground(decimal_colors["QT_LIGHT_RED"])
                     elif order_gubun == "매도":
                         item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
                     

@@ -45,7 +45,7 @@ class TradeLogWin(WindowAbs):
         
         for col, header in enumerate(balance_horizontal_headers):
             if col == 1 or col == 2 or col == 3:
-                header.setForeground(decimal_colors["QT_RED"])
+                header.setForeground(decimal_colors["QT_LIGHT_RED"])
             elif col == 4 or col == 5 or col == 6:
                 header.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
             else:
@@ -184,7 +184,7 @@ class TradeLogWin(WindowAbs):
                     
                     data_formatted = tb_data[i][j]
                     if data_formatted[0] == "+":
-                        item.setForeground(decimal_colors["QT_RED"])
+                        item.setForeground(decimal_colors["QT_LIGHT_RED"])
                     else:
                         item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
                     

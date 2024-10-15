@@ -14,11 +14,3 @@ QGroupBox {{
 QGroupBox::title {{
     color: {QTMATERIAL_SECONDARYDARKCOLOR}
 }}
-
-.tx-red {{
-    color:{QT_RED};
-}}
-
-.tx-blue {{
-    color: {QTMATERIAL_PRIMARYCOLOR};
-}}

@@ -190,7 +190,7 @@ class MainWin(WindowAbs):
         item1_2.setText(f"{acc.today_income:+,}")
         
         if acc.today_income >= 0:
-            item1_2.setForeground(decimal_colors["QT_RED"])
+            item1_2.setForeground(decimal_colors["QT_LIGHT_RED"])
         else:
             item1_2.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
         
