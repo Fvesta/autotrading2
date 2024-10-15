@@ -4,12 +4,10 @@ from PySide2.QtWidgets import *
 
 from core import logger
 from core.account import Account
-from core.utils.stock_util import getRegStock
 from core.utils.type_util import absIntOrZero, floatOrZero, intOrZero
 from core.utils.utils import getAccnoFromObj
 from core.errors import ErrorCode
 from core.api import API
-from core.order_processing import order_manager
 from style.utils import setTableSizeSameHor
 from windows.win_abs import WindowAbs, showModal
 
@@ -91,14 +89,12 @@ class TradeLogWin(WindowAbs):
         today_sell_amount = absIntOrZero(single_data.get("총매도금액"))
         today_buy_amount = absIntOrZero(single_data.get("총매수금액"))
         today_total_tax_fee = intOrZero(single_data.get("총수수료_세금"))
-        today_diff = intOrZero(single_data.get("총정산금액"))
         today_income = intOrZero(single_data.get("총손익금액"))
         
         self.ui.sell_label.setText(f"총매도금액:    {today_sell_amount:,}")
         self.ui.buy_label.setText(f"총매수금액:    {today_buy_amount:,}")
         self.ui.tax_label.setText(f"수수료/세금:    {today_total_tax_fee:,}")
-        self.ui.diff_label.setText(f"정산금액:    {today_diff:+,}")
-        self.ui.income_label.setText(f"실현손익:    {today_income:+,}")
+        self.ui.income_label.setText(f"손익금액:    {today_income:+,}")
         
         tb_data = []
         self.ui.balance_log_table.setRowCount(len(multi_data))
@@ -135,6 +131,9 @@ class TradeLogWin(WindowAbs):
                 today_income_rate
             ))
             
+        acc: Account = self.api.getAccObj(self.accno)
+        
+        self.ui.diff_label.setText(f"매수종목수:    {len(acc.today_buy_stocks)}")
         self.ui.count_label.setText(f"매도종목수:    {total_stock_count}")
         
         for i in range(len(tb_data)):
@@ -197,12 +196,15 @@ class TradeLogWin(WindowAbs):
             orderno = data.get("주문번호")
             order_price = intOrZero(data.get("주문단가"))
             order_quantity = intOrZero(data.get("주문수량"))
-            order_amount = order_price * order_quantity
             exec_price = intOrZero(data.get("체결단가"))
             exec_quantity = intOrZero(data.get("체결수량"))
             exec_amount = exec_price * exec_quantity
             nc_quantity = intOrZero(data.get("주문잔량"))
+            
             origin_orderno = data.get("원주문")
+            if origin_orderno == "0000000":
+                origin_orderno = ""
+            
             order_time = data.get("주문시간")
             
             tb_data.append((orderno, stockname, exec_gubun, order_price, order_quantity, exec_price, exec_quantity, exec_amount, nc_quantity, origin_orderno, order_time))

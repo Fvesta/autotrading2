@@ -146,6 +146,15 @@ class CallbackHandler(UseGlobal, QObject):
             ret_data = {
                 "single": single_data
             }
+        
+        if rqname == "당일실현손익상세요청":
+            single_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["당일실현손익상세요청"]["single"])
+            multi_data = self.api.getTrData(rqname, trcode, record, TR_RETURN_MAP["당일실현손익상세요청"]["multi"], True)
+            
+            ret_data = {
+                "single": single_data,
+                "multi": multi_data
+            }
             
         self.gstate.unlock(ret_data)
         

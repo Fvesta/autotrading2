@@ -85,7 +85,7 @@
           <item row="1" column="1">
            <widget class="QLabel" name="diff_label">
             <property name="text">
-             <string>정산 금액:</string>
+             <string>매수종목수:</string>
             </property>
            </widget>
           </item>

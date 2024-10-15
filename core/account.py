@@ -94,7 +94,6 @@ class Account(UseGlobal):
         self.getTodayIncome()
         
         # Test Tr
-        
     
     # data = {"total_amount": "00", "rest_amount": "00", "d2_depos_amount": "00", "today_income": "00"}    
     def setAccInfo(self, data):
@@ -358,27 +357,16 @@ class Account(UseGlobal):
                 
     def getTodayIncome(self):
         # Set Today income
-        today_trade_log = self.api.sendTr("당일매매일지요청", [self.accno, "", "", None, None])
+        today_trade_log = self.api.sendTr("당일실현손익상세요청", [self.accno, "", None])
         
         single_data = today_trade_log.get("single")
-        multi_data = today_trade_log.get("multi")
+        # multi_data = today_trade_log.get("multi")
         
-        today_income = single_data.get("총손익금액")
+        today_income = single_data.get("당일실현손익")
         
         self.setAccInfo({
             "today_income": today_income,
         })
-        
-        for data in multi_data:
-            stockcode = data.get("종목코드")
-            
-            if stockcode == '':
-                continue
-
-            stockcode = getRegStock(stockcode)
-            today_buy_quantity = data.get("매수수량")  
-            if today_buy_quantity != "0":
-                self.today_buy_stocks.add(stockcode)
         
     def getNCLog(self):
         nc_log = self.api.sendTr("미체결요청", [self.accno, None, None, None, None])
@@ -395,6 +383,15 @@ class Account(UseGlobal):
             
             orderno = data.get("주문번호")
             order_gubun = data.get("주문구분")
+            rest_quantity = intOrZero(data.get("미체결수량"))
+            
+            # If stock is bought in today
+            if order_gubun == "+매수":
+                self.today_buy_stocks.add(stockcode)
+            
+            # If completed order => ignore
+            if rest_quantity == 0:
+                continue
             
             order_op = ""
             if order_gubun == "-매도" or order_gubun == "-매도정정":
@@ -404,7 +401,6 @@ class Account(UseGlobal):
             
             order_quantity = intOrZero(data.get("주문수량"))
             order_price = intOrZero(data.get("주문가격"))
-            rest_quantity = intOrZero(data.get("미체결수량"))
             order_time = data.get("시간")
             
             self.addNCOrder(order_time, orderno, stockcode, order_op, order_quantity, rest_quantity, order_price)

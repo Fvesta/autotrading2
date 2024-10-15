@@ -74,9 +74,13 @@ class MainWin(WindowAbs):
         
         self.updateStyle()
         
-        # Resize table
         for accno in accounts:
             balance_table = getattr(self.ui, f"_{accno}_balance_table")
+            
+            # Change selection mode
+            balance_table.setSelectionMode(QAbstractItemView.NoSelection)
+            
+            # Resize table
             setTableSizeSameHor(balance_table)
             setTableSizeSameVer(balance_table)
     

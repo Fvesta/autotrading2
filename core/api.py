@@ -190,7 +190,7 @@ class API(UseGlobal, QObject):
             self.kiwoom.setInputValue("전체종목구분", "0")              # 전체
             self.kiwoom.setInputValue("매매구분", "0")                  # 전체
             self.kiwoom.setInputValue("종목코드", "")                   # 전체
-            self.kiwoom.setInputValue("체결구분", "1")                  # 미체결
+            self.kiwoom.setInputValue("체결구분", "0")                  # 전체
             
         if rqname == "당일매매일지요청":
             if len(inputs) != 5:
@@ -214,6 +214,16 @@ class API(UseGlobal, QObject):
             self.kiwoom.setInputValue("비밀번호", password)
             self.kiwoom.setInputValue("비밀번호입력매체구분", "00")
             self.kiwoom.setInputValue("조회구분", "2")              # 일반조회
+            
+        if rqname == "당일실현손익상세요청":
+            if len(inputs) != 3:
+                return ErrorCode.OP_INPUT_ERROR
+            
+            accno, password, _ = inputs
+            
+            self.kiwoom.setInputValue("계좌번호", accno)
+            self.kiwoom.setInputValue("비밀번호", password)
+            self.kiwoom.setInputValue("종목코드", "")
         
         try:
             self.kiwoom.commRqData(rqname, trcode, 2 if next else 0, scr_manager.scrAct(trcode.lower()))
