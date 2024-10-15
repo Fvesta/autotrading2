@@ -7,243 +7,287 @@
     <x>0</x>
     <y>0</y>
     <width>1248</width>
-    <height>645</height>
+    <height>776</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_4">
+   <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,4,3">
+    <property name="spacing">
+     <number>6</number>
+    </property>
     <item>
-     <widget class="QSplitter" name="splitter_2">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>당일 거래내역</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTableWidget" name="balance_log_table">
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::SingleSelection</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <column>
-           <property name="text">
-            <string>종목이름</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>매수평균가</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>매수수량</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>매수금액</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>매도평균가</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>매도수량</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>매도금액</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>매입평가금</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>세금,수수료</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>실현손익</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>손익율</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QSplitter" name="splitter">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+     <widget class="QWidget" name="widget" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="4,3,0">
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-       <widget class="QWidget" name="layoutWidget">
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>체결내역</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QTableWidget" name="exec_log_table">
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="alternatingRowColors">
-            <bool>true</bool>
-           </property>
-           <property name="selectionMode">
-            <enum>QAbstractItemView::NoSelection</enum>
-           </property>
-           <attribute name="verticalHeaderVisible">
-            <bool>false</bool>
-           </attribute>
-           <column>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>40</number>
+       </property>
+       <property name="bottomMargin">
+        <number>10</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>계좌평가</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>8</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>15</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="sell_label">
             <property name="text">
-             <string>주문번호</string>
+             <string>매도금액:</string>
             </property>
-           </column>
-           <column>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="tax_label">
             <property name="text">
-             <string>종목이름</string>
+             <string>수수료/세금:</string>
             </property>
-           </column>
-           <column>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="buy_label">
             <property name="text">
-             <string>구분</string>
+             <string>매수금액:</string>
             </property>
-           </column>
-           <column>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="count_label">
             <property name="text">
-             <string>체결금액</string>
+             <string>매도종목수:</string>
             </property>
-           </column>
-           <column>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="diff_label">
             <property name="text">
-             <string>체결수량</string>
+             <string>정산 금액:</string>
             </property>
-           </column>
-           <column>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="income_label">
             <property name="text">
-             <string>체결가격</string>
+             <string>실현손익:</string>
             </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>체결시간</string>
-            </property>
-           </column>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>미체결내역</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QTableWidget" name="not_completed_table">
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="alternatingRowColors">
-            <bool>true</bool>
-           </property>
-           <property name="selectionMode">
-            <enum>QAbstractItemView::NoSelection</enum>
-           </property>
-           <attribute name="horizontalHeaderVisible">
-            <bool>true</bool>
-           </attribute>
-           <attribute name="verticalHeaderVisible">
-            <bool>true</bool>
-           </attribute>
-           <column>
-            <property name="text">
-             <string>주문번호</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>종목이름</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>구분</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>주문수량</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>미체결수량</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>주문가격</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>주문시간</string>
-            </property>
-           </column>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_2" native="true"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="lookup_btn">
+         <property name="text">
+          <string>조회</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
+       <number>10</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>당일 거래내역</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="balance_log_table">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>종목이름</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>매수평균가</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>매수수량</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>매수금액</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>매도평균가</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>매도수량</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>매도금액</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>세금,수수료</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>실현손익</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>손익율</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>체결내역</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="exec_log_table">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::NoSelection</enum>
+        </property>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>주문번호</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>종목이름</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>구분</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>주문가</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>주문량</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>체결가</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>체결량</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>체결금액</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>미체결</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>원주문</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>주문시간</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>

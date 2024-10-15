@@ -452,22 +452,3 @@ class Account(UseGlobal):
     ############################################
     # Test TR functions
     ############################################
-    
-    def getTodayTradeLog(self):
-        trade_log = self.api.sendTr("계좌별주문체결내역상세요청", ["20241010", self.accno, "", "00", 1, 1, 0, "", ""])
-        
-        single_merged_data = trade_log.get("single")
-        multi_merged_data = trade_log.get("multi")
-        next = trade_log.get("next")
-        
-        while(next == "2"):
-            trade_log = self.api.sendTr("계좌별주문체결내역상세요청", ["20241010", self.accno, "", "00", 1, 1, 0, "", ""], True)
-
-            single_data = trade_log.get("single")
-            multi_data = trade_log.get("multi")
-            next = trade_log.get("next")
-            
-            multi_merged_data.extend(multi_data)
-            
-        # print(multi_merged_data)
-        

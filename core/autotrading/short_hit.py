@@ -32,9 +32,14 @@ class ShortHit(QObject, UseGlobal):
                 return                     
             
             if not buy_same_stock:
-                # Stockcode repeat => ignore
+                # If today buy => ignore
                 if stockcode in self.acc.today_buy_stocks:
                     return 
+                
+                # Stockcode repeat => ignore
+                for log in self.acc.real_exec_log:
+                    if log["stockcode"] == stockcode and log["exec_gubun"] == "매수":
+                        return 
             
             # If there is no money to buy, set one_time_amount to limit amount
             if self.acc.rest_amount < one_time_amount:

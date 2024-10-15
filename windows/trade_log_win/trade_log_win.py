@@ -1,9 +1,11 @@
+from datetime import datetime
 from PySide2.QtCore import Signal, Qt
 from PySide2.QtWidgets import *
 
 from core import logger
 from core.account import Account
 from core.utils.stock_util import getRegStock
+from core.utils.type_util import absIntOrZero, floatOrZero, intOrZero
 from core.utils.utils import getAccnoFromObj
 from core.errors import ErrorCode
 from core.api import API
@@ -28,6 +30,12 @@ class TradeLogWin(WindowAbs):
         
     def initSetting(self):
         self.ui.setWindowTitle(f"거래내역: {self.accno}")
+        self.ui.sell_label.setProperty("class", "tx-12")
+        self.ui.buy_label.setProperty("class", "tx-12")
+        self.ui.tax_label.setProperty("class", "tx-12")
+        self.ui.diff_label.setProperty("class", "tx-12")
+        self.ui.income_label.setProperty("class", "tx-12")
+        self.ui.count_label.setProperty("class", "tx-12")
         
     def afterSetting(self):
         self.updateStyle()
@@ -39,24 +47,15 @@ class TradeLogWin(WindowAbs):
         setTableSizeSameHor(exec_log_table)
         
     def updateStates(self, key="", extra={}):
-        if key == f"{self.accno}$trade_log":
-            order_status = extra.get("order_status")
-            
-            if order_status == "접수":
-                self.setNotCompletedData()
-                
-            if order_status == "체결":
-                self.setBalanceLogData()
-                self.setExecData()
-                self.setNotCompletedData()
+        pass
     
     def eventReg(self):
         self.update.connect(self.updateStates)
-        order_manager.regOrderReal(f"{self.accno}$trade_log", self.orderCallback)
+        self.ui.lookup_btn.clicked.connect(self.getTodayInfo)
         
     def eventTerm(self):
         self.update.disconnect(self.updateStates)
-        order_manager.termOrderReal(f"{self.accno}$trade_log")
+        self.ui.lookup_btn.clicked.disconnect(self.getTodayInfo)
         
     @showModal
     def show(self):
@@ -65,21 +64,12 @@ class TradeLogWin(WindowAbs):
         self.updateStates()
         self.eventReg()
         
+    def getTodayInfo(self):
+        # Balance log
         self.setBalanceLogData()
-        self.setExecData()
-        self.setNotCompletedData()
         
-    def orderCallback(self, seed, tradetype, order_data):
-        accno = order_data.get("계좌번호")
-        if accno != self.accno:
-            return
-        
-        if tradetype == "0":     
-            order_status = order_data.get("주문상태")
-            
-            self.update.emit(seed, {
-                "order_status": order_status
-            })
+        # Exec log
+        self.setExecLogData()
     
     def setBalanceLogData(self):
         # 종목이름
@@ -89,52 +79,63 @@ class TradeLogWin(WindowAbs):
         # 매도평균가
         # 매도수량
         # 매도금액
-        # 매수평가금
-        # 세금, 수수료
+        # 세금,수수료
         # 실현손익
         # 손익율
-        acc: Account = self.api.getAccObj(self.accno)
-        balance_log = acc.calculateBalLog()
-        bal_stockcode_list = list(balance_log.keys())
+        
+        today_trade_log = self.api.sendTr("당일매매일지요청", [self.accno, "", "", None, None])
+        
+        single_data = today_trade_log.get("single")
+        multi_data = today_trade_log.get("multi")
+        
+        today_sell_amount = absIntOrZero(single_data.get("총매도금액"))
+        today_buy_amount = absIntOrZero(single_data.get("총매수금액"))
+        today_total_tax_fee = intOrZero(single_data.get("총수수료_세금"))
+        today_diff = intOrZero(single_data.get("총정산금액"))
+        today_income = intOrZero(single_data.get("총손익금액"))
+        
+        self.ui.sell_label.setText(f"총매도금액:    {today_sell_amount:,}")
+        self.ui.buy_label.setText(f"총매수금액:    {today_buy_amount:,}")
+        self.ui.tax_label.setText(f"수수료/세금:    {today_total_tax_fee:,}")
+        self.ui.diff_label.setText(f"정산금액:    {today_diff:+,}")
+        self.ui.income_label.setText(f"실현손익:    {today_income:+,}")
         
         tb_data = []
-        self.ui.balance_log_table.setRowCount(len(bal_stockcode_list))
-        for stockcode in bal_stockcode_list:
+        self.ui.balance_log_table.setRowCount(len(multi_data))
+        total_stock_count = 0
+        for data in multi_data:
             
-            try:
-                stockcode = getRegStock(stockcode)
-            except:
-                logger.debug("There is not stockcode")
+            stockname = data.get("종목명")
+            
+            if stockname == "":
                 continue
             
-            stockobj = self.api.getStockObj(stockcode)
+            total_stock_count += 1
             
-            balance_log_info = balance_log[stockcode]
-            
-            today_average_buy_price = balance_log_info["today_average_buy_price"]
-            today_buy_quantity = balance_log_info["today_buy_quantity"]
-            today_buy_amount = balance_log_info["today_buy_amount"]
-            today_average_sell_price = balance_log_info["today_average_sell_price"]
-            today_sell_quantity = balance_log_info["today_sell_quantity"]
-            today_sell_amount = balance_log_info["today_sell_amount"]
-            today_total_tax_fee = balance_log_info["today_total_tax_fee"]
-            buy_origin_amount = balance_log_info["buy_origin_amount"]
-            today_income = balance_log_info["today_income"]
-            today_income_rate = balance_log_info["today_income_rate"]
+            today_average_buy_price = absIntOrZero(data.get("매수평균가"))
+            today_buy_quantity = absIntOrZero(data.get("매수수량"))  
+            today_buy_amount = absIntOrZero(data.get("매수금액"))
+            today_average_sell_price = absIntOrZero(data.get("매도평균가"))
+            today_sell_quantity = absIntOrZero(data.get("매도수량"))
+            today_sell_amount = absIntOrZero(data.get("매도금액"))
+            today_tax_fee = intOrZero(data.get("수수료_제세금"))
+            today_income = intOrZero(data.get("손익금액"))
+            today_income_rate = floatOrZero(data.get("수익률"))
             
             tb_data.append((
-                stockobj.name,
+                stockname,
                 today_average_buy_price,
                 today_buy_quantity,
                 today_buy_amount,
                 today_average_sell_price,
                 today_sell_quantity,
                 today_sell_amount,
-                buy_origin_amount,
-                today_total_tax_fee,
+                today_tax_fee,
                 today_income,
                 today_income_rate
             ))
+            
+        self.ui.count_label.setText(f"매도종목수:    {total_stock_count}")
         
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
@@ -143,38 +144,68 @@ class TradeLogWin(WindowAbs):
         
                 self.ui.balance_log_table.setItem(i, j, item)
             
-    def setExecData(self):
+    def setExecLogData(self):
         # 주문번호
         # 종목이름
-        # 매도수구분
-        # 체결금액
-        # 체결수량
+        # 구분
+        # 주문가격
+        # 주문수량
         # 체결가격
-        # 체결시간
-        acc: Account = self.api.getAccObj(self.accno)
-        exec_log = list(acc.exec_log)
+        # 체결수량
+        # 체결금액
+        # 미체결
+        # 원주문번호
+        # 주문시간
+        now = datetime.now()
+        today_date = now.strftime("%Y%m%d")
         
+        trade_log = self.api.sendTr("계좌별주문체결내역상세요청", [today_date, self.accno, "", "00", 1, 1, 0, "", ""])
+        
+        multi_merged_data = trade_log.get("multi")
+        next = trade_log.get("next")
+        
+        while(next == "2"):
+            trade_log = self.api.sendTr("계좌별주문체결내역상세요청", [today_date, self.accno, "", "00", 1, 1, 0, "", ""], True)
+
+            multi_data = trade_log.get("multi")
+            next = trade_log.get("next")
+            
+            multi_merged_data.extend(multi_data)
+            
         tb_data = []
-        self.ui.exec_log_table.setRowCount(len(exec_log))
-        for log in exec_log:
-            stockcode = log["stockcode"]
+        self.ui.exec_log_table.setRowCount(len(multi_merged_data))
+        for data in multi_merged_data:
             
-            try:
-                stockcode = getRegStock(stockcode)
-            except:
-                logger.debug("There is not stockcode")
-                continue
+            stockname = data.get("종목명")
+
+            order_gubun = data.get("주문구분")
+            fix_cancel = data.get("정정취소")
+            exec_gubun = ""
+            if order_gubun == "현금매수":
+                exec_gubun = "매수"
+                if fix_cancel == "정정":
+                    exec_gubun = "매수정정"
+                elif fix_cancel == "취소":
+                    exec_gubun = "매수취소"
+            elif order_gubun == "현금매도":
+                exec_gubun = "매도"
+                if fix_cancel == "정정":
+                    exec_gubun = "매도정정"
+                elif fix_cancel == "취소":
+                    exec_gubun = "매도취소"
             
-            stockobj = self.api.getStockObj(stockcode)
+            orderno = data.get("주문번호")
+            order_price = intOrZero(data.get("주문단가"))
+            order_quantity = intOrZero(data.get("주문수량"))
+            order_amount = order_price * order_quantity
+            exec_price = intOrZero(data.get("체결단가"))
+            exec_quantity = intOrZero(data.get("체결수량"))
+            exec_amount = exec_price * exec_quantity
+            nc_quantity = intOrZero(data.get("주문잔량"))
+            origin_orderno = data.get("원주문")
+            order_time = data.get("주문시간")
             
-            exec_orderno = log["exec_orderno"]
-            exec_gubun = log["exec_gubun"]
-            exec_amount = log["exec_amount"]
-            exec_quantity = log["exec_quantity"]
-            exec_price = log["exec_price"]
-            exec_time = log["exec_time"]
-            
-            tb_data.append((exec_orderno, stockobj.name, exec_gubun, exec_amount, exec_quantity, exec_price, exec_time))
+            tb_data.append((orderno, stockname, exec_gubun, order_price, order_quantity, exec_price, exec_quantity, exec_amount, nc_quantity, origin_orderno, order_time))
         
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
@@ -182,45 +213,4 @@ class TradeLogWin(WindowAbs):
                 item.setTextAlignment(Qt.AlignCenter)
         
                 self.ui.exec_log_table.setItem(i, j, item)    
-
-    def setNotCompletedData(self):
-        # 주문번호
-        # 종목이름
-        # 매도수구분
-        # 주문수량
-        # 미체결수량
-        # 주문시간
-        # 주문가격
-        acc: Account = self.api.getAccObj(self.accno)
-        not_completed_orderno_list = list(acc.not_completed_order.keys())
-        
-        tb_data = []
-        self.ui.not_completed_table.setRowCount(len(not_completed_orderno_list))
-        for orderno in not_completed_orderno_list:
-            order_info = acc.not_completed_order[orderno]
-            
-            stockcode = order_info["stockcode"]
-            
-            try:
-                stockcode = getRegStock(stockcode)
-            except:
-                logger.debug("There is not stockcode")
-                continue
-            
-            stockobj = self.api.getStockObj(stockcode)
-            
-            order_gubun = order_info["order_gubun"]
-            order_quantity = order_info["order_quantity"]
-            rest_quantity = order_info["rest_quantity"]
-            order_price = order_info["order_price"]
-            order_time = order_info["order_time"]
-            
-            tb_data.append((orderno, stockobj.name, order_gubun, order_quantity, rest_quantity, order_price, order_time))
-            
-        for i in range(len(tb_data)):
-            for j in range(len(tb_data[0])):
-                item = QTableWidgetItem(str(tb_data[i][j]))
-                item.setTextAlignment(Qt.AlignCenter)
-        
-                self.ui.not_completed_table.setItem(i, j, item)
                 
