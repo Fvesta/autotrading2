@@ -42,6 +42,7 @@ class BalanceWin(WindowAbs):
         
     def updateStates(self, key="", extra={}):
         if key == f"{self.accno}$holdings" or key == f"{self.accno}$balance":
+            self.setBalanceEval()
             self.setHoldingsData()
             
         if key == f"{self.accno}$balance_win_order":
@@ -78,6 +79,7 @@ class BalanceWin(WindowAbs):
         self.updateStates()
         self.eventReg()
         
+        self.setBalanceEval()
         self.setHoldingsData()
         self.setNotCompletedData()
         self.setRealExecData()
@@ -129,6 +131,30 @@ class BalanceWin(WindowAbs):
                     item.setTextAlignment(Qt.AlignCenter)
                     
                     self.ui.holding_table.setItem(i, j, item)
+                    
+    def setBalanceEval(self):
+        # 보유종목수    holding_cnt_label
+        # 총매입금      total_buy_label
+        # 총평가금      total_eval_label
+        # 평가손익      income_label
+        # 수익률        income_rate_label
+        # 당일종목수    today_stock_label
+        
+        acc: Account = self.api.getAccObj(self.accno)
+        
+        holding_cnt = len(acc.holdings)
+        total_buy_amount = acc.getTotalBuyAmount()
+        total_eval_amount = acc.getTotalEvalAmount()
+        income_amount = acc.getTotalIncomeAmount()
+        income_rate = acc.getTotalIncomeRate()
+        today_stock_cnt = len(acc.today_buy_stocks)
+        
+        self.ui.holding_cnt_label.setText(f"보유종목수:    {holding_cnt}")
+        self.ui.total_buy_label.setText(f"총매입금:    {total_buy_amount:,}")
+        self.ui.total_eval_label.setText(f"총평가금:    {total_eval_amount:,}")
+        self.ui.income_label.setText(f"평가손익:    {income_amount:+,}")
+        self.ui.income_rate_label.setText(f"수익률:    {income_rate:+.2f}")
+        self.ui.today_stock_label.setText(f"당일종목수:    {today_stock_cnt}")
                     
     def setRealExecData(self):
         # 체결시간

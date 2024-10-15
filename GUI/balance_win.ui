@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1400</width>
-    <height>700</height>
+    <height>750</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,8 +35,95 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="">
-       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="3,2">
+      <widget class="QWidget" name="layoutWidget">
+       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,6,4">
+        <item>
+         <widget class="QWidget" name="widget" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,1">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>10</number>
+           </property>
+           <item>
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string>잔고평가</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <property name="horizontalSpacing">
+               <number>9</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>16</number>
+              </property>
+              <item row="1" column="1">
+               <widget class="QLabel" name="income_rate_label">
+                <property name="text">
+                 <string>수익률:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLabel" name="total_eval_label">
+                <property name="text">
+                 <string>총평가금:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="holding_cnt_label">
+                <property name="text">
+                 <string>보유종목수:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="income_label">
+                <property name="text">
+                 <string>평가손익:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="today_stock_label">
+                <property name="text">
+                 <string>당일종목수:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="total_buy_label">
+                <property name="text">
+                 <string>총매입금:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_2" native="true"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
@@ -57,6 +144,9 @@
             <property name="selectionMode">
              <enum>QAbstractItemView::NoSelection</enum>
             </property>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
             <column>
              <property name="text">
               <string>코드</string>
@@ -162,7 +252,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QLabel" name="label_3">

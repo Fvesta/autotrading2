@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from PySide2.QtCore import Signal, Qt
 from PySide2.QtWidgets import *
-from PySide2.QtGui import QFont
 
 from core import logger
 from core.account import Account
@@ -25,6 +24,8 @@ class TradeLogWin(WindowAbs):
         
         self.accno = accno
         self.api = API()
+        
+        self.exec_logs = []
         
         self.initSetting()
         
@@ -64,10 +65,12 @@ class TradeLogWin(WindowAbs):
     def eventReg(self):
         self.update.connect(self.updateStates)
         self.ui.lookup_btn.clicked.connect(self.getTodayInfo)
+        self.ui.balance_log_table.itemSelectionChanged.connect(self.selectStock)
         
     def eventTerm(self):
         self.update.disconnect(self.updateStates)
         self.ui.lookup_btn.clicked.disconnect(self.getTodayInfo)
+        self.ui.balance_log_table.itemSelectionChanged.disconnect(self.selectStock)
         
     @showModal
     def show(self):
@@ -76,11 +79,22 @@ class TradeLogWin(WindowAbs):
         self.updateStates()
         self.eventReg()
         
+    def selectStock(self):
+        selected_items = self.ui.balance_log_table.selectedItems()
+        
+        try:
+            find_name = selected_items[0].text()
+            
+            self.setExecLogData(find_name)
+        except KeyError:
+            logger.warning("No selected item")
+            
     def getTodayInfo(self):
         # Balance log
         self.setBalanceLogData()
         
         # Exec log
+        self.getExecLogData()
         self.setExecLogData()
     
     def setBalanceLogData(self):
@@ -172,7 +186,7 @@ class TradeLogWin(WindowAbs):
             
                     self.ui.balance_log_table.setItem(i, j, item)
             
-    def setExecLogData(self):
+    def getExecLogData(self):
         # 주문번호
         # 종목이름
         # 구분
@@ -185,26 +199,47 @@ class TradeLogWin(WindowAbs):
         # 원주문번호
         # 주문시간
         now = datetime.now()
-        today_date = now.strftime("%Y%m%d")
+        req_date = now.strftime("%Y%m%d")
         
-        trade_log = self.api.sendTr("계좌별주문체결내역상세요청", [today_date, self.accno, "", "00", 1, 1, 0, "", ""])
+        # 00:00:00
+        start_time = time(0, 0, 0)
+        # 05:00:00
+        end_time = time(5, 0, 0)
+        
+        cur_time = now.time()
+        
+        if start_time <= cur_time <= end_time:
+            yesterday = now - timedelta(days=1)
+            req_date = yesterday.strftime("%Y%m%d")
+        
+        trade_log = self.api.sendTr("계좌별주문체결내역상세요청", [req_date, self.accno, "", "00", 1, 1, 0, "", ""])
         
         multi_merged_data = trade_log.get("multi")
         next = trade_log.get("next")
         
         while(next == "2"):
-            trade_log = self.api.sendTr("계좌별주문체결내역상세요청", [today_date, self.accno, "", "00", 1, 1, 0, "", ""], True)
+            trade_log = self.api.sendTr("계좌별주문체결내역상세요청", [req_date, self.accno, "", "00", 1, 1, 0, "", ""], True)
 
             multi_data = trade_log.get("multi")
             next = trade_log.get("next")
             
             multi_merged_data.extend(multi_data)
-            
+        
+        self.exec_logs = multi_merged_data 
+    
+    def setExecLogData(self, stockname=None):
+        find_name = stockname
+        
         tb_data = []
-        self.ui.exec_log_table.setRowCount(len(multi_merged_data))
-        for data in multi_merged_data:
+        for data in self.exec_logs:
             
             stockname = data.get("종목명")
+            
+            if stockname == "":
+                continue
+            
+            if (find_name != None) and (stockname != find_name):
+                continue
 
             order_gubun = data.get("주문구분")
             fix_cancel = data.get("정정취소")
@@ -250,10 +285,10 @@ class TradeLogWin(WindowAbs):
                 order_time
             ))
         
+        self.ui.exec_log_table.setRowCount(len(tb_data))
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
                 item = QTableWidgetItem(str(tb_data[i][j]))
                 item.setTextAlignment(Qt.AlignCenter)
         
-                self.ui.exec_log_table.setItem(i, j, item)    
-                
+                self.ui.exec_log_table.setItem(i, j, item)   

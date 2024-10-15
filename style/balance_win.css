@@ -2,14 +2,23 @@ QHeaderView::section:horizontal {{
     padding: 0;
 }}
 
+QTableView::item {{
+    color: auto;
+}}
+
+QGroupBox {{
+    /* border: 0; */
+    padding: 16px 0 16px 0;
+}}
+
+QGroupBox::title {{
+    color: {QTMATERIAL_SECONDARYDARKCOLOR}
+}}
+
 .tx-red {{
     color:{QT_RED};
 }}
 
 .tx-blue {{
     color: {QTMATERIAL_PRIMARYCOLOR};
-}}
-
-QTableView::item {{
-  color: auto;
 }}
