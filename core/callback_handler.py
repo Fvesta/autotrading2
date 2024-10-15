@@ -215,7 +215,10 @@ class CallbackHandler(UseGlobal, QObject):
                         del acc.not_completed_order[orderno]
                     else:
                         acc.addNCOrder(op_time, orderno, stockcode, order_op, order_quantity, rest_quantity, order_price)
-                        
+                    
+                    if order_gubun == "매수":
+                        acc.today_buy_stocks.add(stockcode)
+            
             if order_status == "확인":
                 if order_gubun == "+매수정정" or order_gubun == "-매도정정":
                     if rest_quantity == 0:
@@ -224,10 +227,6 @@ class CallbackHandler(UseGlobal, QObject):
                         acc.addNCOrder(op_time, orderno, stockcode, order_op, order_quantity, rest_quantity, order_price)
             
             elif order_status == "체결":
-                # if 매수
-                if order_op == "2":
-                    acc.today_buy_stocks.add(stockcode)
-                
                 # Add 체결 log
                 exec_price = intOrZero(order_data.get("단위체결가"))
                 exec_quantity = intOrZero(order_data.get("단위체결량"))

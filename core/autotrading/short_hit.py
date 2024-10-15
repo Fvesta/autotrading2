@@ -115,10 +115,7 @@ class ShortHit(QObject, UseGlobal):
     def condRealCallback(self, seed, stockcode, tag, condname, cidx):
 
         if tag == "I":
-            try:
-                stockcode = getRegStock(stockcode)
-            except:
-                logger.debug("There is not stockcode")
+            stockcode = getRegStock(stockcode)
             
             # Already holding => ignore
             if self.acc.isHoldings(stockcode):
@@ -132,6 +129,20 @@ class ShortHit(QObject, UseGlobal):
             if len(self.acc.holdings.keys()) >= self.max_bal_cnt:
                 return
             
+            # If stock is already buy ordered, not completed => ignore
+            not_completed_orderno_list = list(self.acc.not_completed_order.keys())
+            
+            for orderno in not_completed_orderno_list:
+                order_info = self.acc.not_completed_order[orderno]
+            
+                nc_stockcode = order_info["stockcode"]
+                nc_stockcode = getRegStock(stockcode)
+                
+                order_gubun = order_info["order_gubun"]
+                
+                if nc_stockcode == stockcode and order_gubun == "매수":
+                    return
+                
             self.update.emit(seed, {
                 "stockcode": stockcode
             })
