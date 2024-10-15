@@ -24,7 +24,7 @@ class Trading:
         
         # Base algorithm
         self.algorithm_dict = {
-            "short_hit": ShortHit(self.acc)
+            "short_hit": ShortHit(self.acc, self.scheduler)
         }
         self.algo = None
         

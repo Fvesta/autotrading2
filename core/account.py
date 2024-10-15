@@ -351,7 +351,7 @@ class Account(UseGlobal):
             if self.isHoldings(stockcode):
                 total_eval_amount = self.getTotalEvalAmount()
                 
-                total_amount = self.rest_amount + total_eval_amount
+                total_amount = self.d2_depos_amount + total_eval_amount
                 self.total_amount = total_amount
                 
                 self.gstate.callUpdate(key=seed)
@@ -438,8 +438,7 @@ class Account(UseGlobal):
         try:
             income_rate = (total_eval_amount - total_buy_amount) / total_buy_amount * 100
         except ZeroDivisionError:
-            logger.warning("Buy amount is zero")
-            return None
+            return 0
         
         return income_rate
     

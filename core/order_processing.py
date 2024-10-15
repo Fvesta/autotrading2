@@ -75,6 +75,7 @@ class OrderManager(UseGlobal, QThread):
         
         for accno in self.event_accno_set:
             acc = self.api.getAccObj(accno)
+            acc.getRestAmount()
             acc.reqAccInfo()
         
     def accTimerCallback(self):

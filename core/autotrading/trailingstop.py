@@ -2,7 +2,6 @@ import math
 from PySide2.QtCore import Signal, QObject
 
 from datetime import datetime, timedelta
-from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from core.logger import logger

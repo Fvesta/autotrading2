@@ -11,14 +11,26 @@ from core.utils.stock_util import getRegStock
 class ShortHit(QObject, UseGlobal):
     update = Signal(str, dict)
     
-    def __init__(self, acc):
+    def __init__(self, acc, scheduler):
         QObject.__init__(self)
         UseGlobal.__init__(self)
         self.acc = acc
+        self.scheduler = scheduler
         
         self.api = API()
+        self.jobid = "short_hit"
         
     def updateStates(self, key="", extra={}):
+        
+        if key == "sell_all":
+            holdings = dict(self.acc.holdings)
+        
+            for stockcode in holdings.keys():
+                holding_info = holdings[stockcode]
+                
+                quantity = holding_info.possible_quantity
+                
+                order_manager.sellStockNow(self.acc.accno, stockcode, quantity)
         
         if key == f"{self.acc.accno}$short_hit":
             try:
@@ -71,7 +83,8 @@ class ShortHit(QObject, UseGlobal):
         
         # Update options
         self.condition = option.get("condition", ALGO_SHORT_HIT_BASIC_OPTION["condition"])
-        self.max_stock_cnt = option.get("max_stock_cnt", ALGO_SHORT_HIT_BASIC_OPTION["max_stock_cnt"])
+        self.today_max_cnt = option.get("today_max_cnt", ALGO_SHORT_HIT_BASIC_OPTION["today_max_cnt"])
+        self.max_bal_cnt = option.get("max_bal_cnt", ALGO_SHORT_HIT_BASIC_OPTION["max_bal_cnt"])
         self.just_today = option.get("just_today", ALGO_SHORT_HIT_BASIC_OPTION["just_today"])
         self.order = option.get("order", ALGO_SHORT_HIT_BASIC_OPTION["order"])
         
@@ -81,13 +94,23 @@ class ShortHit(QObject, UseGlobal):
         self.updateStates()
         self.eventReg()
         
+        if self.just_today:
+            self.scheduler.add_job(self.sellCall, "cron", day_of_week="mon-fri", id=self.jobid, hour=15, minute=25)
+        
         cond_manager.regCondReal(f"{self.acc.accno}$short_hit", [self.condition], self.condRealCallback)
         
     def stop(self):
         
         self.eventTerm()
         self.stateTerm()
+        
+        if self.just_today:
+            self.scheduler.remove_job(self.jobid)
+        
         cond_manager.termCondReal(f"{self.acc.accno}$short_hit")
+        
+    def sellCall(self):
+       self.update.emit("sell_all", {})
         
     def condRealCallback(self, seed, stockcode, tag, condname, cidx):
 
@@ -101,8 +124,12 @@ class ShortHit(QObject, UseGlobal):
             if self.acc.isHoldings(stockcode):
                 return
             
+            # If already max cnt exceed
+            if len(self.acc.today_buy_stocks) >= self.today_max_cnt:
+                return
+            
             # If already 10 stocks => ignore
-            if len(self.acc.holdings.keys()) >= self.max_stock_cnt:
+            if len(self.acc.holdings.keys()) >= self.max_bal_cnt:
                 return
             
             self.update.emit(seed, {
