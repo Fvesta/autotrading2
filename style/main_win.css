@@ -33,6 +33,10 @@ QTableView {{
     alternate-background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
 }}
 
+QTableView::item {{
+    color: auto;
+}}
+
 QGroupBox {{
     /* border: 0; */
     font-size: 15px;

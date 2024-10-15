@@ -92,7 +92,7 @@
           <item row="0" column="2">
            <widget class="QLabel" name="income_label">
             <property name="text">
-             <string>실현손익:</string>
+             <string>손익금액:</string>
             </property>
            </widget>
           </item>
@@ -121,9 +121,9 @@
        <number>10</number>
       </property>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="balance_log_label">
         <property name="text">
-         <string>당일 거래내역</string>
+         <string>당일 거래종목</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -207,7 +207,7 @@
        <number>10</number>
       </property>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="exec_log_label">
         <property name="text">
          <string>체결내역</string>
         </property>

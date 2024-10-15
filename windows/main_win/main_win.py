@@ -12,6 +12,7 @@ from core.real_processing import real_manager
 from core.condition import cond_manager
 from core.utils.utils import getAccnoFromObj
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
+from style.colors import decimal_colors
 from windows.balance_win.balance_win import BalanceWin
 from windows.main_win.acc_info import newAccInfo
 from windows.trade_log_win.trade_log_win import TradeLogWin
@@ -187,6 +188,11 @@ class MainWin(WindowAbs):
         item1_0.setText(f"{acc.total_amount:,}")
         item1_1.setText(f"{acc.rest_amount:,}")
         item1_2.setText(f"{acc.today_income:+,}")
+        
+        if acc.today_income >= 0:
+            item1_2.setForeground(decimal_colors["QT_RED"])
+        else:
+            item1_2.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
         
         item3_0.setText(f"{acc.getTotalEvalAmount():,}")
         item3_1.setText(f"{acc.getTotalIncomeAmount():+,}")

@@ -229,11 +229,11 @@ def newAccInfo(ui, accno):
     ___qtablewidgetitem2 = balance_table.item(0, 2)
     ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", "당일실현손익", None))
     ___qtablewidgetitem6 = balance_table.item(2, 0)
-    ___qtablewidgetitem6.setText(QCoreApplication.translate("MainWindow", "총평가금", None))
+    ___qtablewidgetitem6.setText(QCoreApplication.translate("MainWindow", "잔고평가금", None))
     ___qtablewidgetitem7 = balance_table.item(2, 1)
-    ___qtablewidgetitem7.setText(QCoreApplication.translate("MainWindow", "평가손익", None))
+    ___qtablewidgetitem7.setText(QCoreApplication.translate("MainWindow", "잔고평가손익", None))
     ___qtablewidgetitem8 = balance_table.item(2, 2)
-    ___qtablewidgetitem8.setText(QCoreApplication.translate("MainWindow", "수익률", None))
+    ___qtablewidgetitem8.setText(QCoreApplication.translate("MainWindow", "잔고수익률", None))
     balance_table.setSortingEnabled(__sortingEnabled)
     
     ####################################################

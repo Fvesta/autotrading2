@@ -1,6 +1,7 @@
 from datetime import datetime
 from PySide2.QtCore import Signal, Qt
 from PySide2.QtWidgets import *
+from PySide2.QtGui import QFont
 
 from core import logger
 from core.account import Account
@@ -9,6 +10,7 @@ from core.utils.utils import getAccnoFromObj
 from core.errors import ErrorCode
 from core.api import API
 from style.utils import setTableSizeSameHor
+from style.colors import decimal_colors
 from windows.win_abs import WindowAbs, showModal
 
 class TradeLogWin(WindowAbs):
@@ -28,12 +30,24 @@ class TradeLogWin(WindowAbs):
         
     def initSetting(self):
         self.ui.setWindowTitle(f"거래내역: {self.accno}")
-        self.ui.sell_label.setProperty("class", "tx-12")
-        self.ui.buy_label.setProperty("class", "tx-12")
-        self.ui.tax_label.setProperty("class", "tx-12")
-        self.ui.diff_label.setProperty("class", "tx-12")
-        self.ui.income_label.setProperty("class", "tx-12")
-        self.ui.count_label.setProperty("class", "tx-12")
+        
+        self.ui.balance_log_label.setProperty("class", "tx-bold")
+        self.ui.exec_log_label.setProperty("class", "tx-bold")
+        
+        # Set header color
+        balance_horizontal_headers = [self.ui.balance_log_table.horizontalHeaderItem(i) for i in range(self.ui.balance_log_table.columnCount())]
+        exec_horizontal_headers = [self.ui.exec_log_table.horizontalHeaderItem(i) for i in range(self.ui.exec_log_table.columnCount())]
+        
+        for col, header in enumerate(balance_horizontal_headers):
+            if col == 1 or col == 2 or col == 3:
+                header.setForeground(decimal_colors["QT_RED"])
+            elif col == 4 or col == 5 or col == 6:
+                header.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
+            else:
+                header.setForeground(decimal_colors["QT_DARKWHITE"])
+        
+        for header in exec_horizontal_headers:
+            header.setForeground(decimal_colors["QT_DARKWHITE"])
         
     def afterSetting(self):
         self.updateStyle()
@@ -91,10 +105,10 @@ class TradeLogWin(WindowAbs):
         today_total_tax_fee = intOrZero(single_data.get("총수수료_세금"))
         today_income = intOrZero(single_data.get("총손익금액"))
         
-        self.ui.sell_label.setText(f"총매도금액:    {today_sell_amount:,}")
-        self.ui.buy_label.setText(f"총매수금액:    {today_buy_amount:,}")
-        self.ui.tax_label.setText(f"수수료/세금:    {today_total_tax_fee:,}")
-        self.ui.income_label.setText(f"손익금액:    {today_income:+,}")
+        self.ui.sell_label.setText(f"{'총매도금액:':<10}{today_sell_amount:,}")
+        self.ui.buy_label.setText(f"{'총매수금액:':<10}{today_buy_amount:,}")
+        self.ui.tax_label.setText(f"{'수수료/세금:':<10}{today_total_tax_fee:,}")
+        self.ui.income_label.setText(f"{'손익금액:':<10}{today_income:+,}")
         
         tb_data = []
         self.ui.balance_log_table.setRowCount(len(multi_data))
@@ -120,28 +134,43 @@ class TradeLogWin(WindowAbs):
             
             tb_data.append((
                 stockname,
-                today_average_buy_price,
-                today_buy_quantity,
-                today_buy_amount,
-                today_average_sell_price,
-                today_sell_quantity,
-                today_sell_amount,
-                today_tax_fee,
-                today_income,
-                today_income_rate
+                f"{today_average_buy_price:,}",
+                f"{today_buy_quantity}",
+                f"{today_buy_amount:,}",
+                f"{today_average_sell_price:,}",
+                f"{today_sell_quantity}",
+                f"{today_sell_amount:,}",
+                f"{today_tax_fee:,}",
+                f"{today_income:+,}",
+                f"{today_income_rate:+}%"
             ))
             
         acc: Account = self.api.getAccObj(self.accno)
         
-        self.ui.diff_label.setText(f"매수종목수:    {len(acc.today_buy_stocks)}")
-        self.ui.count_label.setText(f"매도종목수:    {total_stock_count}")
+        self.ui.diff_label.setText(f"{'매수종목수:':<10}{len(acc.today_buy_stocks)}")
+        self.ui.count_label.setText(f"{'매도종목수:':<10}{total_stock_count}")
         
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
-                item = QTableWidgetItem(str(tb_data[i][j]))
-                item.setTextAlignment(Qt.AlignCenter)
-        
-                self.ui.balance_log_table.setItem(i, j, item)
+                
+                # 실현손익, 손익율
+                if j == 8 or j == 9:
+                    item = QTableWidgetItem(str(tb_data[i][j]))
+                    item.setTextAlignment(Qt.AlignCenter)
+                    
+                    data_formatted = tb_data[i][j]
+                    if data_formatted[0] == "+":
+                        item.setForeground(decimal_colors["QT_RED"])
+                    else:
+                        item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
+                    
+                    self.ui.balance_log_table.setItem(i, j, item)
+                
+                else:
+                    item = QTableWidgetItem(str(tb_data[i][j]))
+                    item.setTextAlignment(Qt.AlignCenter)
+            
+                    self.ui.balance_log_table.setItem(i, j, item)
             
     def setExecLogData(self):
         # 주문번호
@@ -207,7 +236,19 @@ class TradeLogWin(WindowAbs):
             
             order_time = data.get("주문시간")
             
-            tb_data.append((orderno, stockname, exec_gubun, order_price, order_quantity, exec_price, exec_quantity, exec_amount, nc_quantity, origin_orderno, order_time))
+            tb_data.append((
+                orderno,
+                stockname,
+                exec_gubun,
+                f"{order_price:,}",
+                f"{order_quantity}",
+                f"{exec_price:,}",
+                f"{exec_quantity}",
+                f"{exec_amount:,}",
+                f"{nc_quantity}",
+                origin_orderno,
+                order_time
+            ))
         
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):

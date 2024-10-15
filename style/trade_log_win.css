@@ -1,4 +1,5 @@
 QHeaderView::section:horizontal {{
+    color: auto;
     padding: 0;
 }}
 
@@ -11,6 +12,6 @@ QGroupBox {{
     font-size: 14px;
 }}
 
-.tx-12 {{
-    font-size: 12px;
+.tx-bold {{
+    font-weight: bold;
 }}
