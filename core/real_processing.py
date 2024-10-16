@@ -1,6 +1,7 @@
 from PySide2.QtCore import QThread
 import debugpy
 import queue
+import sys
 
 from core.constants import REAL_NO_MAP
 from core.scr_manager import scr_manager 
@@ -33,7 +34,8 @@ class RealManager(QThread):
     
     def run(self):
         # Debug setting
-        debugpy.debug_this_thread()
+        if not (getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')): 
+            debugpy.debug_this_thread()
         
         while True:
             event = self.event_queue.get()
@@ -42,7 +44,7 @@ class RealManager(QThread):
                 break
             
             self.realBackgroundProcess(event)
-            
+        
     def ready(self, API):
         self.api = API
     

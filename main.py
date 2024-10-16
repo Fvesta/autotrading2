@@ -1,4 +1,13 @@
 import sys
+import os
+
+# Change resource path
+try:
+    os.chdir(sys._MEIPASS)
+    print(sys._MEIPASS)
+except:
+    os.chdir(os.getcwd())
+
 from PySide2.QtWidgets import *
 from PySide2.QtAxContainer import QAxWidget
 
@@ -38,4 +47,10 @@ if __name__ == "__main__":
     
     win.show()
 
-    sys.exit(app.exec_())
+    app.exec_()
+    
+    # Stop threads
+    cond_manager.stop()
+    real_manager.stop()
+    order_manager.stop()
+    

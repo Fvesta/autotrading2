@@ -1,6 +1,7 @@
 from PySide2.QtCore import QThread, Signal
 import debugpy
 import queue
+import sys
 
 from core.global_state import UseGlobal
 from core.logger import logger
@@ -48,7 +49,8 @@ class OrderManager(UseGlobal, QThread):
     def run(self):
         self.eventReg()
         # Debug setting
-        debugpy.debug_this_thread()
+        if not (getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')): 
+            debugpy.debug_this_thread()
         
         while True:
             event = self.event_queue.get()

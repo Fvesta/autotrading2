@@ -1,6 +1,7 @@
 from PySide2.QtCore import QThread
 import debugpy
 import queue
+import sys
 
 from core.errors import KiwoomException
 from core.global_state import UseGlobal
@@ -64,7 +65,9 @@ class CondManager(QThread, UseGlobal):
         self.initialized = True
         
     def run(self):
-        debugpy.debug_this_thread()
+        # If not running environment => debug True
+        if not (getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')): 
+            debugpy.debug_this_thread()
         
         while True:
             event = self.event_queue.get()

@@ -1,9 +1,15 @@
+altgraph==0.17.4
 APScheduler==3.10.4
 debugpy==1.8.5
 Jinja2==3.1.4
 MarkupSafe==2.1.5
+packaging==24.1
+pefile==2023.2.7
+pyinstaller==6.11.0
+pyinstaller-hooks-contrib==2024.9
 PySide2==5.15.2.1
 pytz==2024.2
+pywin32-ctypes==0.2.3
 qt-material==2.14
 shiboken2==5.15.2.1
 six==1.16.0

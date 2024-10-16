@@ -11,7 +11,7 @@ from PySide2.QtWidgets import QMainWindow
 from core.logger import logger
 from core.global_state import UseGlobal
 from style.colors import colors
-from style.utils import setTableSizeSameHor, setTableSizeSameVer
+from style.utils import setTableSizeSameHor
 
 class UIEventFilter(UseGlobal, QObject):
     def __init__(self, ui: QMainWindow):
@@ -22,7 +22,11 @@ class UIEventFilter(UseGlobal, QObject):
         account_dict = self.gstate.getState("account_dict")
         
         # Window name format is "_{accno}_{win_name}" or "{win_name}"
-        full_name = ui.objectName()
+        try:
+            full_name = ui.objectName()
+        except RuntimeError:
+            return
+        
         name_arr = full_name.split("_")
         try:
             # If name is started with "_"
