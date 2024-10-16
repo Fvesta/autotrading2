@@ -15,3 +15,11 @@ QGroupBox {{
 .tx-bold {{
     font-weight: bold;
 }}
+
+.tx-light-red {{
+    color: {QT_LIGHT_RED}
+}}
+
+.tx-light-blue {{
+    color: {QTMATERIAL_PRIMARYCOLOR}
+}}

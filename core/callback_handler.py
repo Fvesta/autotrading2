@@ -216,7 +216,7 @@ class CallbackHandler(UseGlobal, QObject):
                     else:
                         acc.addNCOrder(op_time, orderno, stockcode, order_op, order_quantity, rest_quantity, order_price)
                     
-                    if order_gubun == "매수":
+                    if order_gubun == "+매수":
                         acc.today_buy_stocks.add(stockcode)
             
             if order_status == "확인":

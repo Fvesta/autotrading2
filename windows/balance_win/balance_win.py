@@ -62,6 +62,7 @@ class BalanceWin(WindowAbs):
             # 잔고
             if tradetype == "1":
                 self.setBalanceEval()
+                self.setHoldingsData()
             
                 
     def eventReg(self):
@@ -162,7 +163,7 @@ class BalanceWin(WindowAbs):
         self.ui.total_eval_label.setText(f"총평가금:    {total_eval_amount:,}")
         self.ui.income_label.setText(f"평가손익:    {income_amount:+,}")
         self.ui.income_rate_label.setText(f"수익률:    {income_rate:+.2f}")
-        self.ui.today_stock_label.setText(f"당일종목수:    {today_stock_cnt}")
+        self.ui.today_stock_label.setText(f"매수종목수:    {today_stock_cnt}")
                     
     def setRealExecData(self):
         # 체결시간

@@ -134,6 +134,13 @@ class TradeLogWin(WindowAbs):
         self.ui.tax_label.setText(f"{'수수료/세금:':<10}{today_total_tax_fee:,}")
         self.ui.income_label.setText(f"{'손익금액:':<10}{today_income:+,}")
         
+        if today_income >= 0:
+            self.ui.income_label.setProperty("class", "tx-light-red")
+        else:
+            self.ui.income_label.setProperty("class", 'tx-light-blue')
+            
+        self.updateStyle()
+        
         tb_data = []
         total_stock_count = 0
         for data in multi_data:
@@ -298,8 +305,23 @@ class TradeLogWin(WindowAbs):
         self.ui.exec_log_table.setRowCount(len(tb_data))
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
-                item = QTableWidgetItem(str(tb_data[i][j]))
-                item.setTextAlignment(Qt.AlignCenter)
-        
-                self.ui.exec_log_table.setItem(i, j, item)   
+                
+                # 구분
+                if j == 2:
+                    item = QTableWidgetItem(str(tb_data[i][j]))
+                    item.setTextAlignment(Qt.AlignCenter)
+                    
+                    data_gubun = tb_data[i][j]
+                    if data_gubun == "매수" or data_gubun == "매수정정":
+                        item.setForeground(decimal_colors["QT_LIGHT_RED"])
+                    elif data_gubun == "매도" or data_gubun == "매도정정":
+                        item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
+                    
+                    self.ui.exec_log_table.setItem(i, j, item)
+                    
+                else:    
+                    item = QTableWidgetItem(str(tb_data[i][j]))
+                    item.setTextAlignment(Qt.AlignCenter)
+            
+                    self.ui.exec_log_table.setItem(i, j, item)   
                 
