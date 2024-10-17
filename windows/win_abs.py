@@ -7,7 +7,6 @@ from qt_material import QtStyleTools
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import QObject, QEvent, QTimer, QObject
 from PySide2.QtWidgets import QMainWindow
-from PySide2.QtGui import QGuiApplication
 
 from core.logger import logger
 from core.global_state import UseGlobal
@@ -94,12 +93,6 @@ class WindowAbs(QtStyleTools, UseGlobal, QObject):
         self.ui.setObjectName(name)
         
         self.apply_stylesheet(self.ui, theme="style/dark_cyan.xml")
-        
-        # Get screen size
-        screen = QGuiApplication.primaryScreen()
-        screen_size = screen.availableGeometry()
-        screen_width = screen_size.width()
-        screen_height = screen_size.height()
         
         # Apply base css
         self.custom_css_path = "style/css/custom.css"

@@ -1,5 +1,6 @@
 from PySide2.QtWidgets import *
 from PySide2.QtCore import Signal, Qt, QTimer
+from PySide2.QtGui import QGuiApplication
 
 from core.account import Account
 from core.api import API
@@ -38,16 +39,42 @@ class MainWin(WindowAbs):
         self.initSetting()
         
     def initSetting(self):
+        
+        def checkAction(actions, px):
+            for act in actions:
+                if act.text() == px:
+                    act.setChecked(True)
+                    break
+            
         self.ui.setWindowTitle("AutoTrading v2")
         self.ui.title.setProperty("class", "tx-title")
         self.loading_indicator.setSize(60, 60)
         self.ui.verticalLayout_3.addWidget(self.loading_indicator.label)
         self.ui.verticalLayout_3.setAlignment(self.loading_indicator.label, Qt.AlignHCenter)
         
+        
+        # Get screen size
+        screen = QGuiApplication.primaryScreen()
+        screen_size = screen.availableGeometry()
+        screen_width = screen_size.width()
+        
+        # Set default text size per screen size
+        text_actions = []
         for menu_action in self.ui.menuBar().actions():
             if menu_action.text() == "글씨크기":
                 for act in menu_action.menu().actions():
                     self.action_group.addAction(act)
+                    text_actions.append(act)
+        
+        if screen_width >= 2000:
+            self.gstate.text_size = "15px"
+            checkAction(text_actions, "15px")
+        elif screen_width >= 1400:
+            self.gstate.text_size = "13px"
+            checkAction(text_actions, "13px")
+        else:
+            self.gstate.text_size = "11px"
+            checkAction(text_actions, "11px")
         
     def updateStates(self, key="", extra={}):
         self.user_id, self.setUserId = self.gstate.useState("user_id")
