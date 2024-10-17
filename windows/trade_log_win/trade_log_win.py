@@ -25,7 +25,7 @@ class TradeLogWin(WindowAbs):
         
         self.accno = accno
         self.api = API()
-        self.loading_indicator = LoadingIndicator("style/assets/gif/loading_2.gif")
+        self.loading_indicator = LoadingIndicator(self.ui, "style/assets/gif/loading_2.gif")
         
         self.exec_logs = []
         

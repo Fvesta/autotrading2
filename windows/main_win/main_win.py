@@ -5,6 +5,7 @@ from core.account import Account
 from core.api import API
 from core.autotrading.basic_options import ALGO_SHORT_HIT_BASIC_OPTION, TRADING_BASIC_OPTION
 from core.errors import ErrorCode
+from core.loading import LoadingIndicator
 from core.logger import logger
 from core.stock import Stock
 from core.condition import Condition
@@ -31,11 +32,17 @@ class MainWin(WindowAbs):
         self.action_group = QActionGroup(self)
         self.action_group.setExclusive(True)
         
+        # Set loading indicator
+        self.loading_indicator = LoadingIndicator(self.ui, "style/assets/gif/loading_1.gif")
+        
         self.initSetting()
         
     def initSetting(self):
         self.ui.setWindowTitle("AutoTrading v2")
         self.ui.title.setProperty("class", "tx-title")
+        self.loading_indicator.setSize(60, 60)
+        self.ui.verticalLayout_3.addWidget(self.loading_indicator.label)
+        self.ui.verticalLayout_3.setAlignment(self.loading_indicator.label, Qt.AlignHCenter)
         
         for menu_action in self.ui.menuBar().actions():
             if menu_action.text() == "글씨크기":
@@ -122,11 +129,20 @@ class MainWin(WindowAbs):
             setTableSizeSameHor(balance_table)
             setTableSizeSameVer(balance_table)
         
+        self.loading_indicator.hide()
+        
     def loginBtnClicked(self):
+        
+        # Hide login button
+        self.ui.login_btn.hide()
+        
         # Set loading indicator
+        self.loading_indicator.show()
         
         # Login
         if isinstance(self.login(), ErrorCode):
+            self.loading_indicator.hide()
+            self.ui.login_btn.show()
             logger.error("로그인에 실패했습니다")
             return
         
@@ -157,11 +173,6 @@ class MainWin(WindowAbs):
         
         # If ui is loaded, calculate table once after loading
         QTimer.singleShot(0, self.loginCompleted)
-        
-        # Unlock loading indicator
-        
-        # Hide login button
-        self.ui.login_btn.hide()
 
     def login(self):
         login_success = self.api.login()

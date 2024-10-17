@@ -3,9 +3,11 @@ from PySide2.QtGui import QMovie
 from PySide2.QtCore import QSize
 
 class LoadingIndicator(QWidget):
-    def __init__(self, gif_path):
+    def __init__(self, ui, gif_path):
         super().__init__()
 
+        self.ui = ui
+        
         # Make label
         self.label = QLabel(self)
         self.movie = QMovie(gif_path)
@@ -31,8 +33,8 @@ class LoadingIndicator(QWidget):
         self.label.setMovie(self.movie)
         
     def center(self):
-        size=self.size()
-        ph = self.parent().geometry().height()
-        pw = self.parent().geometry().width()
-        self.move(int(pw/2 - size.width()/2), int(ph/2 - size.height()/2))
+        size = self.label.size()
+        ph = self.ui.geometry().height()
+        pw = self.ui.geometry().width()
+        self.label.move(int(pw/2 - size.width()/2), int(ph/2 - size.height()/2))
         
