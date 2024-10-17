@@ -36,6 +36,9 @@ class GlobalState:
         self._state["is_login"] = False
         self._state["account_dict"] = {}
         
+        # GUI states
+        self.text_size = "13px"
+        
         # Market stocks
         self.kospi_stocks = {}
         self.kosdaq_stocks = {}

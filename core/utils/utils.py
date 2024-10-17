@@ -14,3 +14,8 @@ def getAccnoFromObj(obj_name):
     except ValueError as e:
         logger.error("Not correct obj_name")
         return ErrorCode.OP_ERROR
+    
+def maskStr(s, nomask_cnt):
+    if len(s) <= nomask_cnt:
+        return s
+    return s[:nomask_cnt] + '*' * (len(s) - nomask_cnt)

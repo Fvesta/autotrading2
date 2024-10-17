@@ -31,7 +31,7 @@
      <number>0</number>
     </property>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
       <property name="spacing">
        <number>1</number>
       </property>
@@ -57,7 +57,32 @@
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
          <item>
-          <widget class="QWidget" name="widget_4" native="true"/>
+          <widget class="QWidget" name="login_info" native="true">
+           <layout class="QHBoxLayout" name="login_info_layout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>120</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QPushButton" name="login_btn">
+              <property name="text">
+               <string>로그인</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="title">
@@ -70,7 +95,7 @@
             </font>
            </property>
            <property name="text">
-            <string>title</string>
+            <string>Auto Trading V2</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -112,13 +137,6 @@
        </widget>
       </item>
       <item>
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QScrollArea" name="scrollArea">
         <property name="widgetResizable">
          <bool>true</bool>
@@ -129,7 +147,7 @@
            <x>0</x>
            <y>0</y>
            <width>796</width>
-           <height>741</height>
+           <height>724</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -156,6 +174,115 @@
     </item>
    </layout>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>글씨크기</string>
+    </property>
+    <addaction name="action11px"/>
+    <addaction name="separator"/>
+    <addaction name="action12px"/>
+    <addaction name="separator"/>
+    <addaction name="action13px"/>
+    <addaction name="separator"/>
+    <addaction name="action14px"/>
+    <addaction name="separator"/>
+    <addaction name="action15px"/>
+    <addaction name="separator"/>
+    <addaction name="action16px"/>
+    <addaction name="separator"/>
+    <addaction name="action17px"/>
+    <addaction name="separator"/>
+    <addaction name="action18px"/>
+   </widget>
+   <addaction name="menu"/>
+  </widget>
+  <action name="action11">
+   <property name="text">
+    <string>10px</string>
+   </property>
+  </action>
+  <action name="action11px">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>11px</string>
+   </property>
+   <property name="statusTip">
+    <string/>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="action12px">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>12px</string>
+   </property>
+  </action>
+  <action name="action13px">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>13px</string>
+   </property>
+  </action>
+  <action name="action14px">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>14px</string>
+   </property>
+  </action>
+  <action name="action15px">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>15px</string>
+   </property>
+  </action>
+  <action name="action16px">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>16px</string>
+   </property>
+  </action>
+  <action name="action17px">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>17px</string>
+   </property>
+  </action>
+  <action name="action18px">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>18px</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

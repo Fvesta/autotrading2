@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import *
-from PySide2.QtCore import Signal, Qt
+from PySide2.QtCore import Signal, Qt, QTimer
 
 from core.account import Account
 from core.api import API
@@ -10,7 +10,7 @@ from core.stock import Stock
 from core.condition import Condition
 from core.real_processing import real_manager
 from core.condition import cond_manager
-from core.utils.utils import getAccnoFromObj
+from core.utils.utils import getAccnoFromObj, maskStr
 from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from style.colors import decimal_colors
 from windows.balance_win.balance_win import BalanceWin
@@ -27,11 +27,20 @@ class MainWin(WindowAbs):
         
         self.api = API()
         
+        # Set menu bar
+        self.action_group = QActionGroup(self)
+        self.action_group.setExclusive(True)
+        
         self.initSetting()
         
     def initSetting(self):
         self.ui.setWindowTitle("AutoTrading v2")
         self.ui.title.setProperty("class", "tx-title")
+        
+        for menu_action in self.ui.menuBar().actions():
+            if menu_action.text() == "글씨크기":
+                for act in menu_action.menu().actions():
+                    self.action_group.addAction(act)
         
     def updateStates(self, key="", extra={}):
         self.user_id, self.setUserId = self.gstate.useState("user_id")
@@ -49,11 +58,39 @@ class MainWin(WindowAbs):
     
     def eventReg(self):
         self.update.connect(self.updateStates)
+        self.ui.login_btn.clicked.connect(self.loginBtnClicked)
+        self.action_group.triggered.connect(self.selectTextSize)
         
     def eventTerm(self):
         self.update.disconnect(self.updateStates)
+        self.ui.login_btn.clicked.disconnect(self.loginBtnClicked)
+        self.action_group.triggered.disconnect(self.selectTextSize)
 
     def afterSetting(self):
+        self.updateStyle()
+    
+    @showModal
+    def show(self):
+        
+        # Register States, add events
+        self.stateReg()
+        self.updateStates()
+        self.eventReg()
+        
+    def selectTextSize(self, action):
+        
+        self.gstate.text_size = action.text()
+        
+        for ui in self.gstate.activated_windows.values():
+            ui.updateStyle()
+        
+    def loginCompleted(self):
+        # Set status bar
+        login_id_label = QLabel(self.ui.login_info)
+        login_id_label.setText(f"로그인 ID: {maskStr(self.user_id, 2)}")
+        
+        self.ui.login_info_layout.addWidget(login_id_label)
+        
         accounts = self.account_dict.keys()
         
         for accno in accounts:
@@ -84,18 +121,13 @@ class MainWin(WindowAbs):
             # Resize table
             setTableSizeSameHor(balance_table)
             setTableSizeSameVer(balance_table)
-    
-    @showModal
-    def show(self):
         
-        # Register States, add events
-        self.stateReg()
-        self.updateStates()
-        self.eventReg()
+    def loginBtnClicked(self):
+        # Set loading indicator
         
         # Login
         if isinstance(self.login(), ErrorCode):
-            self.ui.show()
+            logger.error("로그인에 실패했습니다")
             return
         
         # Get market stocks list
@@ -106,9 +138,6 @@ class MainWin(WindowAbs):
         
         # Load condition
         self.getCondition()
-        
-        # Set title to username
-        self.ui.title.setText(self.user_name)
         
         # Add account ui group
         accounts = self.account_dict.keys()
@@ -125,6 +154,14 @@ class MainWin(WindowAbs):
             stockcode_set.update(list(acc.holdings.keys()))
         
         real_manager.regReal("main_win_accholdings", list(stockcode_set), self.realEventCallback)
+        
+        # If ui is loaded, calculate table once after loading
+        QTimer.singleShot(0, self.loginCompleted)
+        
+        # Unlock loading indicator
+        
+        # Hide login button
+        self.ui.login_btn.hide()
 
     def login(self):
         login_success = self.api.login()

@@ -7,6 +7,7 @@ from qt_material import QtStyleTools
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import QObject, QEvent, QTimer, QObject
 from PySide2.QtWidgets import QMainWindow
+from PySide2.QtGui import QGuiApplication
 
 from core.logger import logger
 from core.global_state import UseGlobal
@@ -94,29 +95,39 @@ class WindowAbs(QtStyleTools, UseGlobal, QObject):
         
         self.apply_stylesheet(self.ui, theme="style/dark_cyan.xml")
         
+        # Get screen size
+        screen = QGuiApplication.primaryScreen()
+        screen_size = screen.availableGeometry()
+        screen_width = screen_size.width()
+        screen_height = screen_size.height()
+        
         # Apply base css
         self.custom_css_path = "style/css/custom.css"
         self.base_stylesheet = ""
         with open(self.custom_css_path) as file:
-            self.base_stylesheet = file.read().format(**os.environ, **colors)
+            stylesheet = self.ui.styleSheet()
+            self.base_stylesheet = stylesheet + file.read().format(**os.environ, **colors)
         
-        # Store css options from css file
+        # Set custom css from each win's css file
         self.css_path = css_path
         
-        self.added_stylesheet = ""
+        self.new_stylesheet = ""
         with open(self.css_path) as file:
-            self.added_stylesheet = file.read().format(**os.environ, **colors)
-        
+            added_stylesheet = file.read().format(**os.environ, **colors)
+            self.new_stylesheet = self.base_stylesheet + added_stylesheet
+            
         # Event setting
         self.event_filter = UIEventFilter(self.ui)
         self.ui.installEventFilter(self.event_filter)
     
     def updateStyle(self):
+        text_updated_stylesheet = self.new_stylesheet + f"""* {{
+            font-size: {self.gstate.text_size}
+        }}"""
+        
         # Apply custom stylesheet
-        stylesheet = self.ui.styleSheet()
-        newStylesheet = stylesheet + self.base_stylesheet + self.added_stylesheet
         self.ui.setStyleSheet('')
-        self.ui.setStyleSheet(newStylesheet)
+        self.ui.setStyleSheet(text_updated_stylesheet)
     
     def initSetting(self):
         pass

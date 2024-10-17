@@ -30,3 +30,9 @@ class LoadingIndicator(QWidget):
         # Set gif to label
         self.label.setMovie(self.movie)
         
+    def center(self):
+        size=self.size()
+        ph = self.parent().geometry().height()
+        pw = self.parent().geometry().width()
+        self.move(int(pw/2 - size.width()/2), int(ph/2 - size.height()/2))
+        
