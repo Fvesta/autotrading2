@@ -59,7 +59,7 @@ class MainWin(WindowAbs):
         for accno in accounts:
             # Set text feature
             tradeset_label = getattr(self.ui, f"_{accno}_tradeset_label")
-            tradeset_label.setProperty("class", "tx-tradeset-label")
+            tradeset_label.setProperty("class", "tx-bold")
             
             # Set combo box
             combobox = getattr(self.ui, f"_{accno}_comboBox")
@@ -192,7 +192,7 @@ class MainWin(WindowAbs):
         if acc.today_income >= 0:
             item1_2.setForeground(decimal_colors["QT_LIGHT_RED"])
         else:
-            item1_2.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
+            item1_2.setForeground(decimal_colors["QT_LIGHT_BLUE"])
         
         item3_0.setText(f"{acc.getTotalEvalAmount():,}")
         item3_1.setText(f"{acc.getTotalIncomeAmount():+,}")
@@ -218,7 +218,7 @@ class MainWin(WindowAbs):
                 if win_name in self.gstate.activated_windows:
                     return
                 
-                new_winobj = TradeSettingWin(win_name, "GUI/trade_setting.ui", "style/trade_setting.css")
+                new_winobj = TradeSettingWin(win_name, "GUI/trade_setting.ui", "style/css/trade_setting.css")
                 new_winobj.show()
             
             return wrapper
@@ -272,7 +272,7 @@ class MainWin(WindowAbs):
                     if win_name in self.gstate.activated_windows:
                         return
                     
-                    new_winobj = BalanceWin(win_name, "GUI/balance_win.ui", "style/balance_win.css")
+                    new_winobj = BalanceWin(win_name, "GUI/balance_win.ui", "style/css/balance_win.css")
                     new_winobj.show()
                 
                 if text == "거래내역":
@@ -281,7 +281,7 @@ class MainWin(WindowAbs):
                     if win_name in self.gstate.activated_windows:
                         return
                     
-                    new_winobj = TradeLogWin(win_name, "GUI/trade_log_win.ui", "style/trade_log_win.css")
+                    new_winobj = TradeLogWin(win_name, "GUI/trade_log_win.ui", "style/css/trade_log_win.css")
                     new_winobj.show()
                     
             return wrapper

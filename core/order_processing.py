@@ -136,11 +136,16 @@ class OrderManager(UseGlobal, QThread):
             del self.seed_callback_dict[seed]
     
     def buyStockNow(self, accno, stockcode, quantity):
-        logger.debug("시장가 매수 호출")
+        logger.debug(f"시장가 매수 호출: {stockcode}, quantity: {quantity}")
+        
+        if quantity == 0:
+            logger.debug("주문가능 금액, 주문수량을 확인해주세요")
+            return
+        
         buy_success_info = self.api.sendOrder("주문요청", scr_manager.scrAct("buystock"), accno, ORDER_TYPE["신규매수"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
 
         if isinstance(buy_success_info, ErrorCode):
-            logger.error(f"accno: {accno}, 매수 주문 함수 실행에 실패했습니다.")
+            logger.error(f"accno: {accno}, stockcode: {stockcode}, quantity: {quantity} 시장가 매수 주문 함수 실행에 실패했습니다.")
         
         single_data = buy_success_info.get("single")
         try:

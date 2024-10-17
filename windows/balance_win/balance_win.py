@@ -131,7 +131,7 @@ class BalanceWin(WindowAbs):
                     if income_formatted[0] == "+":
                         item.setForeground(decimal_colors["QT_LIGHT_RED"])
                     else:
-                        item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
+                        item.setForeground(decimal_colors["QT_LIGHT_BLUE"])
                     
                     self.ui.holding_table.setItem(i, j, item)
                     
@@ -158,12 +158,26 @@ class BalanceWin(WindowAbs):
         income_rate = acc.getTotalIncomeRate()
         today_stock_cnt = len(acc.today_buy_stocks)
         
-        self.ui.holding_cnt_label.setText(f"보유종목수:    {holding_cnt}")
+        self.ui.today_stock_label.setText(f"당일매수종목수:    {today_stock_cnt}")
+        self.ui.holding_cnt_label.setText(f"당일보유종목수:    {holding_cnt}")
         self.ui.total_buy_label.setText(f"총매입금:    {total_buy_amount:,}")
         self.ui.total_eval_label.setText(f"총평가금:    {total_eval_amount:,}")
-        self.ui.income_label.setText(f"평가손익:    {income_amount:+,}")
-        self.ui.income_rate_label.setText(f"수익률:    {income_rate:+.2f}")
-        self.ui.today_stock_label.setText(f"매수종목수:    {today_stock_cnt}")
+        
+        self.ui.today_income_label.setText(f"실현손익:    ")
+        self.ui.today_income_label_val.setText(f"{acc.today_income:+,}")
+        if acc.today_income >= 0:
+            self.ui.today_income_label_val.setProperty("class", "tx-light-red")
+        else:
+            self.ui.today_income_label_val.setProperty("class", 'tx-light-blue')
+        
+        self.ui.eval_income_label.setText(f"평가손익:    ")
+        self.ui.eval_income_label_val.setText(f"{income_amount:+,} ({income_rate:+.2f}%)")
+        if income_amount >= 0:
+            self.ui.eval_income_label_val.setProperty("class", "tx-light-red")
+        else:
+            self.ui.eval_income_label_val.setProperty("class", 'tx-light-blue')
+        
+        self.updateStyle()
                     
     def setRealExecData(self):
         # 체결시간
@@ -173,6 +187,7 @@ class BalanceWin(WindowAbs):
         # 체결가격
         acc: Account = self.api.getAccObj(self.accno)
         real_exec_log = list(acc.real_exec_log)
+        real_exec_log.reverse()
         
         tb_data = []
         for log in real_exec_log:
@@ -202,7 +217,7 @@ class BalanceWin(WindowAbs):
                     if order_gubun == "매수":
                         item.setForeground(decimal_colors["QT_LIGHT_RED"])
                     elif order_gubun == "매도":
-                        item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
+                        item.setForeground(decimal_colors["QT_LIGHT_BLUE"])
                     
                     self.ui.real_exec_table.setItem(i, j, item)
                 else:

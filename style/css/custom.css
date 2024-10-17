@@ -1,0 +1,40 @@
+QTableView::item {{
+    color: auto;
+}}
+
+/* Text weight */
+.tx-bold {{
+    font-weight: bold;
+}}
+
+/* Text size */
+.tx-16 {{
+    font-size: 16px;
+}}
+
+.tx-18 {{
+    font-size: 18px;
+}}
+
+.tx-20 {{
+    font-size: 20px;
+}}
+
+/* Text color */
+.tx-primary-color {{
+    color: {QTMATERIAL_PRIMARYCOLOR};
+}}
+
+.tx-light-red {{
+    color: {QT_LIGHT_RED}
+}}
+
+.tx-light-blue {{
+    color: {QT_LIGHT_BLUE}
+}}
+
+/* Text custom */
+.tx-title {{
+    font-size: 20px;
+    font-weight: bold;
+}}

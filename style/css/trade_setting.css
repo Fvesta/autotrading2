@@ -35,8 +35,3 @@ QGroupBox {{
 QGroupBox::title{{
     color: {QTMATERIAL_PRIMARYCOLOR}
 }}
-
-.tx-title {{
-    font-size: 20px;
-    font-weight: bold;
-}}

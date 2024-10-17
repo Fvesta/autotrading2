@@ -11,8 +11,6 @@ QComboBox QAbstractItemView {{
     color: {comboItemColor};
 }}
 
-
-
 .delete_btn {{
     background-color: {redColor};
     color: {QTMATERIAL_SECONDARYTEXTCOLOR};

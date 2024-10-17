@@ -2,10 +2,6 @@ QHeaderView::section:horizontal {{
     padding: 0;
 }}
 
-QTableView::item {{
-    color: auto;
-}}
-
 QGroupBox {{
     /* border: 0; */
     padding: 16px 0 16px 0;

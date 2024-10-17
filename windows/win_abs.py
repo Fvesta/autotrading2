@@ -91,9 +91,21 @@ class WindowAbs(QtStyleTools, UseGlobal, QObject):
         self.name = name
         self.ui = QUiLoader().load(ui_path, None)
         self.ui.setObjectName(name)
-        self.css_path = css_path
         
         self.apply_stylesheet(self.ui, theme="style/dark_cyan.xml")
+        
+        # Apply base css
+        self.custom_css_path = "style/css/custom.css"
+        self.base_stylesheet = ""
+        with open(self.custom_css_path) as file:
+            self.base_stylesheet = file.read().format(**os.environ, **colors)
+        
+        # Store css options from css file
+        self.css_path = css_path
+        
+        self.added_stylesheet = ""
+        with open(self.css_path) as file:
+            self.added_stylesheet = file.read().format(**os.environ, **colors)
         
         # Event setting
         self.event_filter = UIEventFilter(self.ui)
@@ -102,10 +114,9 @@ class WindowAbs(QtStyleTools, UseGlobal, QObject):
     def updateStyle(self):
         # Apply custom stylesheet
         stylesheet = self.ui.styleSheet()
-        with open(self.css_path) as file:
-            newStylesheet = stylesheet + file.read().format(**os.environ, **colors)
-            self.ui.setStyleSheet('')
-            self.ui.setStyleSheet(newStylesheet)
+        newStylesheet = stylesheet + self.base_stylesheet + self.added_stylesheet
+        self.ui.setStyleSheet('')
+        self.ui.setStyleSheet(newStylesheet)
     
     def initSetting(self):
         pass

@@ -43,7 +43,7 @@ if __name__ == "__main__":
     callback_handler = CallbackHandler()
     callback_handler.watch()
     
-    win = MainWin("main_win", "GUI/main_win.ui", "style/main_win.css")
+    win = MainWin("main_win", "GUI/main_win.ui", "style/css/main_win.css")
     
     win.show()
 

@@ -47,7 +47,7 @@ class TradeLogWin(WindowAbs):
             if col == 1 or col == 2 or col == 3:
                 header.setForeground(decimal_colors["QT_LIGHT_RED"])
             elif col == 4 or col == 5 or col == 6:
-                header.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
+                header.setForeground(decimal_colors["QT_LIGHT_BLUE"])
             else:
                 header.setForeground(decimal_colors["QT_DARKWHITE"])
         
@@ -97,12 +97,12 @@ class TradeLogWin(WindowAbs):
         self.ui.lookup_btn.hide()
         self.loading_indicator.show()
         
-        # Balance log
-        self.setBalanceLogData()
-        
         # Exec log
         self.getExecLogData()
         self.setExecLogData()
+        
+        # Balance log
+        self.setBalanceLogData()
         
         self.loading_indicator.hide()
         self.ui.lookup_btn.show()
@@ -129,15 +129,16 @@ class TradeLogWin(WindowAbs):
         today_total_tax_fee = intOrZero(single_data.get("총수수료_세금"))
         today_income = intOrZero(single_data.get("총손익금액"))
         
-        self.ui.sell_label.setText(f"{'총매도금액:':<10}{today_sell_amount:,}")
-        self.ui.buy_label.setText(f"{'총매수금액:':<10}{today_buy_amount:,}")
-        self.ui.tax_label.setText(f"{'수수료/세금:':<10}{today_total_tax_fee:,}")
-        self.ui.income_label.setText(f"{'손익금액:':<10}{today_income:+,}")
+        self.ui.sell_label.setText(f"총매도금액:    {today_sell_amount:,}")
+        self.ui.buy_label.setText(f"총매수금액:    {today_buy_amount:,}")
+        self.ui.tax_label.setText(f"수수료/세금:    {today_total_tax_fee:,}")
+        self.ui.income_label.setText(f"손익금액:    ")
+        self.ui.income_label_val.setText(f"{today_income:+,}")
         
         if today_income >= 0:
-            self.ui.income_label.setProperty("class", "tx-light-red")
+            self.ui.income_label_val.setProperty("class", "tx-light-red")
         else:
-            self.ui.income_label.setProperty("class", 'tx-light-blue')
+            self.ui.income_label_val.setProperty("class", 'tx-light-blue')
             
         self.updateStyle()
         
@@ -193,7 +194,7 @@ class TradeLogWin(WindowAbs):
                     if data_formatted[0] == "+":
                         item.setForeground(decimal_colors["QT_LIGHT_RED"])
                     else:
-                        item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
+                        item.setForeground(decimal_colors["QT_LIGHT_BLUE"])
                     
                     self.ui.balance_log_table.setItem(i, j, item)
                 
@@ -315,7 +316,7 @@ class TradeLogWin(WindowAbs):
                     if data_gubun == "매수" or data_gubun == "매수정정":
                         item.setForeground(decimal_colors["QT_LIGHT_RED"])
                     elif data_gubun == "매도" or data_gubun == "매도정정":
-                        item.setForeground(decimal_colors["QTMATERIAL_PRIMARYCOLOR"])
+                        item.setForeground(decimal_colors["QT_LIGHT_BLUE"])
                     
                     self.ui.exec_log_table.setItem(i, j, item)
                     

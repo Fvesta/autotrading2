@@ -39,7 +39,7 @@
        <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,6,4">
         <item>
          <widget class="QWidget" name="widget" native="true">
-          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,1">
+          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="3,1">
            <property name="spacing">
             <number>0</number>
            </property>
@@ -60,7 +60,7 @@
              <property name="title">
               <string>잔고평가</string>
              </property>
-             <layout class="QGridLayout" name="gridLayout">
+             <layout class="QGridLayout" name="gridLayout" rowstretch="1,0" columnstretch="1,1,1,0,0,0,0">
               <property name="topMargin">
                <number>0</number>
               </property>
@@ -73,38 +73,59 @@
               <property name="verticalSpacing">
                <number>16</number>
               </property>
-              <item row="1" column="1">
-               <widget class="QLabel" name="income_rate_label">
+              <item row="1" column="0">
+               <widget class="QLabel" name="holding_cnt_label">
                 <property name="text">
-                 <string>수익률:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QLabel" name="total_eval_label">
-                <property name="text">
-                 <string>총평가금:</string>
+                 <string>현재보유종목수:</string>
                 </property>
                </widget>
               </item>
               <item row="0" column="0">
-               <widget class="QLabel" name="holding_cnt_label">
-                <property name="text">
-                 <string>보유종목수:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="income_label">
-                <property name="text">
-                 <string>평가손익:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
                <widget class="QLabel" name="today_stock_label">
                 <property name="text">
-                 <string>매수종목수:</string>
+                 <string>당일매수종목수:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QWidget" name="widget_3" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="today_income_label">
+                   <property name="text">
+                    <string>실현손익:    </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="today_income_label_val">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="total_eval_label">
+                <property name="text">
+                 <string>총평가금:</string>
                 </property>
                </widget>
               </item>
@@ -113,6 +134,41 @@
                 <property name="text">
                  <string>총매입금:</string>
                 </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QWidget" name="widget_4" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="eval_income_label">
+                   <property name="text">
+                    <string>평가손익:    </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="eval_income_label_val">
+                   <property name="text">
+                    <string>0 (+0%)</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </item>
              </layout>
@@ -208,6 +264,9 @@
           </item>
           <item>
            <widget class="QTableWidget" name="not_completed_table">
+            <property name="selectionMode">
+             <enum>QAbstractItemView::NoSelection</enum>
+            </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
@@ -266,6 +325,9 @@
         </item>
         <item>
          <widget class="QTableWidget" name="real_exec_table">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::NoSelection</enum>
+          </property>
           <attribute name="verticalHeaderVisible">
            <bool>false</bool>
           </attribute>

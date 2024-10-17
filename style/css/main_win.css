@@ -33,10 +33,6 @@ QTableView {{
     alternate-background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
 }}
 
-QTableView::item {{
-    color: auto;
-}}
-
 QGroupBox {{
     /* border: 0; */
     font-size: 15px;
@@ -61,34 +57,4 @@ QComboBox {{
 
 QComboBox QAbstractItemView {{
     color: {QT_DARKWHITE};
-}}
-
-.tx-16 {{
-    font-size: 16px;
-}}
-
-.tx-18 {{
-    font-size: 18px;
-}}
-
-.tx-20 {{
-    font-size: 20px;
-}}
-
-.tx-bold {{
-    font-weight: bold;
-}}
-
-.tx-primary-color {{
-    color: {QTMATERIAL_PRIMARYCOLOR};
-}}
-
-.tx-tradeset-label {{
-    font-weight: bold;
-    /* color: {QTMATERIAL_PRIMARYCOLOR}; */
-}}
-
-.tx-title {{
-    font-size: 20px;
-    font-weight: bold;
 }}
