@@ -261,6 +261,10 @@ class Account(UseGlobal):
     def getRestAmount(self):
         deposit_info = self.api.sendTr("예수금상세현황요청", [self.accno, "", None, None])
         
+        if isinstance(deposit_info, ErrorCode):
+            logger.error(f"계좌번호: {self.accno}, 예수금 요청에 실패했습니다")
+            return
+        
         single_data = deposit_info.get("single")
         
         rest_amount = single_data.get("주문가능금액")
@@ -280,7 +284,7 @@ class Account(UseGlobal):
             acc_bal_info = self.api.sendTr("계좌평가현황요청", [self.accno, "", None, None])
         
             if isinstance(acc_bal_info, ErrorCode):
-                logger.warning("Can\'t load account balance info")
+                logger.warning(f"계좌번호: {self.accno}, 계좌정보 요청에 실패했습니다")
                 return
                 
             multi_data = acc_bal_info.get("multi")
@@ -359,6 +363,10 @@ class Account(UseGlobal):
         # Set Today income
         today_trade_log = self.api.sendTr("당일실현손익상세요청", [self.accno, "", None])
         
+        if isinstance(today_trade_log, ErrorCode):
+            logger.warning(f"계좌번호: {self.accno}, 당일실현손익 요청에 실패했습니다")
+            return
+        
         single_data = today_trade_log.get("single")
         # multi_data = today_trade_log.get("multi")
         
@@ -370,6 +378,10 @@ class Account(UseGlobal):
         
     def getNCLog(self):
         nc_log = self.api.sendTr("미체결요청", [self.accno, None, None, None, None])
+        
+        if isinstance(nc_log, ErrorCode):
+            logger.warning(f"계좌번호: {self.accno}, 미체결요청에 실패했습니다")
+            return
         
         multi_data = nc_log.get("multi")
         

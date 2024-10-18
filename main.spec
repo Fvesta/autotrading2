@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='autotrading_v1',
+    name='autotrading_v2',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
