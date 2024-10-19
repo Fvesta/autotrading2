@@ -1,5 +1,5 @@
 from functools import partial
-from PySide2.QtCore import QEventLoop, QTimer, QObject
+from PySide2.QtCore import QEventLoop, QTimer
 
 from core.logger import logger
 from core.wait_timer import WaitTimer
@@ -34,6 +34,7 @@ class GlobalState:
         self._state["user_id"] = None
         self._state["user_name"] = None
         self._state["is_login"] = False
+        self._state["account_list"] = []
         self._state["account_dict"] = {}
         
         # GUI states
@@ -46,7 +47,8 @@ class GlobalState:
         # Loop block
         self._eventloop = {
             "tr_loop": QEventLoop(),
-            "order_loop": QEventLoop()
+            "order_loop": QEventLoop(),
+            "login_loop": QEventLoop(),
         }
         self._return = {}
         

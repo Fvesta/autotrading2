@@ -17,6 +17,7 @@ from style.utils import setTableSizeSameHor, setTableSizeSameVer
 from style.colors import decimal_colors
 from windows.balance_win.balance_win import BalanceWin
 from windows.main_win.acc_info import newAccInfo
+from windows.select_acc_win.select_acc_win import SelectAccWin
 from windows.trade_log_win.trade_log_win import TradeLogWin
 from windows.trade_setting.trade_setting import TradeSettingWin
 from windows.win_abs import WindowAbs, showModal
@@ -80,6 +81,7 @@ class MainWin(WindowAbs):
         self.user_id, self.setUserId = self.gstate.useState("user_id")
         self.user_name, self.setUserName = self.gstate.useState("user_name")
         self.is_login, self.setIsLogin = self.gstate.useState("is_login")
+        self.account_list, self.setAccountList = self.gstate.useState("account_list")
         self.account_dict, self.setAccountDict = self.gstate.useState("account_dict")
         
         for accno in self.account_dict.keys():
@@ -135,7 +137,8 @@ class MainWin(WindowAbs):
             # Set combo box
             combobox = getattr(self.ui, f"_{accno}_comboBox")
             combobox.addItems(cond_manager.cond_dict.keys())
-            
+            combobox.wheelEvent = lambda event: None
+
             combobox.currentTextChanged.connect(self.comboChanged)
             
             # Set account balance
@@ -181,6 +184,31 @@ class MainWin(WindowAbs):
         
         # Load condition
         self.getCondition()
+        
+        # Select account
+        win_name = f"select_acc_win"
+        
+        if win_name in self.gstate.activated_windows:
+            return
+        
+        new_winobj = SelectAccWin(win_name, "GUI/select_acc_win.ui", "style/css/select_acc_win.css")
+        new_winobj.show()
+        
+        # Wait select complete
+        login_loop = self.gstate._eventloop["login_loop"]
+        login_loop.exec_()
+        
+        new_winobj.close()
+        
+        # Open account password window
+        self.api.showAccountWindow()
+        
+        # Set used account
+        account_dict = {}
+        for acc_no in self.account_list:
+            account_dict[acc_no] = Account(acc_no)
+            
+        self.setAccountDict(account_dict)
         
         # Add account ui group
         accounts = self.account_dict.keys()
@@ -228,13 +256,19 @@ class MainWin(WindowAbs):
     def getAccountInfo(self):
         acc_list, user_id, user_name = self.api.getLoginInfo()
         
-        account_dict = {}
-        for acc_no in acc_list:
-            account_dict[acc_no] = Account(acc_no) 
+        new_acc_list = []
+        for accno in acc_list:
+            acc_gubun = accno[8:] # Get last 2 digits
+            
+            # 파생상품 관련 계좌
+            if acc_gubun == "31" or acc_gubun == "72" or acc_gubun == "73":
+                continue
+            
+            new_acc_list.append(accno)
             
         self.setUserName(user_name)
         self.setUserId(user_id)
-        self.setAccountDict(account_dict)
+        self.setAccountList(new_acc_list)
         
     def getCondition(self):
         load_success = self.api.loadCondition()

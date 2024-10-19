@@ -50,6 +50,9 @@ class API(UseGlobal, QObject):
             return 0
 
         return ErrorCode.OP_ERROR
+    
+    def showAccountWindow(self):
+        self.kiwoom.showAccountWindow()
 
     def getLoginInfo(self):
         acc_total = self.kiwoom.getLoginInfo("ACCNO")

@@ -11,6 +11,8 @@ except:
 from PySide2.QtWidgets import *
 from PySide2.QtAxContainer import QAxWidget
 
+app = QApplication(sys.argv)
+
 from core.api import API
 from core.callback_handler import CallbackHandler
 from core.real_processing import real_manager
@@ -20,8 +22,6 @@ from core.kiwoom import Kiwoom
 from windows.main_win.main_win import MainWin
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    
     ocx = QAxWidget("KHOPENAPI.KHOpenAPICtrl.1")
 
     kiwoom = Kiwoom(ocx)

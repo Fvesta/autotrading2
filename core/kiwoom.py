@@ -17,6 +17,9 @@ class Kiwoom:
         ret = self.ocx.dynamicCall("GetLoginInfo(QString)", [tag])
         return ret
     
+    def showAccountWindow(self):
+        self.ocx.dynamicCall("KOA_Functions(QString, QString)", ["ShowAccountWindow", ""])
+    
     ############################################
     # Utis
     ############################################
@@ -115,6 +118,6 @@ class Kiwoom:
             raise KiwoomException(kiwoom_retcode)
         
     def getChejanData(self, fid):
-        data = self.ocx.dynamicCall("GetChejanData(int)", fid)
+        data = self.ocx.dynamicCall("GetChejanData(int)", [fid])
         return data
         
