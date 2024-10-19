@@ -1,3 +1,4 @@
+from core.global_state import UseGlobal
 from core.logger import logger
 from core.api import API
 from core.errors import ErrorCode
@@ -5,8 +6,9 @@ from core.utils.type_util import absIntOrZero, floatOrZero
 from core.utils.utils import intOrZero
 
 
-class Stock:
+class Stock(UseGlobal):
     def __init__(self, stockcode, stockname):
+        UseGlobal.__init__(self)
         self.stockcode = stockcode
         self.name = stockname
         self.cur_price = 0              # 현재가
@@ -41,6 +43,8 @@ class Stock:
         
         if isinstance(stock_info, ErrorCode):
             logger.warning("Can\'t load stock info")
+            self.gstate.trUnlock()
+            return
             
         single_data = stock_info.get("single")
         

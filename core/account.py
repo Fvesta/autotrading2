@@ -263,6 +263,7 @@ class Account(UseGlobal):
         
         if isinstance(deposit_info, ErrorCode):
             logger.error(f"계좌번호: {self.accno}, 예수금 요청에 실패했습니다")
+            self.gstate.trUnlock()
             return
         
         single_data = deposit_info.get("single")
@@ -285,6 +286,7 @@ class Account(UseGlobal):
         
             if isinstance(acc_bal_info, ErrorCode):
                 logger.warning(f"계좌번호: {self.accno}, 계좌정보 요청에 실패했습니다")
+                self.gstate.trUnlock()
                 return
                 
             multi_data = acc_bal_info.get("multi")
@@ -315,6 +317,7 @@ class Account(UseGlobal):
         
         if isinstance(stocks_info, ErrorCode):
             logger.warning("Can\'t load each holdings info")
+            self.gstate.trUnlock()
             return
         
         multi_data = stocks_info.get("multi")
@@ -365,6 +368,7 @@ class Account(UseGlobal):
         
         if isinstance(today_trade_log, ErrorCode):
             logger.warning(f"계좌번호: {self.accno}, 당일실현손익 요청에 실패했습니다")
+            self.gstate.trUnlock()
             return
         
         single_data = today_trade_log.get("single")
@@ -381,6 +385,7 @@ class Account(UseGlobal):
         
         if isinstance(nc_log, ErrorCode):
             logger.warning(f"계좌번호: {self.accno}, 미체결요청에 실패했습니다")
+            self.gstate.trUnlock()
             return
         
         multi_data = nc_log.get("multi")

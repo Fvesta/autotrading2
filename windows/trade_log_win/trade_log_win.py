@@ -121,6 +121,11 @@ class TradeLogWin(WindowAbs):
         
         today_trade_log = self.api.sendTr("당일매매일지요청", [self.accno, "", "", None, None])
         
+        if isinstance(today_trade_log, ErrorCode):
+            logger.error(f"계좌번호: {self.accno}, 매매일지요청에 실패했습니다")
+            self.gstate.trUnlock()
+            return
+        
         single_data = today_trade_log.get("single")
         multi_data = today_trade_log.get("multi")
         
@@ -232,12 +237,21 @@ class TradeLogWin(WindowAbs):
         
         trade_log = self.api.sendTr("계좌별주문체결내역상세요청", [req_date, self.accno, "", "00", 1, 1, 0, "", ""])
         
+        if isinstance(trade_log, ErrorCode):
+            logger.error(f"계좌번호: {self.accno}, 체결내역요청에 실패했습니다")
+            self.gstate.trUnlock()
+            return
+        
         multi_merged_data = trade_log.get("multi")
         next = trade_log.get("next")
         
         while(next == "2"):
             trade_log = self.api.sendTr("계좌별주문체결내역상세요청", [req_date, self.accno, "", "00", 1, 1, 0, "", ""], True)
 
+            if isinstance(trade_log, ErrorCode):
+                logger.error(f"계좌번호: {self.accno}, 체결내역요청에 실패했습니다")
+                self.gstate.trUnlock()
+                return
             multi_data = trade_log.get("multi")
             next = trade_log.get("next")
             
