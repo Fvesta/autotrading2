@@ -136,7 +136,12 @@ class MainWin(WindowAbs):
             
             # Set combo box
             combobox = getattr(self.ui, f"_{accno}_comboBox")
-            combobox.addItems(cond_manager.cond_dict.keys())
+            
+            condname_list = list(cond_manager.cond_dict.keys())
+            condname_list.sort()
+            
+            combobox.addItem("선택없음")
+            combobox.addItems(condname_list)
             combobox.wheelEvent = lambda event: None
 
             combobox.currentTextChanged.connect(self.comboChanged)
@@ -358,6 +363,11 @@ class MainWin(WindowAbs):
         
         def playBtnRelease(btn, accno):
             def wrapper(event):
+                combobox = getattr(self.ui, f"_{accno}_comboBox")
+                if combobox.currentText() == "선택없음":
+                    QMessageBox.warning(self.ui, '자동매매 설정 오류', f'{accno}: 조건식을 선택해주세요')
+                    return
+                
                 btn.setFixedSize(40, 40)
                 
                 acc = self.api.getAccObj(accno)

@@ -77,8 +77,8 @@ def newAccInfo(ui, accno):
     sizePolicy4.setVerticalStretch(0)
     sizePolicy4.setHeightForWidth(comboBox.sizePolicy().hasHeightForWidth())
     comboBox.setSizePolicy(sizePolicy4)
-    comboBox.setMinimumSize(QSize(150, 0))
-    comboBox.setMaximumSize(QSize(150, 16777215))
+    comboBox.setMinimumSize(QSize(170, 0))
+    comboBox.setMaximumSize(QSize(170, 16777215))
 
     verticalLayout_4.addWidget(comboBox)
 

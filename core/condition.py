@@ -55,9 +55,7 @@ class CondManager(QThread, UseGlobal):
         
         self.api = None
         self.reg_count = 0
-        self.cond_dict = {
-            "선택안됨": Condition(-1, "선택안됨")
-        }
+        self.cond_dict = {}
 
         self.reg_cond_dict = {}
         self.seed_callback_dict = {}
