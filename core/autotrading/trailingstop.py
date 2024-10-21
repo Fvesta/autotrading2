@@ -50,6 +50,9 @@ class TrailingStop(QObject, UseGlobal):
         if key == "trailing_sell":
             stockcode = extra.get("stockcode")
             sell_percent = extra.get("sell_percent")
+            cur_line = extra.get("cur_line")
+            
+            logger.debugSessionStart(f"Trailingstop 실행: {cur_line}%")
             
             if self.acc.isHoldings(stockcode):
                 holding_info = self.acc.holdings[stockcode]
@@ -57,9 +60,11 @@ class TrailingStop(QObject, UseGlobal):
                 # Calculate quantity
                 total_quantity = holding_info.quantity
                 sell_quantity = math.ceil(total_quantity * (sell_percent) / 100)
-                
-                logger.debug(f"stockcode: {stockcode}, quantity: {sell_quantity} trailing stop주문이 실행됩니다.")
+            
                 order_manager.sellStockNow(self.acc.accno, stockcode, sell_quantity)
+            else:
+                logger.warning(f"{self.acc.accno}: 현재 잔고에 {stockcode}가 존재하지 않습니다")
+                logger.debugSessionFin("Trailingstop 종료")
     
     def eventReg(self):
         self.update.connect(self.updateStates)
@@ -156,7 +161,8 @@ class TrailingStop(QObject, UseGlobal):
                                
                     self.update.emit("trailing_sell", {
                         "stockcode": stockcode,
-                        "sell_percent": sell_percent
+                        "sell_percent": sell_percent,
+                        "cur_line": cur_line
                     })
                     
                     self.observe_condition[stockcode] = new_observe_condition

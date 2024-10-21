@@ -58,6 +58,9 @@ class StopLoss(QObject, UseGlobal):
                 sell_quantity = math.ceil(total_quantity * (sell_percent / 100))
                 
                 order_manager.sellStockNow(self.acc.accno, stockcode, sell_quantity)
+            else:
+                logger.warning(f"{self.acc.accno}: 현재 잔고에 {stockcode}가 존재하지 않습니다")
+                logger.debugSessionFin("Stoploss 종료")
     
     def eventReg(self):
         self.update.connect(self.updateStates)
