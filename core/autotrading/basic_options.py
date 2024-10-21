@@ -7,7 +7,7 @@ TRAILING_STOP_BASIC_OPTION = {
         },                   
         "line_opt": {
             "type": "manual",           # manual or auto
-            "lines": [1.5, 3, 5, 8, 11, 15, 20, 25]
+            "lines": [2.5, 5, 8, 11, 15, 20, 25, 30]
         },
         "division": [
             {
@@ -22,11 +22,11 @@ TRAILING_STOP_BASIC_OPTION = {
 STOP_LOSS_BASIC_OPTION = {
     "division": [
         {
-            "income_rate": -4,
+            "income_rate": -3,
             "sell_percent": 100
         },
         {
-            "income_rate": -2,
+            "income_rate": -1.5,
             "sell_percent": 50
         },
         

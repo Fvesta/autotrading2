@@ -7,7 +7,7 @@ class Logger:
         'disable_existing_loggers': False,
         "formatters": {
             "basic": {
-                "format": "%(asctime)s:%(module)s:%(levelname)s:%(message)s",
+                "format": "%(asctime)s:%(levelname)s>  %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S"
             }
         },
@@ -89,6 +89,14 @@ class Logger:
         
     def error(self, message):
         self.base_logger.error(message)
+        
+    def debugSessionStart(self, message="함수실행"):
+        self.base_logger.debug("")
+        self.base_logger.debug(f"start < {f' {message} ':ㅡ^30}")
+        
+    def debugSessionFin(self, message="함수종료"):
+        self.base_logger.debug(f"{f' {message} ':ㅡ^30} > end")
+        self.base_logger.debug("")
         
 logger = Logger("debug")
     

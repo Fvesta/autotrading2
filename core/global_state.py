@@ -131,7 +131,7 @@ class GlobalState:
         del self._return[seed]
         return ret
     
-    def unlock(self, ret=None, seed="main_block"):
+    def unlock(self, ret={}, seed="main_block"):
         self._return[seed] = ret
         
         if seed not in self._eventloop:

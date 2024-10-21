@@ -58,6 +58,7 @@ class TrailingStop(QObject, UseGlobal):
                 total_quantity = holding_info.quantity
                 sell_quantity = math.ceil(total_quantity * (sell_percent) / 100)
                 
+                logger.debug(f"stockcode: {stockcode}, quantity: {sell_quantity} trailing stop주문이 실행됩니다.")
                 order_manager.sellStockNow(self.acc.accno, stockcode, sell_quantity)
     
     def eventReg(self):
@@ -159,7 +160,7 @@ class TrailingStop(QObject, UseGlobal):
                     })
                     
                     self.observe_condition[stockcode] = new_observe_condition
-                except KeyError:
+                except IndexError:
                     logger.error(f"There is no other condition in stock: {stockcode}")
             
         self.prev_info = next_prev_info

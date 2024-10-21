@@ -211,7 +211,10 @@ class MainWin(WindowAbs):
         # Set used account
         account_dict = {}
         for acc_no in self.account_list:
+            logger.debugSessionStart("계좌 정보 수집")
+            logger.debug(f"계좌번호: {acc_no}의 정보를 수집합니다")
             account_dict[acc_no] = Account(acc_no)
+            logger.debugSessionFin("계좌 정보 수집완료")
             
         self.setAccountDict(account_dict)
         

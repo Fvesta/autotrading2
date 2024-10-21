@@ -90,7 +90,7 @@ class TradeLogWin(WindowAbs):
             find_name = selected_items[0].text()
             
             self.setExecLogData(find_name)
-        except KeyError:
+        except IndexError:
             logger.warning("No selected item")
             
     def lookupBtnClicked(self):
@@ -123,7 +123,6 @@ class TradeLogWin(WindowAbs):
         
         if isinstance(today_trade_log, ErrorCode):
             logger.error(f"계좌번호: {self.accno}, 매매일지요청에 실패했습니다")
-            self.gstate.trUnlock()
             return
         
         single_data = today_trade_log.get("single")
@@ -239,7 +238,6 @@ class TradeLogWin(WindowAbs):
         
         if isinstance(trade_log, ErrorCode):
             logger.error(f"계좌번호: {self.accno}, 체결내역요청에 실패했습니다")
-            self.gstate.trUnlock()
             return
         
         multi_merged_data = trade_log.get("multi")
@@ -250,7 +248,6 @@ class TradeLogWin(WindowAbs):
 
             if isinstance(trade_log, ErrorCode):
                 logger.error(f"계좌번호: {self.accno}, 체결내역요청에 실패했습니다")
-                self.gstate.trUnlock()
                 return
             multi_data = trade_log.get("multi")
             next = trade_log.get("next")

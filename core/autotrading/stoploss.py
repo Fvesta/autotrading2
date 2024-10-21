@@ -46,6 +46,9 @@ class StopLoss(QObject, UseGlobal):
         if key == "stoploss_sell":
             stockcode = extra.get("stockcode")
             sell_percent = extra.get("sell_percent")
+            cond_income_rate = extra.get("cond_income_rate")
+            
+            logger.debugSessionStart(f"Stoploss 실행: {cond_income_rate}%")
             
             if self.acc.isHoldings(stockcode):
                 holding_info = self.acc.holdings[stockcode]
@@ -114,7 +117,8 @@ class StopLoss(QObject, UseGlobal):
                         # Sell in main loop
                         self.update.emit("stoploss_sell", {
                             "stockcode": stockcode,
-                            "sell_percent": cond_sell_percent
+                            "sell_percent": cond_sell_percent,
+                            "cond_income_rate": cond_income_rate,
                         })
                         break
                     else:

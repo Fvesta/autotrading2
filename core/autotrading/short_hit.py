@@ -23,6 +23,7 @@ class ShortHit(QObject, UseGlobal):
     def updateStates(self, key="", extra={}):
         
         if key == "sell_all":
+            logger.debugSessionStart("장마감 일괄매도 실행")
             holdings = dict(self.acc.holdings)
         
             for stockcode in holdings.keys():
@@ -41,16 +42,21 @@ class ShortHit(QObject, UseGlobal):
             
             except KeyError as e:
                 logger.error(f"{self.acc.accno} algorithm option not correct: {e}")
+                logger.debugSessionFin("알고리즘 설정 에러")
                 return                     
             
             if not buy_same_stock:
                 # If today buy => ignore
                 if stockcode in self.acc.today_buy_stocks:
+                    logger.debug(f"stockcode: {stockcode}, 이미 당일에 매수가 접수되었습니다")
+                    logger.debugSessionFin("편입종목 매수 안함")
                     return 
                 
                 # Stockcode repeat => ignore
                 for log in self.acc.real_exec_log:
                     if log["stockcode"] == stockcode and log["exec_gubun"] == "매수":
+                        logger.debug(f"stockcode: {stockcode}, 이미 당일에 매수가 체결되었습니다")
+                        logger.debugSessionFin("편입종목 매수 안함")
                         return 
             
             # If there is no money to buy, set one_time_amount to limit amount
@@ -65,9 +71,11 @@ class ShortHit(QObject, UseGlobal):
                 quantity = int(one_time_amount / cur_price)
             except TypeError as e:
                 logger.error(e)
+                logger.debugSessionFin()
                 return
             except ZeroDivisionError as e:
                 logger.error(e)
+                logger.debugSessionFin()
                 return
                 
             if order_type == "market_price":
@@ -115,18 +123,26 @@ class ShortHit(QObject, UseGlobal):
     def condRealCallback(self, seed, stockcode, tag, condname, cidx):
 
         if tag == "I":
+            logger.debugSessionStart("검색식 종목편입")
+            logger.debug(f"{condname}: {stockcode} 종목이 편입되었습니다.")
             stockcode = getRegStock(stockcode)
             
             # Already holding => ignore
             if self.acc.isHoldings(stockcode):
+                logger.debug(f"{stockcode}: 이미 보유중인 종목입니다")
+                logger.debugSessionFin("편입종목 매수 안함")
                 return
             
             # If already max cnt exceed
             if len(self.acc.today_buy_stocks) >= self.today_max_cnt:
+                logger.debug(f"오늘 매수 가능 횟수를 초과했습니다")
+                logger.debugSessionFin("편입종목 매수 안함")
                 return
             
             # If already 10 stocks => ignore
             if len(self.acc.holdings.keys()) >= self.max_bal_cnt:
+                logger.debug(f"이미 10종목을 보유하고 있습니다")
+                logger.debugSessionFin("편입종목 매수 안함")
                 return
             
             # If stock is already buy ordered, not completed => ignore
@@ -141,6 +157,8 @@ class ShortHit(QObject, UseGlobal):
                 order_gubun = order_info["order_gubun"]
                 
                 if nc_stockcode == stockcode and order_gubun == "매수":
+                    logger.debug("이미 주문이 접수되었습니다.")
+                    logger.debugSessionFin("편입종목 매수 안함")
                     return
                 
             self.update.emit(seed, {

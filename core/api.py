@@ -152,6 +152,7 @@ class API(UseGlobal, QObject):
         
         if rqname == "계좌평가현황요청":
             if len(inputs) != 4:
+                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             accno, password, _, _ = inputs
@@ -162,6 +163,7 @@ class API(UseGlobal, QObject):
             
         if rqname == "주식기본정보요청":
             if len(inputs) != 1:
+                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             stockcode = inputs[0]
@@ -169,6 +171,7 @@ class API(UseGlobal, QObject):
             
         if rqname == "계좌별주문체결내역상세요청":
             if len(inputs) != 9:
+                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             order_date, accno, password, _, _, _, _, _, _ = inputs
@@ -185,6 +188,7 @@ class API(UseGlobal, QObject):
             
         if rqname == "미체결요청":
             if len(inputs) != 5:
+                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             accno, _, _, _, _ = inputs
@@ -197,6 +201,7 @@ class API(UseGlobal, QObject):
             
         if rqname == "당일매매일지요청":
             if len(inputs) != 5:
+                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             accno, password, date, _, _ = inputs
@@ -209,6 +214,7 @@ class API(UseGlobal, QObject):
             
         if rqname == "예수금상세현황요청":
             if len(inputs) != 4:
+                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             accno, password, _, _ = inputs
@@ -220,6 +226,7 @@ class API(UseGlobal, QObject):
             
         if rqname == "당일실현손익상세요청":
             if len(inputs) != 3:
+                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             accno, password, _ = inputs
@@ -232,10 +239,14 @@ class API(UseGlobal, QObject):
             self.kiwoom.commRqData(rqname, trcode, 2 if next else 0, scr_manager.scrAct(trcode.lower()))
         except KiwoomException as e:
             logger.warning(e)
+            self.gstate.trUnlock()
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
         ret = self.gstate.lock()
+        if ret == None:
+            self.gstate.trUnlock()
+            return ErrorCode.OP_ERROR
         
         # Unlock tr
         self.gstate.trUnlock()
@@ -260,10 +271,14 @@ class API(UseGlobal, QObject):
             self.kiwoom.commKwRqData(rqname, stockcode_list, 2 if next else 0, scr_manager.scrAct(trcode.lower()))
         except KiwoomException as e:
             logger.warning(e)
+            self.gstate.trUnlock()
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
         ret = self.gstate.lock()
+        if ret == None:
+            self.gstate.trUnlock()
+            return ErrorCode.OP_ERROR
         
         # Unlock tr
         self.gstate.trUnlock()
@@ -330,10 +345,14 @@ class API(UseGlobal, QObject):
                     
         except KiwoomException as e:
             logger.warning(e)
+            self.gstate.orderUnlock()
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
         ret = self.gstate.lock()
+        if ret == None:
+            self.gstate.orderUnlock()
+            return ErrorCode.OP_ERROR
         
         # Unlock
         self.gstate.orderUnlock()

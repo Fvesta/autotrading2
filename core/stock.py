@@ -43,7 +43,6 @@ class Stock(UseGlobal):
         
         if isinstance(stock_info, ErrorCode):
             logger.warning("Can\'t load stock info")
-            self.gstate.trUnlock()
             return
             
         single_data = stock_info.get("single")

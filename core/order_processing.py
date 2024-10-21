@@ -136,16 +136,19 @@ class OrderManager(UseGlobal, QThread):
             del self.seed_callback_dict[seed]
     
     def buyStockNow(self, accno, stockcode, quantity):
-        logger.debug(f"시장가 매수 호출: {stockcode}, quantity: {quantity}")
+        logger.debug(f"stockcode: {stockcode}, quantity: {quantity} 매수 주문이 실행됩니다.")
         
         if quantity == 0:
             logger.debug("주문가능 금액, 주문수량을 확인해주세요")
+            logger.debugSessionFin("매수 에러")
             return
         
         buy_success_info = self.api.sendOrder("주문요청", scr_manager.scrAct("buystock"), accno, ORDER_TYPE["신규매수"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
 
         if isinstance(buy_success_info, ErrorCode):
             logger.error(f"accno: {accno}, stockcode: {stockcode}, quantity: {quantity} 시장가 매수 주문 함수 실행에 실패했습니다.")
+            logger.debugSessionFin("매수 에러")
+            return
         
         single_data = buy_success_info.get("single")
         try:
@@ -156,19 +159,26 @@ class OrderManager(UseGlobal, QThread):
             logger.error(f"accno: {accno}, 주문번호가 존재하지 않습니다.")
         except OrderFailedException as e:
             logger.error(f"accno: {accno}, 매수 주문요청에 실패했습니다.")
+            
+        logger.debugSessionFin("매수 종료")
         
     def buyStockFix(self, accno, stockcode, quantity, ask_step, cancel=False, cancel_buy=False, cancel_time_sec=0):
         pass
     
     def sellStockNow(self, accno, stockcode, quantity):
-        logger.debug("시장가 매도 호출")
+        logger.debug(f"stockcode: {stockcode}, quantity: {quantity} 매도 주문이 실행됩니다.")
+        
+        if quantity == 0:
+            logger.debug("주문가능 금액, 주문수량을 확인해주세요")
+            logger.debugSessionFin("매도 에러")
+            return
+        
         order_success_info = self.api.sendOrder("주문요청", scr_manager.scrAct("sellstock"), accno, ORDER_TYPE["신규매도"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
 
         if isinstance(order_success_info, ErrorCode):
-            logger.error(f"accno: {accno}, 매도 주문 함수 실행에 실패했습니다.")
-            
-        if order_success_info == None:
-            logger.error(f"accno: {accno}, stockcode: {stockcode}, quantity: {quantity} 주문과정에서 문제가 생겼습니다.")
+            logger.error(f"accno: {accno}, stockcode: {stockcode}, quantity: {quantity} 매도 주문 함수 실행에 실패했습니다.")
+            logger.debugSessionFin("매도 에러")
+            return
             
         single_data = order_success_info.get("single")
         try:
@@ -179,6 +189,8 @@ class OrderManager(UseGlobal, QThread):
             logger.error(f"accno: {accno}, 주문번호가 존재하지 않습니다.")
         except OrderFailedException as e:
             logger.error(f"accno: {accno}, 매도 주문요청에 실패했습니다.")
+            
+        logger.debugSessionFin("매도 종료")
             
     def sellStockFix(self, acccno, stockcode, quantity, ask_step, cancel=False, cancel_sell=False, cancel_time_sec=0):
         pass
