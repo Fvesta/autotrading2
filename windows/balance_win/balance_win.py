@@ -3,11 +3,13 @@ from PySide2.QtWidgets import *
 
 from core.account import Account, holdingInfo
 from core.api import API
+from core.constants import MAX_TABLE_COL, MAX_TABLE_ROW
 from core.errors import ErrorCode
 from core.stock import Stock
 from core.utils.stock_util import getRegStock
 from core.utils.utils import getAccnoFromObj
 from core.order_processing import order_manager
+from core.real_processing import real_manager
 from style.utils import setTableSizeSameHor
 from windows.win_abs import WindowAbs, showModal
 from style.colors import decimal_colors
@@ -32,6 +34,26 @@ class BalanceWin(WindowAbs):
     def initSetting(self):
         self.ui.splitter.setSizes([950, 450])
         self.ui.setWindowTitle(f"잔고: {self.accno}")
+        
+        # Set table items
+        self.ui.holding_table.setRowCount(MAX_TABLE_ROW)
+        self.ui.holding_table.setColumnCount(MAX_TABLE_COL)
+        self.ui.not_completed_table.setRowCount(MAX_TABLE_ROW)
+        self.ui.not_completed_table.setColumnCount(MAX_TABLE_COL)
+        self.ui.real_exec_table.setRowCount(MAX_TABLE_ROW)
+        self.ui.real_exec_table.setColumnCount(MAX_TABLE_COL)
+        for row in range(MAX_TABLE_ROW):
+            for col in range(MAX_TABLE_COL):
+                item1 = QTableWidgetItem("")
+                item1.setTextAlignment(Qt.AlignCenter)
+                item2 = QTableWidgetItem("")
+                item2.setTextAlignment(Qt.AlignCenter)
+                item3 = QTableWidgetItem("")
+                item3.setTextAlignment(Qt.AlignCenter)
+                
+                self.ui.holding_table.setItem(row, col, item1)
+                self.ui.not_completed_table.setItem(row, col, item2)
+                self.ui.real_exec_table.setItem(row, col, item3)
     
     def afterSetting(self):
         self.updateStyle()
@@ -40,10 +62,18 @@ class BalanceWin(WindowAbs):
         setTableSizeSameHor(self.ui.not_completed_table)
         setTableSizeSameHor(self.ui.real_exec_table)
         
+    def updateHoldings(self):
+        self.setBalanceEval()
+        self.setHoldingsData()
+            
     def updateStates(self, key="", extra={}):
-        if key == f"{self.accno}$holdings" or key == f"{self.accno}$balance":
-            self.setBalanceEval()
-            self.setHoldingsData()
+        if key == f"{self.accno}$balance":
+            self.updateHoldings()
+            
+        if key == f"{self.accno}$holdings":
+            # If last called time is n sec before
+            if real_manager.notCalledInTime(f"{self.accno}$holdings", interval=0.3, post_callback=self.updateHoldings):
+                self.updateHoldings()
             
         if key == f"{self.accno}$balance_win_order":
             tradetype = extra.get("tradetype")
@@ -118,14 +148,14 @@ class BalanceWin(WindowAbs):
             tb_data.append((stockcode, stockname, quantity, today_updown_rate, cur_price, cur_amount_formatted, average_buy_price, income_formatted))
         
         self.ui.holding_table.setRowCount(len(tb_data))
+        self.ui.holding_table.setColumnCount(8)
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
                 
                 # If field is income_rate
                 if j == 7:
 
-                    item = QTableWidgetItem(str(tb_data[i][j]))
-                    item.setTextAlignment(Qt.AlignCenter)
+                    item = self.ui.holding_table.item(i, j)
                     
                     income_formatted = tb_data[i][j]
                     if income_formatted[0] == "+":
@@ -133,13 +163,12 @@ class BalanceWin(WindowAbs):
                     else:
                         item.setForeground(decimal_colors["QT_LIGHT_BLUE"])
                     
-                    self.ui.holding_table.setItem(i, j, item)
+                    item.setText(str(tb_data[i][j]))
                     
                 else:
-                    item = QTableWidgetItem(str(tb_data[i][j]))
-                    item.setTextAlignment(Qt.AlignCenter)
+                    item = self.ui.holding_table.item(i, j)
                     
-                    self.ui.holding_table.setItem(i, j, item)
+                    item.setText(str(tb_data[i][j]))
                     
     def setBalanceEval(self):
         # 보유종목수    holding_cnt_label
@@ -206,12 +235,12 @@ class BalanceWin(WindowAbs):
             tb_data.append((exec_time_formatted, stockobj.name, exec_gubun, exec_quantity, exec_price))
         
         self.ui.real_exec_table.setRowCount(len(tb_data))
+        self.ui.real_exec_table.setColumnCount(5)
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
                 
                 if j == 2:
-                    item = QTableWidgetItem(str(tb_data[i][j]))
-                    item.setTextAlignment(Qt.AlignCenter)
+                    item = self.ui.real_exec_table.item(i, j)
                     
                     order_gubun = tb_data[i][j]
                     if order_gubun == "매수":
@@ -219,12 +248,11 @@ class BalanceWin(WindowAbs):
                     elif order_gubun == "매도":
                         item.setForeground(decimal_colors["QT_LIGHT_BLUE"])
                     
-                    self.ui.real_exec_table.setItem(i, j, item)
+                    item.setText(str(tb_data[i][j]))
                 else:
-                    item = QTableWidgetItem(str(tb_data[i][j]))
-                    item.setTextAlignment(Qt.AlignCenter)
+                    item = self.ui.real_exec_table.item(i, j)
             
-                    self.ui.real_exec_table.setItem(i, j, item)    
+                    item.setText(str(tb_data[i][j]))
                     
     def setNotCompletedData(self):
         # 주문번호
@@ -257,12 +285,12 @@ class BalanceWin(WindowAbs):
             tb_data.append((orderno, stockobj.name, order_gubun, order_quantity, rest_quantity, order_price, order_time_formatted))
         
         self.ui.not_completed_table.setRowCount(len(tb_data))
+        self.ui.not_completed_table.setColumnCount(7)
         for i in range(len(tb_data)):
             for j in range(len(tb_data[0])):
-                item = QTableWidgetItem(str(tb_data[i][j]))
-                item.setTextAlignment(Qt.AlignCenter)
+                item = self.ui.not_completed_table.item(i, j)
         
-                self.ui.not_completed_table.setItem(i, j, item)
+                item.setText(str(tb_data[i][j]))
             
     def orderCallback(self, seed, tradetype, order_data):
         accno = order_data.get("계좌번호")

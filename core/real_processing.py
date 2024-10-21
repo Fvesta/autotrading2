@@ -1,10 +1,12 @@
+import time
 from PySide2.QtCore import QThread
 import debugpy
 import queue
 import sys
 
 from core.constants import REAL_NO_MAP
-from core.scr_manager import scr_manager 
+from core.scr_manager import scr_manager
+from core.wait_timer import WaitTimer 
         
 class RealManager(QThread):
     def __new__(cls, *args):
@@ -25,6 +27,11 @@ class RealManager(QThread):
         self.api = None
         self.reg_stock_dict = {}
         self.seed_callback_dict = {}
+        
+        # Function call control
+        self.last_call_time = {}
+        self.post_callback_dict = {}
+        self.post_timer = {}
         
         self.fid_set = ""
         for data_type in REAL_NO_MAP.keys():
@@ -126,5 +133,43 @@ class RealManager(QThread):
         for idx, stock_input in enumerate(stock_input_split): 
             
             self.api.setRealReg(scr_manager.scrAct(f"real_processing_{idx}"), stock_input, self.fid_set, 0)
+    
+    # Call interval
+    def callPostCallback(self, seed):
+        if seed not in self.post_callback_dict:
+            return
+        
+        if self.post_callback_dict[seed] == None:
+            return
+        
+        callback = self.post_callback_dict[seed]
+        callback()
+    
+    def notCalledInTime(self, seed, interval=0.5, post_callback=None):
+        # If init call
+        if seed not in self.last_call_time:
+            self.last_call_time[seed] = time.time()
+            self.post_callback_dict[seed] = None
+            self.post_timer[seed] = WaitTimer(f"{seed}", interval * 1000, lambda: self.callPostCallback(seed))
+            return True
+        
+        # Compare cur and last call time
+        last_time = self.last_call_time[seed]
+        cur_time = time.time()
+        
+        if cur_time - last_time >= interval:
+            self.last_call_time[seed] = cur_time
+            self.post_callback_dict[seed] = None
+            return True
+        
+        self.post_callback_dict[seed] = post_callback
+        seed_timer = self.post_timer[seed]
+        if not seed_timer.isWait():
+            seed_timer.startWait()
+            
+        return False
+        
+        
+        
             
 real_manager: RealManager = RealManager()

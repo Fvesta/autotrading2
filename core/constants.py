@@ -1,6 +1,9 @@
 # General constants
 TRADING_TAX = 0
 
+MAX_TABLE_ROW = 1000
+MAX_TABLE_COL = 30
+
 # TR constants
 TRCODE_DICT = {
     "계좌평가현황요청": "opw00004",

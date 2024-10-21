@@ -36,6 +36,7 @@ class TradeLogWin(WindowAbs):
         self.loading_indicator.setSize(40, 40)
         self.ui.lookup_layout.addWidget(self.loading_indicator.label)
         
+        # Set label css
         self.ui.balance_log_label.setProperty("class", "tx-bold")
         self.ui.exec_log_label.setProperty("class", "tx-bold")
         
