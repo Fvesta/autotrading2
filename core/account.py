@@ -282,15 +282,29 @@ class Account(UseGlobal):
         })
         
     def getNCLog(self):
+
         nc_log = self.api.sendTr("미체결요청", [self.accno, None, None, None, None])
         
         if isinstance(nc_log, ErrorCode):
             logger.warning(f"계좌번호: {self.accno}, 미체결요청에 실패했습니다")
             return
         
-        multi_data = nc_log.get("multi")
+        multi_merged_data = nc_log.get("multi")
+        next = nc_log.get("next")
         
-        for data in multi_data:
+        while(next == "2"):
+            nc_log = self.api.sendTr("미체결요청", [self.accno, None, None, None, None], True)
+            
+            if isinstance(nc_log, ErrorCode):
+                logger.warning(f"계좌번호: {self.accno}, 미체결요청에 실패했습니다")
+                return
+            
+            multi_data = nc_log.get("multi")
+            next = nc_log.get("next")
+            
+            multi_merged_data.extend(multi_data)    
+        
+        for data in multi_merged_data:
             stockcode = data.get("종목코드")
             
             if not isStock(stockcode):
