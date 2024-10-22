@@ -7,6 +7,9 @@ def getRegStock(stockcode):
     return stockcode[1:] if stockcode[0] == 'A' else stockcode
 
 def isStock(stockcode, market=["kospi", "kosdaq"]):
+    if stockcode == '':
+        return False
+    
     gstate = GlobalState()
     
     try:

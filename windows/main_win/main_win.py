@@ -1,4 +1,4 @@
-import time
+import pythoncom
 from PySide2.QtWidgets import *
 from PySide2.QtCore import Signal, Qt, QTimer
 from PySide2.QtGui import QGuiApplication
@@ -54,7 +54,6 @@ class MainWin(WindowAbs):
         self.ui.verticalLayout_3.addWidget(self.loading_indicator.label)
         self.ui.verticalLayout_3.setAlignment(self.loading_indicator.label, Qt.AlignHCenter)
         
-        
         # Get screen size
         screen = QGuiApplication.primaryScreen()
         screen_size = screen.availableGeometry()
@@ -82,7 +81,8 @@ class MainWin(WindowAbs):
         self.user_id, self.setUserId = self.gstate.useState("user_id")
         self.user_name, self.setUserName = self.gstate.useState("user_name")
         self.is_login, self.setIsLogin = self.gstate.useState("is_login")
-        self.account_list, self.setAccountList = self.gstate.useState("account_list")
+        self.total_acc_list, self.setTotalAccList = self.gstate.useState("total_acc_list")
+        self.selected_acc_list, self.setSelectedAccList = self.gstate.useState("selected_acc_list")
         self.account_dict, self.setAccountDict = self.gstate.useState("account_dict")
         
         for accno in self.account_dict.keys():
@@ -201,19 +201,29 @@ class MainWin(WindowAbs):
         new_winobj.show()
         
         # Wait select complete
-        login_loop = self.gstate._eventloop["login_loop"]
-        login_loop.exec_()
+        self.gstate.login_block = True
+        
+        while self.gstate.login_block:
+            pythoncom.PumpWaitingMessages()
         
         new_winobj.close()
+        
+        if len(self.selected_acc_list) == 0:
+            # Set loading indicator
+            self.loading_indicator.hide()
+            
+            # Hide login button
+            self.ui.login_btn.show()
+            return
         
         # Open account password window
         self.api.showAccountWindow()
         
         # Set used account
         account_dict = {}
-        for acc_no in self.account_list:
+        for acc_no in self.selected_acc_list:
             logger.debugSessionStart("계좌 정보 수집")
-            logger.debug(f"계좌번호: {acc_no}의 정보를 수집합니다")
+            logger.info(f"계좌번호: {acc_no}의 정보를 수집합니다")
             account_dict[acc_no] = Account(acc_no)
             logger.debugSessionFin("계좌 정보 수집완료")
             
@@ -247,7 +257,7 @@ class MainWin(WindowAbs):
             return ErrorCode.OP_ERROR
         
         self.setIsLogin(True)
-        logger.debug("로그인에 성공했습니다")
+        logger.info("로그인에 성공했습니다")
         return 0
     
     def getMarketStocks(self):
@@ -277,7 +287,7 @@ class MainWin(WindowAbs):
             
         self.setUserName(user_name)
         self.setUserId(user_id)
-        self.setAccountList(new_acc_list)
+        self.setTotalAccList(new_acc_list)
         
     def getCondition(self):
         load_success = self.api.loadCondition()

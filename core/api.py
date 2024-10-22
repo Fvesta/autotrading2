@@ -116,14 +116,8 @@ class API(UseGlobal, QObject):
         return cond_list
     
     def sendCondition(self, *args):
-        
-        tr_timer = self.gstate.tr_timer
-        tr_loop = self.gstate._eventloop["tr_loop"]
-        
-        if tr_timer.isWait():
-            tr_loop.exec_()
-
-        tr_timer.startWait()
+        # Kiwoom time limitation
+        self.gstate.trTimeBlock()
     
         self.kiwoom.sendCondition(*args)
         
@@ -136,23 +130,13 @@ class API(UseGlobal, QObject):
     ############################################
     
     def sendTr(self, rqname, inputs, next=False):
-        # Get lock
-        self.gstate.trLock()
+        # Kiwoom time limitation
+        self.gstate.trTimeBlock()
         
         trcode = TRCODE_DICT[rqname]
         
-        # Time check(kiwoom limitation) 
-        tr_timer = self.gstate.tr_timer
-        tr_loop = self.gstate._eventloop["tr_loop"]
-        
-        if tr_timer.isWait():
-            tr_loop.exec_()
-
-        tr_timer.startWait()
-        
         if rqname == "계좌평가현황요청":
             if len(inputs) != 4:
-                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             accno, password, _, _ = inputs
@@ -163,7 +147,6 @@ class API(UseGlobal, QObject):
             
         if rqname == "주식기본정보요청":
             if len(inputs) != 1:
-                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             stockcode = inputs[0]
@@ -171,7 +154,6 @@ class API(UseGlobal, QObject):
             
         if rqname == "계좌별주문체결내역상세요청":
             if len(inputs) != 9:
-                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             order_date, accno, password, _, _, _, _, _, _ = inputs
@@ -188,7 +170,6 @@ class API(UseGlobal, QObject):
             
         if rqname == "미체결요청":
             if len(inputs) != 5:
-                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             accno, _, _, _, _ = inputs
@@ -201,7 +182,6 @@ class API(UseGlobal, QObject):
             
         if rqname == "당일매매일지요청":
             if len(inputs) != 5:
-                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             accno, password, date, _, _ = inputs
@@ -214,7 +194,6 @@ class API(UseGlobal, QObject):
             
         if rqname == "예수금상세현황요청":
             if len(inputs) != 4:
-                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             accno, password, _, _ = inputs
@@ -226,7 +205,6 @@ class API(UseGlobal, QObject):
             
         if rqname == "당일실현손익상세요청":
             if len(inputs) != 3:
-                self.gstate.trUnlock()
                 return ErrorCode.OP_INPUT_ERROR
             
             accno, password, _ = inputs
@@ -239,49 +217,30 @@ class API(UseGlobal, QObject):
             self.kiwoom.commRqData(rqname, trcode, 2 if next else 0, scr_manager.scrAct(trcode.lower()))
         except KiwoomException as e:
             logger.warning(e)
-            self.gstate.trUnlock()
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
         ret = self.gstate.lock()
         if ret == None:
-            self.gstate.trUnlock()
             return ErrorCode.OP_ERROR
-        
-        # Unlock tr
-        self.gstate.trUnlock()
         
         return ret
     
     def sendTrMany(self, rqname, stockcode_list, next=False):
-        # Get lock
-        self.gstate.trLock()
+        self.gstate.trTimeBlock()
         
         trcode = TRCODE_DICT[rqname]
-        
-        tr_timer = self.gstate.tr_timer
-        tr_loop = self.gstate._eventloop["tr_loop"]
-        
-        if tr_timer.isWait():
-            tr_loop.exec_()
-
-        tr_timer.startWait()
         
         try:
             self.kiwoom.commKwRqData(rqname, stockcode_list, 2 if next else 0, scr_manager.scrAct(trcode.lower()))
         except KiwoomException as e:
             logger.warning(e)
-            self.gstate.trUnlock()
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
         ret = self.gstate.lock()
         if ret == None:
-            self.gstate.trUnlock()
             return ErrorCode.OP_ERROR
-        
-        # Unlock tr
-        self.gstate.trUnlock()
         
         return ret
     
@@ -328,34 +287,22 @@ class API(UseGlobal, QObject):
     ############################################
     
     def sendOrder(self, *args):
-        # Get lock
-        self.gstate.orderLock()
-        
-        # Check time(kiwoom limitation)
-        order_timer = self.gstate.order_timer
-        order_loop = self.gstate._eventloop["order_loop"]
-        
-        if order_timer.isWait():
-            order_loop.exec_()
-
-        order_timer.startWait()
+        # Kiwoom time limitation
+        self.gstate.orderTimeBlock()
         
         try:
             self.kiwoom.sendOrder(*args)
                     
         except KiwoomException as e:
             logger.warning(e)
-            self.gstate.orderUnlock()
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
         ret = self.gstate.lock()
         if ret == None:
-            self.gstate.orderUnlock()
             return ErrorCode.OP_ERROR
         
         # Unlock
-        self.gstate.orderUnlock()
         return ret
     
     def getChejanData(self, tradetype):

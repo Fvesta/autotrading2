@@ -23,7 +23,8 @@ class SelectAccWin(WindowAbs):
         self.ui.announce_label.setProperty("class", "tx-bold")
         
     def updateStates(self, key="", extra={}):
-        self.account_list, self.setAccountList = self.gstate.useState("account_list")
+        self.selected_acc_list, self.setSelectedAddList = self.gstate.useState("selected_acc_list")
+        self.total_acc_list, self.setTotalAccList = self.gstate.useState("total_acc_list")
     
     def eventReg(self):
         self.update.connect(self.updateStates)
@@ -40,7 +41,7 @@ class SelectAccWin(WindowAbs):
         self.eventReg()
         
         # Set accounts
-        for acc in self.account_list:
+        for acc in self.total_acc_list:
             acc_check = QCheckBox(acc, self.ui.scrollArea)
             self.acc_check_list.append(acc_check)
             
@@ -60,13 +61,8 @@ class SelectAccWin(WindowAbs):
             if checkbox.isChecked():
                 new_acc_list.append(checkbox.text())
                 
-        self.setAccountList(new_acc_list)
+        self.setSelectedAddList(new_acc_list)
         
-        # Login loop quit
-        try:
-            login_loop = self.gstate._eventloop["login_loop"]
-        
-            login_loop.exit()
-        except:
-            logger.debug("Eventloop not executing")
+        # Unlock login block
+        self.gstate.login_block = False
         

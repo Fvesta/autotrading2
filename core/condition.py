@@ -6,7 +6,7 @@ import sys
 from core.errors import KiwoomException
 from core.global_state import UseGlobal
 from core.logger import logger
-from core.utils.stock_util import getRegStock
+from core.utils.stock_util import getRegStock, isStock
 from core.wait_timer import WaitTimer
 from core.scr_manager import scr_manager 
 
@@ -19,19 +19,22 @@ class Condition:
         self.cond_stocks = set()
         
     def addStock(self, stockcode):
-        try:
-            stockcode = getRegStock(stockcode)
-        except ValueError as e:
+        if not isStock(stockcode):
             logger.warning("addStock: Wrong stockcode")
+            return
+        
+        stockcode = getRegStock(stockcode)    
         
         self.cond_stocks.add(stockcode)
         
     def removeStock(self, stockcode):
-        try:
-            stockcode = getRegStock(stockcode)
-            self.cond_stocks.remove(stockcode)
-        except ValueError as e:
+        if not isStock(stockcode):
             logger.warning("removeStock: Wrong stockcode")
+            return
+        
+        stockcode = getRegStock(stockcode)
+        try:    
+            self.cond_stocks.remove(stockcode)
         except KeyError as e:
             logger.debug("removeStock: already removed")
         

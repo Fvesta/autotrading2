@@ -119,10 +119,10 @@ def newAccInfo(ui, accno):
     gridLayout_2.setSpacing(7)
     gridLayout_2.setObjectName(u"gridLayout_2")
     gridLayout_2.setContentsMargins(0, -1, -1, -1)
-    pushButton_3 = QPushButton(widget_2)
-    pushButton_3.setObjectName(u"pushButton_3")
+    test_btn = QPushButton(widget_2)
+    test_btn.setObjectName(u"test_btn")
 
-    gridLayout_2.addWidget(pushButton_3, 0, 2, 1, 1)
+    gridLayout_2.addWidget(test_btn, 0, 2, 1, 1)
 
     pushButton_5 = QPushButton(widget_2)
     pushButton_5.setObjectName(u"pushButton_5")
@@ -216,7 +216,7 @@ def newAccInfo(ui, accno):
     tradeset_label.setText(QCoreApplication.translate("MainWindow", u"매매 설정", None))
     balance_btn.setText(QCoreApplication.translate("MainWindow", u"잔고", None))
     trade_log_btn.setText(QCoreApplication.translate("MainWindow", u"거래내역", None))
-    pushButton_3.setText(QCoreApplication.translate("MainWindow", u"test", None))
+    test_btn.setText(QCoreApplication.translate("MainWindow", u"테스트", None))
     pushButton_5.setText(QCoreApplication.translate("MainWindow", u"test", None))
     pushButton_6.setText(QCoreApplication.translate("MainWindow", u"test", None))
 

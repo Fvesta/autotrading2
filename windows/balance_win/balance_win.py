@@ -6,7 +6,7 @@ from core.api import API
 from core.constants import MAX_TABLE_COL, MAX_TABLE_ROW
 from core.errors import ErrorCode
 from core.stock import Stock
-from core.utils.stock_util import getRegStock
+from core.utils.stock_util import getRegStock, isStock
 from core.utils.utils import getAccnoFromObj
 from core.order_processing import order_manager
 from core.real_processing import real_manager
@@ -199,7 +199,11 @@ class BalanceWin(WindowAbs):
         
         tb_data = []
         for log in real_exec_log:
-            stockcode = log["stockcode"] 
+            stockcode = log["stockcode"]
+            
+            if not isStock(stockcode):
+                continue
+             
             stockcode = getRegStock(stockcode)
             
             stockobj = self.api.getStockObj(stockcode)
@@ -250,6 +254,10 @@ class BalanceWin(WindowAbs):
             order_info = acc.not_completed_order[orderno]
             
             stockcode = order_info["stockcode"]
+            
+            if not isStock(stockcode):
+                continue
+            
             stockcode = getRegStock(stockcode)
             
             stockobj = self.api.getStockObj(stockcode)

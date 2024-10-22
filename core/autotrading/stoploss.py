@@ -99,10 +99,7 @@ class StopLoss(QObject, UseGlobal):
     
     def realEventCallback(self, seed, stockcode, real_type, real_data):
         if real_type == "주식체결":
-            try:
-                stockcode = getRegStock(stockcode)
-            except ValueError:
-                logger.warning("addStock: Wrong stockcode")
+            stockcode = getRegStock(stockcode)
             
             if self.acc.isHoldings(stockcode):
                
@@ -117,7 +114,7 @@ class StopLoss(QObject, UseGlobal):
                     cur_income_rate = holding_info.getIncomeRate()
                     
                     if cur_income_rate <= cond_income_rate:
-                        # Sell in main loop
+                        # Sell in main thread
                         self.update.emit("stoploss_sell", {
                             "stockcode": stockcode,
                             "sell_percent": cond_sell_percent,

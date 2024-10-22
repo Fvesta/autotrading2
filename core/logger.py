@@ -91,12 +91,12 @@ class Logger:
         self.base_logger.error(message)
         
     def debugSessionStart(self, message="함수실행"):
-        self.base_logger.debug("")
-        self.base_logger.debug(f"start < {f' {message} ':ㅡ^30}")
+        self.base_logger.info("")
+        self.base_logger.info(f"start < {f' {message} ':ㅡ^30}")
         
     def debugSessionFin(self, message="함수종료"):
-        self.base_logger.debug(f"{f' {message} ':ㅡ^30} > end")
-        self.base_logger.debug("")
+        self.base_logger.info(f"{f' {message} ':ㅡ^30} > end")
+        self.base_logger.info("")
         
 logger = Logger("debug")
     

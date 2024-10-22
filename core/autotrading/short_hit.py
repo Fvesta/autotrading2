@@ -48,14 +48,14 @@ class ShortHit(QObject, UseGlobal):
             if not buy_same_stock:
                 # If today buy => ignore
                 if stockcode in self.acc.today_buy_stocks:
-                    logger.debug(f"stockcode: {stockcode}, 이미 당일에 매수가 접수되었습니다")
+                    logger.info(f"stockcode: {stockcode}, 이미 당일에 매수가 접수되었습니다")
                     logger.debugSessionFin("편입종목 매수 안함")
                     return 
                 
                 # Stockcode repeat => ignore
                 for log in self.acc.real_exec_log:
                     if log["stockcode"] == stockcode and log["exec_gubun"] == "매수":
-                        logger.debug(f"stockcode: {stockcode}, 이미 당일에 매수가 체결되었습니다")
+                        logger.info(f"stockcode: {stockcode}, 이미 당일에 매수가 체결되었습니다")
                         logger.debugSessionFin("편입종목 매수 안함")
                         return 
             
@@ -124,24 +124,24 @@ class ShortHit(QObject, UseGlobal):
 
         if tag == "I":
             logger.debugSessionStart("검색식 종목편입")
-            logger.debug(f"{condname}: {stockcode} 종목이 편입되었습니다.")
+            logger.info(f"{condname}: {stockcode} 종목이 편입되었습니다.")
             stockcode = getRegStock(stockcode)
             
             # Already holding => ignore
             if self.acc.isHoldings(stockcode):
-                logger.debug(f"{stockcode}: 이미 보유중인 종목입니다")
+                logger.info(f"{stockcode}: 이미 보유중인 종목입니다")
                 logger.debugSessionFin("편입종목 매수 안함")
                 return
             
             # If already max cnt exceed
             if len(self.acc.today_buy_stocks) >= self.today_max_cnt:
-                logger.debug(f"오늘 매수 가능 횟수를 초과했습니다")
+                logger.info(f"오늘 매수 가능 횟수를 초과했습니다")
                 logger.debugSessionFin("편입종목 매수 안함")
                 return
             
             # If already 10 stocks => ignore
             if len(self.acc.holdings.keys()) >= self.max_bal_cnt:
-                logger.debug(f"이미 10종목을 보유하고 있습니다")
+                logger.info(f"이미 10종목을 보유하고 있습니다")
                 logger.debugSessionFin("편입종목 매수 안함")
                 return
             
@@ -157,7 +157,7 @@ class ShortHit(QObject, UseGlobal):
                 order_gubun = order_info["order_gubun"]
                 
                 if nc_stockcode == stockcode and order_gubun == "매수":
-                    logger.debug("이미 주문이 접수되었습니다.")
+                    logger.info("이미 주문이 접수되었습니다.")
                     logger.debugSessionFin("편입종목 매수 안함")
                     return
                 

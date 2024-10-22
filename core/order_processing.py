@@ -136,18 +136,18 @@ class OrderManager(UseGlobal, QThread):
             del self.seed_callback_dict[seed]
     
     def buyStockNow(self, accno, stockcode, quantity):
-        logger.debug(f"stockcode: {stockcode}, quantity: {quantity} 매수 주문이 실행됩니다.")
+        logger.info(f"stockcode: {stockcode}, quantity: {quantity} 매수 주문이 실행됩니다.")
         
         if quantity == 0:
-            logger.debug("주문가능 금액, 주문수량을 확인해주세요")
-            logger.debugSessionFin("매수 에러")
+            logger.warning("주문가능 금액, 주문수량을 확인해주세요")
+            logger.debugSessionFin("매수 에러 종료")
             return
         
         buy_success_info = self.api.sendOrder("주문요청", scr_manager.scrAct("buystock"), accno, ORDER_TYPE["신규매수"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
 
         if isinstance(buy_success_info, ErrorCode):
             logger.error(f"accno: {accno}, stockcode: {stockcode}, quantity: {quantity} 시장가 매수 주문 함수 실행에 실패했습니다.")
-            logger.debugSessionFin("매수 에러")
+            logger.debugSessionFin("매수 에러 종료")
             return
         
         single_data = buy_success_info.get("single")
@@ -166,18 +166,18 @@ class OrderManager(UseGlobal, QThread):
         pass
     
     def sellStockNow(self, accno, stockcode, quantity):
-        logger.debug(f"stockcode: {stockcode}, quantity: {quantity} 매도 주문이 실행됩니다.")
+        logger.info(f"stockcode: {stockcode}, quantity: {quantity} 매도 주문이 실행됩니다.")
         
         if quantity == 0:
-            logger.debug("주문가능 금액, 주문수량을 확인해주세요")
-            logger.debugSessionFin("매도 에러")
+            logger.warning("주문가능 금액, 주문수량을 확인해주세요")
+            logger.debugSessionFin("매도 에러 종료")
             return
         
         order_success_info = self.api.sendOrder("주문요청", scr_manager.scrAct("sellstock"), accno, ORDER_TYPE["신규매도"], stockcode, quantity, 0, ORDER_TAG["시장가"], "")
 
         if isinstance(order_success_info, ErrorCode):
             logger.error(f"accno: {accno}, stockcode: {stockcode}, quantity: {quantity} 매도 주문 함수 실행에 실패했습니다.")
-            logger.debugSessionFin("매도 에러")
+            logger.debugSessionFin("매도 에러 종료")
             return
             
         single_data = order_success_info.get("single")
