@@ -87,7 +87,7 @@ class GlobalState:
         if seed not in self._return:
             self._return[seed] = None
 
-        while not self._return[seed]:
+        while self._return[seed] == None:
             pythoncom.PumpWaitingMessages()
         
         ret = self._return[seed]
