@@ -50,9 +50,9 @@ class TrailingStop(QObject, UseGlobal):
         if key == "trailing_sell":
             stockcode = extra.get("stockcode")
             sell_percent = extra.get("sell_percent")
-            cur_line = extra.get("cur_line")
+            prev_line = extra.get("prev_line")
             
-            logger.debugSessionStart(f"Trailingstop 실행: {cur_line}%")
+            logger.debugSessionStart(f"Trailingstop 실행: {prev_line}%")
             
             if self.acc.isHoldings(stockcode):
                 holding_info = self.acc.holdings[stockcode]
@@ -162,7 +162,7 @@ class TrailingStop(QObject, UseGlobal):
                     self.update.emit("trailing_sell", {
                         "stockcode": stockcode,
                         "sell_percent": sell_percent,
-                        "cur_line": cur_line
+                        "prev_line": prev_line
                     })
                     
                     self.observe_condition[stockcode] = new_observe_condition
