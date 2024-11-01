@@ -127,7 +127,7 @@ class CondManager(QThread, UseGlobal):
                     self.api.sendCondition(scr_manager.scrAct("sendCondition"), condname, condobj.cidx, 1)
                     self.reg_count += 1
                 
-                    cond_stock_list = self.gstate.lock()
+                    cond_stock_list = self.gstate.lock("cond_tr")
                     
                     condobj.cond_stocks = set(cond_stock_list)
                 except KiwoomException as e:

@@ -417,6 +417,10 @@ class MainWin(WindowAbs):
                     new_winobj = TradeLogWin(win_name, "GUI/trade_log_win.ui", "style/css/trade_log_win.css")
                     new_winobj.show()
                     
+                if text == "테스트":
+                    # self.gstate.callUpdate("8087918911$short_hit", {"stockcode": "036000"})
+                    pass
+                    
             return wrapper
         
         accounts = self.account_dict.keys()
@@ -443,6 +447,9 @@ class MainWin(WindowAbs):
             # Trading log event
             trade_log_btn = getattr(self.ui, f"_{accno}_trade_log_btn")
             trade_log_btn.clicked.connect(pushButtonClick(trade_log_btn, accno))
+            
+            test_btn = getattr(self.ui, f"_{accno}_test_btn")
+            test_btn.clicked.connect(pushButtonClick(test_btn, accno))
             
     def comboChanged(self, text):
         obj_name = self.sender().objectName()

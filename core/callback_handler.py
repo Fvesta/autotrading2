@@ -49,20 +49,20 @@ class CallbackHandler(UseGlobal, QObject):
     # OnEventConnect
     def loginCallback(self, retcode):
         if retcode == 0:
-            self.gstate.unlock(True)
+            self.gstate.unlock(True, "login")
         else:
-            self.gstate.unlock(False)
+            self.gstate.unlock(False, "login")
             
     def loadCondCallback(self, success, msg):
         if success:
-            self.gstate.unlock(True)
+            self.gstate.unlock(True, "load_cond")
         else:
-            self.gstate.unlock(False)
+            self.gstate.unlock(False, "load_cond")
             
     def condTrCallback(self, scrno, cond_stocks, condname, cidx, next):
         
         cond_stock_list = cond_stocks.split(";")[:-1]
-        self.gstate.unlock(cond_stock_list)
+        self.gstate.unlock(cond_stock_list, "cond_tr")
         
     def condRealCallback(self, stockcode, tag, condname, cidx):
         condobj: Condition = cond_manager.cond_dict[condname]
@@ -156,7 +156,7 @@ class CallbackHandler(UseGlobal, QObject):
                 "multi": multi_data
             }
             
-        self.gstate.unlock(ret_data)
+        self.gstate.unlock(ret_data, rqname)
         
     def realCallback(self, stockcode, real_type, data):
         

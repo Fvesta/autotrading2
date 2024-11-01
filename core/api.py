@@ -44,7 +44,7 @@ class API(UseGlobal, QObject):
     
     def login(self):
         self.kiwoom.commConnect()
-        login_success = self.gstate.lock()
+        login_success = self.gstate.lock("login")
         
         if login_success:
             return 0
@@ -105,7 +105,7 @@ class API(UseGlobal, QObject):
     
     def loadCondition(self):
         self.kiwoom.getConditionLoad()
-        load_success = self.gstate.lock()
+        load_success = self.gstate.lock("load_cond")
         
         return load_success
     
@@ -220,7 +220,7 @@ class API(UseGlobal, QObject):
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
-        ret = self.gstate.lock()
+        ret = self.gstate.lock(rqname)
         if ret == None:
             return ErrorCode.OP_ERROR
         
@@ -238,7 +238,7 @@ class API(UseGlobal, QObject):
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
-        ret = self.gstate.lock()
+        ret = self.gstate.lock(rqname)
         if ret == None:
             return ErrorCode.OP_ERROR
         
@@ -286,23 +286,22 @@ class API(UseGlobal, QObject):
     # Order request
     ############################################
     
-    def sendOrder(self, *args):
+    def sendOrder(self, rqname, *args):
         # Kiwoom time limitation
         self.gstate.orderTimeBlock()
         
         try:
-            self.kiwoom.sendOrder(*args)
+            self.kiwoom.sendOrder(rqname, *args)
                     
         except KiwoomException as e:
             logger.warning(e)
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
-        ret = self.gstate.lock()
+        ret = self.gstate.lock(rqname)
         if ret == None:
             return ErrorCode.OP_ERROR
         
-        # Unlock
         return ret
     
     def getChejanData(self, tradetype):

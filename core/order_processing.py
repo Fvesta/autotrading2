@@ -156,9 +156,9 @@ class OrderManager(UseGlobal, QThread):
             if orderno == "":
                 raise OrderFailedException("매수")
         except KeyError as e:
-            logger.error(f"accno: {accno}, 주문번호가 존재하지 않습니다.")
+            logger.error(f"accno: {accno}, stockcode: {stockcode}, 주문번호가 존재하지 않습니다.")
         except OrderFailedException as e:
-            logger.error(f"accno: {accno}, 매수 주문요청에 실패했습니다.")
+            logger.error(f"accno: {accno}, stockcode: {stockcode}, 매수 주문요청에 실패했습니다.")
             
         logger.debugSessionFin("매수 종료")
         
@@ -186,9 +186,9 @@ class OrderManager(UseGlobal, QThread):
             if orderno == "":
                 raise OrderFailedException("매도")
         except KeyError as e:
-            logger.error(f"accno: {accno}, 주문번호가 존재하지 않습니다.")
+            logger.error(f"accno: {accno}, stockcode: {stockcode}, 주문번호가 존재하지 않습니다.")
         except OrderFailedException as e:
-            logger.error(f"accno: {accno}, 매도 주문요청에 실패했습니다.")
+            logger.error(f"accno: {accno}, stockcode: {stockcode}, 매도 주문요청에 실패했습니다.")
             
         logger.debugSessionFin("매도 종료")
             
