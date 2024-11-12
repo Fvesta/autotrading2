@@ -30,6 +30,8 @@ class API(UseGlobal, QObject):
         self.updateStates()
         self.eventReg()
         
+        self.call_seq = 0
+        
         self.initialized = True
         
     def eventReg(self):
@@ -220,7 +222,9 @@ class API(UseGlobal, QObject):
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
-        ret = self.gstate.lock(rqname)
+        self.call_seq += 1
+        ret = self.gstate.lock(f"{rqname}_{self.call_seq}")
+        
         if ret == None:
             return ErrorCode.OP_ERROR
         
@@ -238,7 +242,8 @@ class API(UseGlobal, QObject):
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
-        ret = self.gstate.lock(rqname)
+        self.call_seq += 1
+        ret = self.gstate.lock(f"{rqname}_{self.call_seq}")
         if ret == None:
             return ErrorCode.OP_ERROR
         
@@ -298,7 +303,8 @@ class API(UseGlobal, QObject):
             return ErrorCode.OP_KIWOOM_ERROR
         
         # Wait callback
-        ret = self.gstate.lock(rqname)
+        self.call_seq += 1
+        ret = self.gstate.lock(f"{rqname}_{self.call_seq}")
         if ret == None:
             return ErrorCode.OP_ERROR
         

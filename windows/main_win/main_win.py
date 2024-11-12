@@ -38,6 +38,8 @@ class MainWin(WindowAbs):
         # Set loading indicator
         self.loading_indicator = LoadingIndicator(self.ui, "style/assets/gif/loading_1.gif")
         
+        self.test = 0
+        
         self.initSetting()
         
     def initSetting(self):
@@ -418,8 +420,27 @@ class MainWin(WindowAbs):
                     new_winobj.show()
                     
                 if text == "테스트":
+                    stockobj = None
+                    stockcode = ""
+                    if self.test % 4 == 0:
+                        stockcode = "099220"
+                    elif self.test % 4 == 1:
+                        stockcode = "032820"
+                    elif self.test % 4 == 2:
+                        stockcode = "109610"
+                    elif self.test % 4 == 3:
+                        stockcode = "005935"
+                    
+                    stockobj = self.api.getStockObj(stockcode)
+                    self.test += 1
+                    
+                    stockobj.reqStockInfo()
+                    cur_price = stockobj.cur_price
+                    
+                    print(f"{stockcode}: {cur_price}")
+                    
                     # self.gstate.callUpdate("8087918911$short_hit", {"stockcode": "036000"})
-                    pass
+                    # pass
                     
             return wrapper
         

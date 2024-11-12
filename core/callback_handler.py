@@ -33,6 +33,8 @@ class CallbackHandler(UseGlobal, QObject):
         self.api = API()
         self.ocx: QAxWidget = self.api.ocx
         
+        self.rec_seq = 0
+        
     def watch(self):
         self.eventReg()
         
@@ -155,8 +157,9 @@ class CallbackHandler(UseGlobal, QObject):
                 "single": single_data,
                 "multi": multi_data
             }
-            
-        self.gstate.unlock(ret_data, rqname)
+        
+        self.rec_seq += 1
+        self.gstate.unlock(ret_data, f"{rqname}_{self.rec_seq}")
         
     def realCallback(self, stockcode, real_type, data):
         
