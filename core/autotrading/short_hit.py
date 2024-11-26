@@ -60,6 +60,9 @@ class ShortHit(QObject, UseGlobal):
                         return 
             
             # If there is no money to buy, set one_time_amount to limit amount
+            if self.acc.rest_amount <= 0:
+                return
+            
             if self.acc.rest_amount < one_time_amount:
                 one_time_amount = self.acc.rest_amount
             
@@ -152,7 +155,7 @@ class ShortHit(QObject, UseGlobal):
                 order_info = self.acc.not_completed_order[orderno]
             
                 nc_stockcode = order_info["stockcode"]
-                nc_stockcode = getRegStock(stockcode)
+                nc_stockcode = getRegStock(nc_stockcode)
                 
                 order_gubun = order_info["order_gubun"]
                 
