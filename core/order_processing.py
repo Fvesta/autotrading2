@@ -136,7 +136,9 @@ class OrderManager(UseGlobal, QThread):
             del self.seed_callback_dict[seed]
     
     def buyStockNow(self, accno, stockcode, quantity):
-        logger.info(f"stockcode: {stockcode}, quantity: {quantity} 매수 주문이 실행됩니다.")
+        stockobj = self.api.getStockObj(stockcode)
+
+        logger.info(f"stockcode: {stockobj.name}, quantity: {quantity} 매수 주문이 실행됩니다.")
         
         if quantity == 0:
             logger.warning("주문가능 금액, 주문수량을 확인해주세요")

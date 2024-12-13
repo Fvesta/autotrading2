@@ -36,7 +36,7 @@ STOP_LOSS_BASIC_OPTION = {
 # Base Algorithm options
 ALGO_SHORT_HIT_BASIC_OPTION = {
     "condition": None,                  # Essential, has to fix
-    "today_max_cnt": 30,
+    "today_max_cnt": 50,
     "max_bal_cnt": 10,
     "just_today": True,
     "order": {

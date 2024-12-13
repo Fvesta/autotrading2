@@ -10,6 +10,7 @@ from core.utils.stock_util import getRegStock
 
 class ShortHit(QObject, UseGlobal):
     update = Signal(str, dict)
+    algo_sig = Signal(dict)
     
     def __init__(self, acc, scheduler):
         QObject.__init__(self)
@@ -32,63 +33,105 @@ class ShortHit(QObject, UseGlobal):
                 quantity = holding_info.possible_quantity
                 
                 order_manager.sellStockNow(self.acc.accno, stockcode, quantity)
-        
-        if key == f"{self.acc.accno}$short_hit":
-            try:
-                stockcode = extra["stockcode"]
-                one_time_amount = self.order["one_time_amount"]
-                buy_same_stock = self.order["buy_same_stock"]
-                order_type = self.order["order_type"]
-            
-            except KeyError as e:
-                logger.error(f"{self.acc.accno} algorithm option not correct: {e}")
-                logger.debugSessionFin("알고리즘 설정 에러")
-                return                     
-            
-            if not buy_same_stock:
-                # If today buy => ignore
-                if stockcode in self.acc.today_buy_stocks:
-                    logger.info(f"stockcode: {stockcode}, 이미 당일에 매수가 접수되었습니다")
-                    logger.debugSessionFin("편입종목 매수 안함")
-                    return 
                 
-                # Stockcode repeat => ignore
-                for log in self.acc.real_exec_log:
-                    if log["stockcode"] == stockcode and log["exec_gubun"] == "매수":
-                        logger.info(f"stockcode: {stockcode}, 이미 당일에 매수가 체결되었습니다")
-                        logger.debugSessionFin("편입종목 매수 안함")
-                        return 
-            
-            # If there is no money to buy, set one_time_amount to limit amount
-            if self.acc.rest_amount <= 0:
-                return
-            
-            if self.acc.rest_amount < one_time_amount:
-                one_time_amount = self.acc.rest_amount
+    def buyAlgo(self, extra={}):
+        try:
+            stockcode = extra["stockcode"]
+            one_time_amount = self.order["one_time_amount"]
+            buy_same_stock = self.order["buy_same_stock"]
+            order_type = self.order["order_type"]
             
             stockobj = self.api.getStockObj(stockcode)
-            stockobj.reqStockInfo()
-            cur_price = stockobj.cur_price
             
-            try:
-                quantity = int(one_time_amount / cur_price)
-            except TypeError as e:
-                logger.error(e)
-                logger.debugSessionFin()
-                return
-            except ZeroDivisionError as e:
-                logger.error(e)
-                logger.debugSessionFin()
-                return
-                
-            if order_type == "market_price":
-                order_manager.buyStockNow(self.acc.accno, stockcode, quantity)
+        except KeyError as e:
+            logger.error(f"{self.acc.accno} algorithm option not correct: {e}")
+            logger.debugSessionFin("알고리즘 설정 에러")
+            return
+        
+        logger.debugSessionStart(f"매수 실행")
+        logger.info(f"종목이름: {stockobj.name} 매수 시작")    
+        
+        # Already holding => ignore
+        if self.acc.isHoldings(stockcode):
+            logger.info(f"{stockobj.name}: 이미 보유중인 종목입니다")
+            logger.debugSessionFin("편입종목 매수 안함")
+            return
+        
+        # If already max cnt exceed
+        if len(self.acc.today_buy_stocks) >= self.today_max_cnt:
+            logger.info(f"오늘 매수 가능 횟수를 초과했습니다")
+            logger.debugSessionFin("편입종목 매수 안함")
+            return
+        
+        # If already 10 stocks => ignore
+        if len(self.acc.holdings.keys()) >= self.max_bal_cnt:
+            logger.info(f"이미 10종목을 보유하고 있습니다")
+            logger.debugSessionFin("편입종목 매수 안함")
+            return
+        
+        # If stock is already buy ordered, not completed => ignore
+        not_completed_orderno_list = list(self.acc.not_completed_order.keys())
+        
+        for orderno in not_completed_orderno_list:
+            order_info = self.acc.not_completed_order[orderno]
+        
+            nc_stockcode = order_info["stockcode"]
+            nc_stockcode = getRegStock(nc_stockcode)
+            
+            order_gubun = order_info["order_gubun"]
+            
+            if nc_stockcode == stockcode and order_gubun == "매수":
+                logger.info("이미 주문이 접수되었습니다.")
+                logger.debugSessionFin("편입종목 매수 안함")
+                return                     
+        
+        if not buy_same_stock:
+            # If today buy => ignore
+            if stockcode in self.acc.today_buy_stocks:
+                logger.info(f"이미 당일에 매수가 접수되었습니다")
+                logger.debugSessionFin("편입종목 매수 안함")
+                return 
+            
+            # Stockcode repeat => ignore
+            for log in self.acc.real_exec_log:
+                if log["stockcode"] == stockcode and log["exec_gubun"] == "매수":
+                    logger.info(f"이미 당일에 매수가 체결되었습니다")
+                    logger.debugSessionFin("편입종목 매수 안함")
+                    return 
+        
+        # If there is no money to buy, set one_time_amount to limit amount
+        if self.acc.rest_amount <= 0:
+            logger.info(f"잔고가 부족합니다")
+            logger.debugSessionFin("편입종목 매수 안함")
+            return
+        
+        if self.acc.rest_amount < one_time_amount:
+            one_time_amount = self.acc.rest_amount
+        
+        stockobj.reqStockInfo()
+        cur_price = stockobj.cur_price
+        
+        try:
+            quantity = int(one_time_amount / cur_price)
+        except TypeError as e:
+            logger.error(e)
+            logger.debugSessionFin()
+            return
+        except ZeroDivisionError as e:
+            logger.error(e)
+            logger.debugSessionFin()
+            return
+            
+        if order_type == "market_price":
+            order_manager.buyStockNow(self.acc.accno, stockcode, quantity)
     
     def eventReg(self):
         self.update.connect(self.updateStates)
+        self.algo_sig.connect(self.buyAlgo)
         
     def eventTerm(self):
         self.update.disconnect(self.updateStates)
+        self.algo_sig.disconnect(self.buyAlgo)
     
     def setOption(self, option={}):
         
@@ -126,44 +169,12 @@ class ShortHit(QObject, UseGlobal):
     def condRealCallback(self, seed, stockcode, tag, condname, cidx):
 
         if tag == "I":
-            logger.debugSessionStart("검색식 종목편입")
-            logger.info(f"{condname}: {stockcode} 종목이 편입되었습니다.")
             stockcode = getRegStock(stockcode)
             
-            # Already holding => ignore
-            if self.acc.isHoldings(stockcode):
-                logger.info(f"{stockcode}: 이미 보유중인 종목입니다")
-                logger.debugSessionFin("편입종목 매수 안함")
-                return
+            stockobj = self.api.getStockObj(stockcode)
             
-            # If already max cnt exceed
-            if len(self.acc.today_buy_stocks) >= self.today_max_cnt:
-                logger.info(f"오늘 매수 가능 횟수를 초과했습니다")
-                logger.debugSessionFin("편입종목 매수 안함")
-                return
-            
-            # If already 10 stocks => ignore
-            if len(self.acc.holdings.keys()) >= self.max_bal_cnt:
-                logger.info(f"이미 10종목을 보유하고 있습니다")
-                logger.debugSessionFin("편입종목 매수 안함")
-                return
-            
-            # If stock is already buy ordered, not completed => ignore
-            not_completed_orderno_list = list(self.acc.not_completed_order.keys())
-            
-            for orderno in not_completed_orderno_list:
-                order_info = self.acc.not_completed_order[orderno]
-            
-                nc_stockcode = order_info["stockcode"]
-                nc_stockcode = getRegStock(nc_stockcode)
-                
-                order_gubun = order_info["order_gubun"]
-                
-                if nc_stockcode == stockcode and order_gubun == "매수":
-                    logger.info("이미 주문이 접수되었습니다.")
-                    logger.debugSessionFin("편입종목 매수 안함")
-                    return
-                
-            self.update.emit(seed, {
+            logger.info(f"{condname}: {stockobj.name} 종목이 편입되었습니다.")
+                            
+            self.algo_sig.emit({
                 "stockcode": stockcode
             })
